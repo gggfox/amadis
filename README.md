@@ -9,5 +9,10 @@ createdb amadis
 
 how to make migrations
 
+
+docker
+build -t gera/amadis:test .
+build -t user/project_name:version_name project_directory
+
 clinet
 yarn gen //genrate graphql mutation hook

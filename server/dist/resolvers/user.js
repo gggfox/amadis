@@ -127,16 +127,22 @@ let UserResolver = class UserResolver {
         }
         return User_1.User.findOne(req.session.userId);
     }
-    getUserType({ req }) {
+    influencers() {
         return __awaiter(this, void 0, void 0, function* () {
-            if (!req.session.userId) {
-                return null;
-            }
-            const user = yield User_1.User.findOne(req.session.userId);
-            if (user) {
-                return user.userType;
-            }
-            return "Error";
+            const users = yield typeorm_1.getConnection().query(`
+            SELECT * FROM "user" WHERE "userType" = 'influencer';
+        `);
+            console.log(users);
+            return users;
+        });
+    }
+    users() {
+        return __awaiter(this, void 0, void 0, function* () {
+            const users = yield typeorm_1.getConnection().query(`
+            SELECT * FROM "user";
+        `);
+            console.log(users);
+            return users;
         });
     }
     register(options, { req }) {
@@ -254,12 +260,17 @@ __decorate([
     __metadata("design:returntype", void 0)
 ], UserResolver.prototype, "me", null);
 __decorate([
-    type_graphql_1.Query(() => String, { nullable: true }),
-    __param(0, type_graphql_1.Ctx()),
+    type_graphql_1.Query(() => [User_1.User]),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [Object]),
+    __metadata("design:paramtypes", []),
     __metadata("design:returntype", Promise)
-], UserResolver.prototype, "getUserType", null);
+], UserResolver.prototype, "influencers", null);
+__decorate([
+    type_graphql_1.Query(() => [User_1.User]),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", []),
+    __metadata("design:returntype", Promise)
+], UserResolver.prototype, "users", null);
 __decorate([
     type_graphql_1.Mutation(() => UserResponse),
     __param(0, type_graphql_1.Arg('options')),
