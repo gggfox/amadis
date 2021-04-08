@@ -123,17 +123,25 @@ export class UserResolver {
         return User.findOne(req.session.userId);
     }
 
-    @Query(() => String, {nullable: true})
-    async getUserType(@Ctx() {req}:MyContext) {
-        if(!req.session.userId){
-            return null;
-        }
-        const user = await User.findOne(req.session.userId);
-        if(user){
-            return user.userType;
-        }
-        return "Error";
+    @Query(() => [User])
+    async influencers(){
+        const users = await getConnection().query(`
+            SELECT * FROM "user" WHERE "userType" = 'influencer';
+        `);
+        console.log(users);
+        return users;
     }
+
+    @Query(() => [User])
+    async users(){
+        const users = await getConnection().query(`
+            SELECT * FROM "user";
+        `);
+        console.log(users);
+        return users;
+    }
+
+ 
 
     @Mutation(() => UserResponse)
     async register(
