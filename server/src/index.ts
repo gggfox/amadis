@@ -21,14 +21,14 @@ const main = async () => {
         type: 'postgres',
         database: 'amadis',
         username: 'postgres',
-        password: 'postgres',
+        password: 'amadis',
         logging: true,
         synchronize: true,//
         migrations: [path.join(__dirname,"./migrations/*")],
         entities: [Post, User, Updoot],
     });
 
-    await conn.runMigrations();
+    //await conn.runMigrations();
     //await Post.delete({});
 
     const app = express();
