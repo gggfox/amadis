@@ -28,7 +28,6 @@ exports.UserResolver = void 0;
 const User_1 = require("../entities/User");
 const type_graphql_1 = require("type-graphql");
 const argon2_1 = __importDefault(require("argon2"));
-const constants_1 = require("../constants");
 const UsernamePasswordInput_1 = require("./UsernamePasswordInput");
 const validateRegister_1 = require("../utils/validateRegister");
 const sendEmail_1 = require("../utils/sendEmail");
@@ -79,7 +78,7 @@ let UserResolver = class UserResolver {
                     ]
                 };
             }
-            const key = constants_1.FORGOT_PASSWORD_PREFIX + token;
+            const key = 'forgot-password:' + token;
             const userId = yield redis.get(key);
             if (!userId) {
                 return {
@@ -116,8 +115,8 @@ let UserResolver = class UserResolver {
                 return true;
             }
             const token = uuid_1.v4();
-            yield redis.set(constants_1.FORGOT_PASSWORD_PREFIX + token, user.id, 'ex', 1000 * 60 * 60 * 24 * 3);
-            sendEmail_1.sendEmail(email, `<a href="${constants_1.CLIENT_NAME}/change-password/${token}"> reset password</a>`);
+            yield redis.set('forgot-password:' + token, user.id, 'ex', 1000 * 60 * 60 * 24 * 3);
+            sendEmail_1.sendEmail(email, `<a href="${process.env.CORS_ORIGIN}/change-password/${token}"> reset password</a>`);
             return true;
         });
     }
@@ -222,7 +221,7 @@ let UserResolver = class UserResolver {
                     resolve(false);
                     return;
                 }
-                res.clearCookie(constants_1.COOKIE_NAME);
+                res.clearCookie("qid");
                 resolve(true);
             });
         });
