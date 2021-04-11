@@ -10,8 +10,8 @@ interface EditDeletePostButtonsProps {
 }
 
 export const EditDeletePostButtons: React.FC<EditDeletePostButtonsProps> = ({id, creatorId}) => {
-        const [{data: meData}] = useMeQuery();
-        const [,deletePost] = useDeletePostMutation();
+        const {data: meData} = useMeQuery();
+        const [deletePost] = useDeletePostMutation();
 
         if(meData?.me?.id !== creatorId){
             return null;
@@ -34,12 +34,13 @@ export const EditDeletePostButtons: React.FC<EditDeletePostButtonsProps> = ({id,
                         bg="snowStorm.2"
 
                         onClick={ () => {
-                           deletePost({id: id})
+                            deletePost({
+                               variables: { id},
+                               update:(cache) => {
+                                   cache.evict({id: 'Post:' + id});
+                               }
+                            });
                         }}/>
                         </Box>
         );
-}
-
-function deletePost(arg0: { id: any; }) {
-    throw new Error('Function not implemented.');
-}
+};

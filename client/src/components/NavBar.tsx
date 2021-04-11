@@ -3,18 +3,18 @@ import { Box, Button, Flex, Icon, Link } from '@chakra-ui/react';
 import NextLink from 'next/link';
 import { useLogoutMutation, useMeQuery } from '../generated/graphql';
 import { isServer } from '../utils/isServer';
-import {useRouter} from 'next/router';
 import {MdShoppingCart} from 'react-icons/md';
+import { useApolloClient } from '@apollo/client';
 
 interface NavBarProps {
 
 }
 
 export const NavBar: React.FC<NavBarProps> = ({}) => {
-    const router = useRouter();
-    const [{fetching: logoutFetching},logout] = useLogoutMutation();
-    const [{data, fetching}] = useMeQuery({
-        pause: isServer(), //
+    const [logout,{loading: logoutFetching}] = useLogoutMutation();
+    const apolloClient = useApolloClient();
+    const {data, loading} = useMeQuery({
+        skip: isServer(), //
     });
     let basic = (
         <>
@@ -24,7 +24,7 @@ export const NavBar: React.FC<NavBarProps> = ({}) => {
     <Icon as={MdShoppingCart}/></>)
     let body = basic;
 
-    if(fetching) {//data is loading
+    if(loading) {//data is loading
         body = basic;
     }if(!data?.me) {
         // user is logged in
@@ -48,7 +48,7 @@ export const NavBar: React.FC<NavBarProps> = ({}) => {
                 <Button 
                     onClick={async() => {
                         await logout();
-                        router.reload();
+                        await apolloClient.resetStore();
                     }} 
                     isLoading={logoutFetching}
                     variant="link">
