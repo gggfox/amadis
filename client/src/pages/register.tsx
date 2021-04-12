@@ -15,8 +15,9 @@ const Register: React.FC<registerProps> = ({}) => {
     const router = useRouter();
     const [register] = useRegisterMutation();
     return (
-        <>
+        
         <Layout variant="small">
+            <Wrapper variant="small">
         <Formik
             initialValues={{ email: "", username: "", password: "" }}
             onSubmit={async (values,{setErrors}) => {
@@ -71,9 +72,9 @@ const Register: React.FC<registerProps> = ({}) => {
                 </Form>
             )}
         </Formik>
-        </Layout>
-
-        <Wrapper variant="small">
+        </Wrapper>
+        <Box mb={20}>
+                <Wrapper variant="small">
              <Flex alignItems="center" flexDirection="column">
                 <Heading size="1xl" color="snowStorm.0">¿Ya tienes cuenta?</Heading>
                 <NextLink href='/login'>
@@ -81,8 +82,13 @@ const Register: React.FC<registerProps> = ({}) => {
                 </NextLink>
             </Flex> 
         </Wrapper>
+        </Box>
         <br/>
-        </>
+        </Layout>
+
+
+        
+        
     );
 }
 

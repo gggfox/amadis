@@ -4,6 +4,7 @@ import { useRouter } from 'next/router';
 import React from 'react'
 import { InputField } from '../../../components/InputField';
 import { Layout } from '../../../components/Layout';
+import { Wrapper } from '../../../components/Wrapper';
 import { usePostQuery, useUpdatePostMutation } from '../../../generated/graphql';
 import { useGetIntId } from '../../../utils/useGetIntId';
 import { withApollo } from '../../../utils/withApollo';
@@ -34,7 +35,7 @@ const EditPost = ({}) => {
     }
         return (
             <Layout variant="small">
-     
+              <Wrapper variant="small">
                 <Formik
                   initialValues={{ title: data.post.title, text: data.post.text }}
                   onSubmit={async (values) => {
@@ -62,14 +63,18 @@ const EditPost = ({}) => {
                               mt={4} 
                               type='submit' 
                               isLoading={isSubmitting} 
-                              colorScheme="teal"
+                              bg="frost.1"
+                              w="100%"
+                              borderRadius={25}
                             >
                                 update post
                             </Button>
-
+       
+                             
                         </Form>
                     )}
                 </Formik>
+                </Wrapper>
             </Layout>
         );
 }

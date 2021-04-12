@@ -10,37 +10,37 @@ interface EditDeletePostButtonsProps {
 }
 
 export const EditDeletePostButtons: React.FC<EditDeletePostButtonsProps> = ({id, creatorId}) => {
-        const {data: meData} = useMeQuery();
-        const [deletePost] = useDeletePostMutation();
+    const {data: meData} = useMeQuery();
+    const [deletePost] = useDeletePostMutation();
 
-        if(meData?.me?.id !== creatorId){
-            return null;
-        }
-        return (
-            <Box>
-                     <NextLink href='/post/edit/[id]' as={`/post/edit/${id}`}>
-                     <IconButton 
-                        ml="auto" 
-                        aria-label="Edit Post" 
-                        icon={<EditIcon/>}
-                        bg="snowStorm.2"
-                     />
-                        
-                     </NextLink>
-                     <IconButton 
-                        ml={2}
-                        aria-label="Delete Post" 
-                        icon={<DeleteIcon/>}
-                        bg="snowStorm.2"
+    if(meData?.me?.id !== creatorId && meData?.me?.userType !== "admin"){
+        return null;
+    }
+    return (
+        <Box>
+                    <NextLink href='/post/edit/[id]' as={`/post/edit/${id}`}>
+                    <IconButton 
+                    ml="auto" 
+                    aria-label="Edit Post" 
+                    icon={<EditIcon/>}
+                    bg="snowStorm.2"
+                    />
+                    
+                    </NextLink>
+                    <IconButton 
+                    ml={2}
+                    aria-label="Delete Post" 
+                    icon={<DeleteIcon/>}
+                    bg="snowStorm.2"
 
-                        onClick={ () => {
-                            deletePost({
-                               variables: { id},
-                               update:(cache) => {
-                                   cache.evict({id: 'Post:' + id});
-                               }
-                            });
-                        }}/>
-                        </Box>
-        );
+                    onClick={ () => {
+                        deletePost({
+                            variables: { id},
+                            update:(cache) => {
+                                cache.evict({id: 'Post:' + id});
+                            }
+                        });
+                    }}/>
+                    </Box>
+    );
 };

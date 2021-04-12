@@ -111,8 +111,9 @@ export type Query = {
   posts: PaginatedPosts;
   post?: Maybe<Post>;
   me?: Maybe<User>;
-  influencers: Array<User>;
+  promotores: Array<User>;
   users: Array<User>;
+  user: User;
 };
 
 
@@ -123,6 +124,11 @@ export type QueryPostsArgs = {
 
 
 export type QueryPostArgs = {
+  id: Scalars['Int'];
+};
+
+
+export type QueryUserArgs = {
   id: Scalars['Int'];
 };
 
@@ -329,6 +335,30 @@ export type PostsQuery = (
       { __typename?: 'Post' }
       & PostSnippetFragment
     )> }
+  ) }
+);
+
+export type PromotoresQueryVariables = Exact<{ [key: string]: never; }>;
+
+
+export type PromotoresQuery = (
+  { __typename?: 'Query' }
+  & { promotores: Array<(
+    { __typename?: 'User' }
+    & RegularUserFragment
+  )> }
+);
+
+export type UserQueryVariables = Exact<{
+  id: Scalars['Int'];
+}>;
+
+
+export type UserQuery = (
+  { __typename?: 'Query' }
+  & { user: (
+    { __typename?: 'User' }
+    & Pick<User, 'username' | 'userType'>
   ) }
 );
 
@@ -792,3 +822,73 @@ export function usePostsLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<Post
 export type PostsQueryHookResult = ReturnType<typeof usePostsQuery>;
 export type PostsLazyQueryHookResult = ReturnType<typeof usePostsLazyQuery>;
 export type PostsQueryResult = Apollo.QueryResult<PostsQuery, PostsQueryVariables>;
+export const PromotoresDocument = gql`
+    query Promotores {
+  promotores {
+    ...RegularUser
+  }
+}
+    ${RegularUserFragmentDoc}`;
+
+/**
+ * __usePromotoresQuery__
+ *
+ * To run a query within a React component, call `usePromotoresQuery` and pass it any options that fit your needs.
+ * When your component renders, `usePromotoresQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = usePromotoresQuery({
+ *   variables: {
+ *   },
+ * });
+ */
+export function usePromotoresQuery(baseOptions?: Apollo.QueryHookOptions<PromotoresQuery, PromotoresQueryVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<PromotoresQuery, PromotoresQueryVariables>(PromotoresDocument, options);
+      }
+export function usePromotoresLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<PromotoresQuery, PromotoresQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<PromotoresQuery, PromotoresQueryVariables>(PromotoresDocument, options);
+        }
+export type PromotoresQueryHookResult = ReturnType<typeof usePromotoresQuery>;
+export type PromotoresLazyQueryHookResult = ReturnType<typeof usePromotoresLazyQuery>;
+export type PromotoresQueryResult = Apollo.QueryResult<PromotoresQuery, PromotoresQueryVariables>;
+export const UserDocument = gql`
+    query User($id: Int!) {
+  user(id: $id) {
+    username
+    userType
+  }
+}
+    `;
+
+/**
+ * __useUserQuery__
+ *
+ * To run a query within a React component, call `useUserQuery` and pass it any options that fit your needs.
+ * When your component renders, `useUserQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useUserQuery({
+ *   variables: {
+ *      id: // value for 'id'
+ *   },
+ * });
+ */
+export function useUserQuery(baseOptions: Apollo.QueryHookOptions<UserQuery, UserQueryVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<UserQuery, UserQueryVariables>(UserDocument, options);
+      }
+export function useUserLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<UserQuery, UserQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<UserQuery, UserQueryVariables>(UserDocument, options);
+        }
+export type UserQueryHookResult = ReturnType<typeof useUserQuery>;
+export type UserLazyQueryHookResult = ReturnType<typeof useUserLazyQuery>;
+export type UserQueryResult = Apollo.QueryResult<UserQuery, UserQueryVariables>;

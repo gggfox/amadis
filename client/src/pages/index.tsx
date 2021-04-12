@@ -6,6 +6,7 @@ import { Box, Button, Flex, Heading, Link, Stack, Text } from "@chakra-ui/react"
 import { UpdootSection } from "../components/UpdootSection"
 import { EditDeletePostButtons } from "../components/EditDeletePostButtons"
 import { withApollo } from "../utils/withApollo";
+import { Wrapper } from "../components/Wrapper";
 
 const Index = () => {
    //const [{ data: meData}] = useMeQuery();
@@ -25,6 +26,7 @@ const Index = () => {
  }
     return(
  <Layout>
+    <Wrapper variant="regular">
     <Flex align="center">
       <Heading color="snowStorm.0">Productos</Heading>
       <NextLink href="/create-post">
@@ -93,6 +95,8 @@ const Index = () => {
       }} m="auto" my={4}>Load more</Button>
     </Flex> 
     ): null}
+    </Wrapper>
+    <Box mb={100}></Box>
  </Layout>
 )}
 

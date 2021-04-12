@@ -4,6 +4,7 @@ import { Arg, Ctx, Field, FieldResolver, InputType, Int, Mutation, ObjectType, Q
 import { Post } from "../entities/Post";
 import { getConnection } from "typeorm";
 import { Updoot } from "../entities/Updoot";
+import { User } from "../entities/User";
 
 @InputType()
 class PostInput {
@@ -153,7 +154,9 @@ export class PostResolver {
     }
 
     @Query(() => Post, {nullable: true})
-    post(@Arg('id', () => Int) id: number): Promise<Post | undefined> {
+    post(
+        @Arg('id', () => Int) id: number
+    ): Promise<Post | undefined> {
         return Post.findOne(id);
     }
 
@@ -177,11 +180,21 @@ export class PostResolver {
         @Arg('text') text:string,
         @Ctx(){req}: MyContext,
     ): Promise<Post |  null> {
+        const user = await User.findOne(req.session.userId);
+        let creatorId: number | undefined;
+
+        if(user?.userType === "admin"){
+           const post = await Post.findOne(id);
+           creatorId = post?.creatorId; 
+        }else{
+           creatorId = req.session.userId;
+        }
+        
         const results = await getConnection()
         .createQueryBuilder()
         .update(Post)
         .set({title, text})
-        .where('id = :id and "creatorId" = :creatorId',{id, creatorId: req.session.userId})
+        .where('id = :id and "creatorId" = :creatorId',{id, creatorId: creatorId})
         .returning("*")
         .execute()
 
@@ -194,15 +207,17 @@ export class PostResolver {
         @Arg('id', () => Int) id: number, 
         @Ctx() {req}: MyContext
     ): Promise<boolean> {
+        const user = await User.findOne(req.session.userId);
         const post = await Post.findOne(id);
         if(!post){
             return false;
         }
-        if(post.creatorId !== req.session.userId){
+        
+        if(post.creatorId !== req.session.userId && user?.userType !== "admin"){
             throw new Error('not authorized')
         }
         await Updoot.delete({ postId: id});
-        await Post.delete({id, creatorId: req.session.userId});
+        await Post.delete({id, creatorId: post.creatorId});
         //await Post.delete({id, creatorId: req.session.userId})
         return true;
     }

@@ -1,6 +1,6 @@
 import { User } from "../entities/User";
 import { MyContext } from "src/types";
-import { Arg, Ctx, Field, FieldResolver, Mutation, ObjectType, Query, Resolver, Root } from "type-graphql";
+import { Arg, Ctx, Field, FieldResolver, Int, Mutation, ObjectType, Query, Resolver, Root } from "type-graphql";
 import argon2 from 'argon2';
 import { UsernamePasswordInput } from "./UsernamePasswordInput";
 import { validateRegister } from "../utils/validateRegister";
@@ -123,7 +123,7 @@ export class UserResolver {
     }
 
     @Query(() => [User])
-    async influencers(){
+    async promotores(){
         const users = await getConnection().query(`
             SELECT * FROM "user" WHERE "userType" = 'influencer';
         `);
@@ -140,7 +140,12 @@ export class UserResolver {
         return users;
     }
 
- 
+    @Query(() => User)
+    async user(
+        @Arg('id', () => Int) id: number
+    ): Promise<User | undefined>{
+        return User.findOne(id);
+    }
 
     @Mutation(() => UserResponse)
     async register(

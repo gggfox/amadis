@@ -1,13 +1,12 @@
-import { usePostQuery } from "../generated/graphql";
+import { useUserQuery } from "../generated/graphql";
 import { useGetIntId } from "./useGetIntId";
 
-export const useGetPostFromUrl = () => {
+export const useGetUserFromUrl = () => {
     const intId = useGetIntId(); 
-    return usePostQuery({
+    return useUserQuery({
         skip: intId === -1,
         variables: {
             id: intId,
         },
     });
 };
-

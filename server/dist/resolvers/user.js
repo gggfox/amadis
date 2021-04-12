@@ -126,7 +126,7 @@ let UserResolver = class UserResolver {
         }
         return User_1.User.findOne(req.session.userId);
     }
-    influencers() {
+    promotores() {
         return __awaiter(this, void 0, void 0, function* () {
             const users = yield typeorm_1.getConnection().query(`
             SELECT * FROM "user" WHERE "userType" = 'influencer';
@@ -142,6 +142,11 @@ let UserResolver = class UserResolver {
         `);
             console.log(users);
             return users;
+        });
+    }
+    user(id) {
+        return __awaiter(this, void 0, void 0, function* () {
+            return User_1.User.findOne(id);
         });
     }
     register(options, { req }) {
@@ -263,13 +268,20 @@ __decorate([
     __metadata("design:type", Function),
     __metadata("design:paramtypes", []),
     __metadata("design:returntype", Promise)
-], UserResolver.prototype, "influencers", null);
+], UserResolver.prototype, "promotores", null);
 __decorate([
     type_graphql_1.Query(() => [User_1.User]),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", []),
     __metadata("design:returntype", Promise)
 ], UserResolver.prototype, "users", null);
+__decorate([
+    type_graphql_1.Query(() => User_1.User),
+    __param(0, type_graphql_1.Arg('id', () => type_graphql_1.Int)),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [Number]),
+    __metadata("design:returntype", Promise)
+], UserResolver.prototype, "user", null);
 __decorate([
     type_graphql_1.Mutation(() => UserResponse),
     __param(0, type_graphql_1.Arg('options')),

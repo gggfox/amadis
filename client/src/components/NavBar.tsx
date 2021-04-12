@@ -4,6 +4,7 @@ import NextLink from 'next/link';
 import { useLogoutMutation, useMeQuery } from '../generated/graphql';
 import { isServer } from '../utils/isServer';
 import {MdShoppingCart} from 'react-icons/md';
+import {BsFillHouseDoorFill} from 'react-icons/bs'
 import { useApolloClient } from '@apollo/client';
 
 interface NavBarProps {
@@ -16,18 +17,23 @@ export const NavBar: React.FC<NavBarProps> = ({}) => {
     const {data, loading} = useMeQuery({
         skip: isServer(), //
     });
+
     let basic = (
         <>
+    
     <NextLink href="/">
-        <Link color="white">productos  </Link>
+        <Link color="white"><Icon as={BsFillHouseDoorFill} boxSize={8}/></Link>
     </NextLink>
     <Icon as={MdShoppingCart}/></>)
     let body = basic;
 
     if(loading) {//data is loading
         body = basic;
-    }if(!data?.me) {
-        // user is logged in
+    }
+    
+    if(!data?.me) {
+        // user isnt logged in
+        
         body = 
         (<>
             {basic}
@@ -39,6 +45,7 @@ export const NavBar: React.FC<NavBarProps> = ({}) => {
             </NextLink>
         </>);
     }else{
+        //is logged in
         body = (
             <Flex>
                 {basic}
@@ -56,10 +63,17 @@ export const NavBar: React.FC<NavBarProps> = ({}) => {
                 </Button>
             </Flex>)
     }
+
     return (
-        <Flex zIndex={1} position='sticky' top={0} bg="polarNight.1" p={4}>
-            <Box ml={"auto"}>
+        <Flex 
+          zIndex={1} 
+          bg="polarNight.1" 
+          p={4}
+          justifyContent="center"
+        >
+            <Box>
                 {body}
             </Box>
-        </Flex>);
+        </Flex>
+    );
 }

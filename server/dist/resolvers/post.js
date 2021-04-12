@@ -27,6 +27,7 @@ const type_graphql_1 = require("type-graphql");
 const Post_1 = require("../entities/Post");
 const typeorm_1 = require("typeorm");
 const Updoot_1 = require("../entities/Updoot");
+const User_1 = require("../entities/User");
 let PostInput = class PostInput {
 };
 __decorate([
@@ -144,11 +145,20 @@ let PostResolver = class PostResolver {
     }
     updatePost(id, title, text, { req }) {
         return __awaiter(this, void 0, void 0, function* () {
+            const user = yield User_1.User.findOne(req.session.userId);
+            let creatorId;
+            if ((user === null || user === void 0 ? void 0 : user.userType) === "admin") {
+                const post = yield Post_1.Post.findOne(id);
+                creatorId = post === null || post === void 0 ? void 0 : post.creatorId;
+            }
+            else {
+                creatorId = req.session.userId;
+            }
             const results = yield typeorm_1.getConnection()
                 .createQueryBuilder()
                 .update(Post_1.Post)
                 .set({ title, text })
-                .where('id = :id and "creatorId" = :creatorId', { id, creatorId: req.session.userId })
+                .where('id = :id and "creatorId" = :creatorId', { id, creatorId: creatorId })
                 .returning("*")
                 .execute();
             return results.raw[0];
@@ -156,15 +166,16 @@ let PostResolver = class PostResolver {
     }
     deletePost(id, { req }) {
         return __awaiter(this, void 0, void 0, function* () {
+            const user = yield User_1.User.findOne(req.session.userId);
             const post = yield Post_1.Post.findOne(id);
             if (!post) {
                 return false;
             }
-            if (post.creatorId !== req.session.userId) {
+            if (post.creatorId !== req.session.userId && (user === null || user === void 0 ? void 0 : user.userType) !== "admin") {
                 throw new Error('not authorized');
             }
             yield Updoot_1.Updoot.delete({ postId: id });
-            yield Post_1.Post.delete({ id, creatorId: req.session.userId });
+            yield Post_1.Post.delete({ id, creatorId: post.creatorId });
             return true;
         });
     }

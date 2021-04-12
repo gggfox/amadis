@@ -14,9 +14,9 @@ const Login: React.FC<{}> = ({}) => {
     const router = useRouter();
     const [login] = useLoginMutation();
     return (
-        <>
+       
         <Layout variant="small">
-
+        <Wrapper variant="small">
         <Formik
             initialValues={{ usernameOrEmail: "", password: "" }}
             onSubmit={async (values,{setErrors}) => {
@@ -81,8 +81,8 @@ const Login: React.FC<{}> = ({}) => {
                 </Form>
             )}
         </Formik>
-        </Layout>
-        <Wrapper variant="small">
+        </Wrapper>
+                <Wrapper variant="small">
             <Flex alignItems="center" flexDirection="column">
                 <Heading size="1xl" color="snowStorm.0">¿No tienes cuenta?</Heading>
                 <NextLink href='/register'>
@@ -90,9 +90,7 @@ const Login: React.FC<{}> = ({}) => {
                 </NextLink>
             </Flex>
         </Wrapper>
-        <br/>
-        </>
-
+        </Layout>
         
     );
 }
