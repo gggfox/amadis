@@ -1,0 +1,10 @@
+html{
+    background-color:#2E3440;
+    height: 100%;
+}
+
+#__next{
+    height:100%;
+    width: 100%;
+    position:absolute;
+}

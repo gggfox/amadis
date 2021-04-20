@@ -1,5 +1,6 @@
 import "reflect-metadata";
-import { COOKIE_NAME, CLIENT_NAME, __prod__, SERVER_PORT, SESSION_SECRET } from "./constants";
+import "dotenv-safe/config";
+import { __prod__, } from "./constants";
 import express from 'express'
 import {ApolloServer} from 'apollo-server-express';
 import {buildSchema} from 'type-graphql';
@@ -16,32 +17,34 @@ import { Post } from "./entities/Post";
 import { User } from "./entities/User";
 import path from "path";
 import { Updoot } from "./entities/Updoot";
+import { createUserLoader } from "./utils/createUserLoader";
+import { createUpdootLoader } from "./utils/createUpdootLoader";
+
 const main = async () => {
     const conn = await createConnection({
         type: 'postgres',
-        database: 'amadis',
-        username: 'postgres',
-        password: 'postgres',
+        url: process.env.DATABASE_URL,
         logging: true,
         synchronize: true,//
         migrations: [path.join(__dirname,"./migrations/*")],
         entities: [Post, User, Updoot],
     });
-
-    await conn.runMigrations();
+    console.log(conn);
+    //await conn.runMigrations();
     //await Post.delete({});
 
     const app = express();
 
     const RedisStore = connectRedis(session);
-    const redis = new Redis();
+    const redis = new Redis(process.env.REDIS_URL);
+    app.set("trust proxy",1);
     app.use(cors({
-        origin: CLIENT_NAME,
+        origin: process.env.CORS_ORIGIN,
         credentials: true,
     }))
     app.use(
         session({
-            name: COOKIE_NAME,
+            name: "qid",
             store: new RedisStore({ 
                 client: redis,
                 disableTouch: true,
@@ -50,10 +53,11 @@ const main = async () => {
                 maxAge: 1000 * 60 * 60 * 24 * 365, //1 year
                 httpOnly: true,
                 sameSite: 'lax', //crsf
-                secure: __prod__ //only woks in https
+                secure: __prod__, //only woks in https
+                domain: __prod__ ? '' : undefined,
              },
              saveUninitialized: false,
-            secret: SESSION_SECRET,
+            secret: process.env.SESSION_SECRET,
             resave: false,
         })
     )
@@ -63,7 +67,13 @@ const main = async () => {
             resolvers: [HelloResolver, PostResolver, UserResolver],
             validate: false,
         }),
-        context: ({req, res}): MyContext => ({ req, res, redis }),
+        context: ({req, res}): MyContext => ({ 
+            req, 
+            res, 
+            redis,
+            userLoader: createUserLoader(),
+            updootLoader: createUpdootLoader(),
+        }),
     });
 
     apolloServer.applyMiddleware({ 
@@ -71,8 +81,8 @@ const main = async () => {
         cors: false,
     });
 
-    app.listen(SERVER_PORT, ()=>{
-        console.log('server started on localhost:'+ SERVER_PORT);//
+    app.listen(parseInt(process.env.PORT), ()=>{
+        console.log('server started on localhost:'+ process.env.PORT);//
     })
 
 };

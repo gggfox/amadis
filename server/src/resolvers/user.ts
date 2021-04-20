@@ -1,8 +1,7 @@
 import { User } from "../entities/User";
 import { MyContext } from "src/types";
-import { Arg, Ctx, Field, FieldResolver, Mutation, ObjectType, Query, Resolver, Root } from "type-graphql";
+import { Arg, Ctx, Field, FieldResolver, Int, Mutation, ObjectType, Query, Resolver, Root } from "type-graphql";
 import argon2 from 'argon2';
-import { CLIENT_NAME, COOKIE_NAME, FORGOT_PASSWORD_PREFIX } from "../constants";
 import { UsernamePasswordInput } from "./UsernamePasswordInput";
 import { validateRegister } from "../utils/validateRegister";
 import { sendEmail } from "../utils/sendEmail";
@@ -56,7 +55,7 @@ export class UserResolver {
             };
         }
 
-        const key = FORGOT_PASSWORD_PREFIX + token;
+        const key = 'forgot-password:' + token;
         const userId = await redis.get(key);
        
         if(!userId) {
@@ -106,12 +105,12 @@ export class UserResolver {
         }
         const token = v4();
         await redis.set(
-            FORGOT_PASSWORD_PREFIX + token, 
+            'forgot-password:' + token, 
             user.id, 'ex', 
             1000 * 60 * 60 * 24 * 3//3 days
         );
         sendEmail(email, 
-            `<a href="${CLIENT_NAME}/change-password/${token}"> reset password</a>`);    
+            `<a href="${process.env.CORS_ORIGIN}/change-password/${token}"> reset password</a>`);    
         return true;
     }
 
@@ -123,16 +122,29 @@ export class UserResolver {
         return User.findOne(req.session.userId);
     }
 
-    @Query(() => String, {nullable: true})
-    async getUserType(@Ctx() {req}:MyContext) {
-        if(!req.session.userId){
-            return null;
-        }
-        const user = await User.findOne(req.session.userId);
-        if(user){
-            return user.userType;
-        }
-        return "Error";
+    @Query(() => [User])
+    async promotores(){
+        const users = await getConnection().query(`
+            SELECT * FROM "user" WHERE "userType" = 'influencer';
+        `);
+        console.log(users);
+        return users;
+    }
+
+    @Query(() => [User])
+    async users(){
+        const users = await getConnection().query(`
+            SELECT * FROM "user";
+        `);
+        console.log(users);
+        return users;
+    }
+
+    @Query(() => User)
+    async user(
+        @Arg('id', () => Int) id: number
+    ): Promise<User | undefined>{
+        return User.findOne(id);
     }
 
     @Mutation(() => UserResponse)
@@ -234,7 +246,7 @@ export class UserResolver {
                     return;
                 }
 
-                res.clearCookie(COOKIE_NAME);
+                res.clearCookie("qid");
                 resolve(true);
             })
         })

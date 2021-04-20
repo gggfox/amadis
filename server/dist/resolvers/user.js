@@ -28,7 +28,6 @@ exports.UserResolver = void 0;
 const User_1 = require("../entities/User");
 const type_graphql_1 = require("type-graphql");
 const argon2_1 = __importDefault(require("argon2"));
-const constants_1 = require("../constants");
 const UsernamePasswordInput_1 = require("./UsernamePasswordInput");
 const validateRegister_1 = require("../utils/validateRegister");
 const sendEmail_1 = require("../utils/sendEmail");
@@ -79,7 +78,7 @@ let UserResolver = class UserResolver {
                     ]
                 };
             }
-            const key = constants_1.FORGOT_PASSWORD_PREFIX + token;
+            const key = 'forgot-password:' + token;
             const userId = yield redis.get(key);
             if (!userId) {
                 return {
@@ -116,8 +115,8 @@ let UserResolver = class UserResolver {
                 return true;
             }
             const token = uuid_1.v4();
-            yield redis.set(constants_1.FORGOT_PASSWORD_PREFIX + token, user.id, 'ex', 1000 * 60 * 60 * 24 * 3);
-            sendEmail_1.sendEmail(email, `<a href="${constants_1.CLIENT_NAME}/change-password/${token}"> reset password</a>`);
+            yield redis.set('forgot-password:' + token, user.id, 'ex', 1000 * 60 * 60 * 24 * 3);
+            sendEmail_1.sendEmail(email, `<a href="${process.env.CORS_ORIGIN}/change-password/${token}"> reset password</a>`);
             return true;
         });
     }
@@ -127,16 +126,27 @@ let UserResolver = class UserResolver {
         }
         return User_1.User.findOne(req.session.userId);
     }
-    getUserType({ req }) {
+    promotores() {
         return __awaiter(this, void 0, void 0, function* () {
-            if (!req.session.userId) {
-                return null;
-            }
-            const user = yield User_1.User.findOne(req.session.userId);
-            if (user) {
-                return user.userType;
-            }
-            return "Error";
+            const users = yield typeorm_1.getConnection().query(`
+            SELECT * FROM "user" WHERE "userType" = 'influencer';
+        `);
+            console.log(users);
+            return users;
+        });
+    }
+    users() {
+        return __awaiter(this, void 0, void 0, function* () {
+            const users = yield typeorm_1.getConnection().query(`
+            SELECT * FROM "user";
+        `);
+            console.log(users);
+            return users;
+        });
+    }
+    user(id) {
+        return __awaiter(this, void 0, void 0, function* () {
+            return User_1.User.findOne(id);
         });
     }
     register(options, { req }) {
@@ -216,7 +226,7 @@ let UserResolver = class UserResolver {
                     resolve(false);
                     return;
                 }
-                res.clearCookie(constants_1.COOKIE_NAME);
+                res.clearCookie("qid");
                 resolve(true);
             });
         });
@@ -254,12 +264,24 @@ __decorate([
     __metadata("design:returntype", void 0)
 ], UserResolver.prototype, "me", null);
 __decorate([
-    type_graphql_1.Query(() => String, { nullable: true }),
-    __param(0, type_graphql_1.Ctx()),
+    type_graphql_1.Query(() => [User_1.User]),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [Object]),
+    __metadata("design:paramtypes", []),
     __metadata("design:returntype", Promise)
-], UserResolver.prototype, "getUserType", null);
+], UserResolver.prototype, "promotores", null);
+__decorate([
+    type_graphql_1.Query(() => [User_1.User]),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", []),
+    __metadata("design:returntype", Promise)
+], UserResolver.prototype, "users", null);
+__decorate([
+    type_graphql_1.Query(() => User_1.User),
+    __param(0, type_graphql_1.Arg('id', () => type_graphql_1.Int)),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [Number]),
+    __metadata("design:returntype", Promise)
+], UserResolver.prototype, "user", null);
 __decorate([
     type_graphql_1.Mutation(() => UserResponse),
     __param(0, type_graphql_1.Arg('options')),
