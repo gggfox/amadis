@@ -18,6 +18,8 @@ const EditPost = ({}) => {
             id: intId,
         },
     });
+    // const {data:data2, loading:loading2} = useCategoryQuery();
+
     const [updatePost] = useUpdatePostMutation();
     if (loading) {
       return (

@@ -5,6 +5,7 @@ import { Post } from "../entities/Post";
 import { getConnection } from "typeorm";
 import { Updoot } from "../entities/Updoot";
 import { User } from "../entities/User";
+import { Post_Category } from "../entities/Post_Category";
 
 @InputType()
 class PostInput {
@@ -12,6 +13,8 @@ class PostInput {
     title: string
     @Field()
     text: string
+    @Field(() => [String], {nullable: true})
+    categoryNames?: string[] | null
 }
 
 @ObjectType()
@@ -24,7 +27,6 @@ class PaginatedPosts {
 
 @Resolver(Post)
 export class PostResolver {
-
 
     @FieldResolver(() => String)
     textSnippet(
@@ -154,10 +156,34 @@ export class PostResolver {
     }
 
     @Query(() => Post, {nullable: true})
-    post(
+    async post(
         @Arg('id', () => Int) id: number
     ): Promise<Post | undefined> {
-        return Post.findOne(id);
+        const post = await Post.findOne(id)
+        const categories = await getConnection().query(`
+        SELECT pc."categoryName"
+        FROM post__category pc
+        WHERE pc."postId" = $1
+        `, [id]);
+
+        if(post){
+            post.categories = categories;
+        }
+        return post;
+    }
+
+    @Query(() => [Post],{nullable: true})
+    async postsByCategory(
+        @Arg('categoryName', () => String)categoryName: string 
+    ): Promise<Post[] | undefined> {
+        const posts = await getConnection().query(`
+        SELECT * FROM post p 
+        LEFT JOIN post__category pc 
+        ON p.id=pc."postId" 
+        WHERE pc."categoryName"= $1
+        `, [categoryName]);
+        
+        return posts;
     }
 
     @Mutation(() => Post)
@@ -166,10 +192,20 @@ export class PostResolver {
         @Arg('input') input: PostInput,
         @Ctx() {req}: MyContext
         ): Promise<Post> {
-        return Post.create({
-            ...input,
+
+        const post = await Post.create({
+            title: input.title,
+            text: input.text,
             creatorId: req.session.userId,
         }).save();
+
+        const categories = input.categoryNames;
+        if(categories && categories.length<=5){
+            for(let i = 0;i< categories.length;i++){
+                await Post_Category.create({postId:post.id,categoryName:categories[i]}).save()
+            }
+        }
+        return post;
     }
 
     @Mutation(() => Post, {nullable: true})
@@ -217,8 +253,9 @@ export class PostResolver {
             throw new Error('not authorized')
         }
         await Updoot.delete({ postId: id});
+        await Post_Category.delete({postId: id});
         await Post.delete({id, creatorId: post.creatorId});
-        //await Post.delete({id, creatorId: req.session.userId})
+
         return true;
     }
 }

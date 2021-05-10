@@ -84,11 +84,7 @@ const Register: React.FC<registerProps> = ({}) => {
         </Wrapper>
         </Box>
         <br/>
-        </Layout>
-
-
-        
-        
+        </Layout>  
     );
 }
 

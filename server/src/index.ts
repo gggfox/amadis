@@ -7,18 +7,25 @@ import {buildSchema} from 'type-graphql';
 import { HelloResolver } from "./resolvers/hello";
 import { PostResolver } from "./resolvers/post";
 import { UserResolver } from "./resolvers/user";
+import { CategoryResolver } from "./resolvers/category"
+import { Post } from "./entities/Post";
+import { User } from "./entities/User";
+import { Updoot } from "./entities/Updoot";
+import { Category } from "./entities/Category";
 import Redis from 'ioredis';
 import session from 'express-session';
 import connectRedis from 'connect-redis';
 import { MyContext } from "./types";
 import cors from 'cors';
 import {createConnection} from 'typeorm';
-import { Post } from "./entities/Post";
-import { User } from "./entities/User";
 import path from "path";
-import { Updoot } from "./entities/Updoot";
 import { createUserLoader } from "./utils/createUserLoader";
 import { createUpdootLoader } from "./utils/createUpdootLoader";
+import { Post_Category } from "./entities/Post_Category";
+import { Post_CategoryResolver } from "./resolvers/post_category";
+import { PromotorUpdoot } from "./entities/PromotorUpdoot";
+import { createPromotorUpdootLoader } from "./utils/createPromotorUpdootLoader";
+import { SocialMedia } from "./entities/SocialMedia";
 
 const main = async () => {
     const conn = await createConnection({
@@ -27,9 +34,9 @@ const main = async () => {
         logging: true,
         synchronize: true,//
         migrations: [path.join(__dirname,"./migrations/*")],
-        entities: [Post, User, Updoot],
+        entities: [Post, User, Updoot, Category, Post_Category,PromotorUpdoot,SocialMedia],
     });
-    console.log(conn);
+    //console.log(conn);
     //await conn.runMigrations();
     //await Post.delete({});
 
@@ -64,7 +71,7 @@ const main = async () => {
 
     const apolloServer = new ApolloServer({
         schema: await buildSchema({
-            resolvers: [HelloResolver, PostResolver, UserResolver],
+            resolvers: [HelloResolver, PostResolver, UserResolver, CategoryResolver, Post_CategoryResolver],
             validate: false,
         }),
         context: ({req, res}): MyContext => ({ 
@@ -73,6 +80,7 @@ const main = async () => {
             redis,
             userLoader: createUserLoader(),
             updootLoader: createUpdootLoader(),
+            promotorUpdootLoader: createPromotorUpdootLoader(),
         }),
     });
 
@@ -87,7 +95,6 @@ const main = async () => {
 
 };
 
-console.log("hello there");
 main().catch(err => {
     console.error(err.message);
 })

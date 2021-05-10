@@ -50,10 +50,14 @@ const Index = () => {
                      </Heading>
                   </Link>
                   </NextLink>
-                  
-                     <Text >
-                        vendedor: {p.creator.username}
-                     </Text>
+                  <NextLink href="/user/[id]" as={`/user/${p.creator.id}`}>
+                     <Link>
+                        <Text>
+                           vendedor: {p.creator.username}
+                        </Text>
+                     </Link>
+                  </NextLink>
+
                      <Flex flexDirection="row">
                      <Text lex={1} mt={2} color="snowStorm.1">{p.textSnippet}...</Text>
                      <Box ml="auto">
@@ -74,23 +78,6 @@ const Index = () => {
                limit: variables?.limit,
                cursor: data.posts.posts[data.posts.posts.length - 1].createdAt,
             },
-            // updateQuery: (previousValue, {fetchMoreResult}): PostsQuery => {
-            //    if(!fetchMoreResult) {
-            //       return previousValue as PostsQuery;
-            //    }
-
-            //    return {
-            //       __typename: 'Query',
-            //       posts: {
-            //          __typename: 'PaginatedPosts',
-            //          hasMore: (fetchMoreResult as PostsQuery).posts.hasMore,
-            //          posts: [
-            //             ...(previousValue as PostsQuery).posts.posts,
-            //             ...(fetchMoreResult as PostsQuery).posts.posts,
-            //          ]
-            //       }
-            //    }
-            // }
          });
       }} m="auto" my={4}>Load more</Button>
     </Flex> 

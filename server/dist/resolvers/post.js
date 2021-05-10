@@ -28,6 +28,7 @@ const Post_1 = require("../entities/Post");
 const typeorm_1 = require("typeorm");
 const Updoot_1 = require("../entities/Updoot");
 const User_1 = require("../entities/User");
+const Post_Category_1 = require("../entities/Post_Category");
 let PostInput = class PostInput {
 };
 __decorate([
@@ -38,6 +39,10 @@ __decorate([
     type_graphql_1.Field(),
     __metadata("design:type", String)
 ], PostInput.prototype, "text", void 0);
+__decorate([
+    type_graphql_1.Field(() => [String], { nullable: true }),
+    __metadata("design:type", Object)
+], PostInput.prototype, "categoryNames", void 0);
 PostInput = __decorate([
     type_graphql_1.InputType()
 ], PostInput);
@@ -136,11 +141,44 @@ let PostResolver = class PostResolver {
         });
     }
     post(id) {
-        return Post_1.Post.findOne(id);
+        return __awaiter(this, void 0, void 0, function* () {
+            const post = yield Post_1.Post.findOne(id);
+            const categories = yield typeorm_1.getConnection().query(`
+        SELECT pc."categoryName"
+        FROM post__category pc
+        WHERE pc."postId" = $1
+        `, [id]);
+            if (post) {
+                post.categories = categories;
+            }
+            return post;
+        });
+    }
+    postsByCategory(categoryName) {
+        return __awaiter(this, void 0, void 0, function* () {
+            const posts = yield typeorm_1.getConnection().query(`
+        SELECT * FROM post p 
+        LEFT JOIN post__category pc 
+        ON p.id=pc."postId" 
+        WHERE pc."categoryName"= $1
+        `, [categoryName]);
+            return posts;
+        });
     }
     createPost(input, { req }) {
         return __awaiter(this, void 0, void 0, function* () {
-            return Post_1.Post.create(Object.assign(Object.assign({}, input), { creatorId: req.session.userId })).save();
+            const post = yield Post_1.Post.create({
+                title: input.title,
+                text: input.text,
+                creatorId: req.session.userId,
+            }).save();
+            const categories = input.categoryNames;
+            if (categories && categories.length <= 5) {
+                for (let i = 0; i < categories.length; i++) {
+                    yield Post_Category_1.Post_Category.create({ postId: post.id, categoryName: categories[i] }).save();
+                }
+            }
+            return post;
         });
     }
     updatePost(id, title, text, { req }) {
@@ -175,6 +213,7 @@ let PostResolver = class PostResolver {
                 throw new Error('not authorized');
             }
             yield Updoot_1.Updoot.delete({ postId: id });
+            yield Post_Category_1.Post_Category.delete({ postId: id });
             yield Post_1.Post.delete({ id, creatorId: post.creatorId });
             return true;
         });
@@ -228,6 +267,13 @@ __decorate([
     __metadata("design:paramtypes", [Number]),
     __metadata("design:returntype", Promise)
 ], PostResolver.prototype, "post", null);
+__decorate([
+    type_graphql_1.Query(() => [Post_1.Post], { nullable: true }),
+    __param(0, type_graphql_1.Arg('categoryName', () => String)),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [String]),
+    __metadata("design:returntype", Promise)
+], PostResolver.prototype, "postsByCategory", null);
 __decorate([
     type_graphql_1.Mutation(() => Post_1.Post),
     type_graphql_1.UseMiddleware(isAuth_1.isAuth),

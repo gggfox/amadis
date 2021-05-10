@@ -25,7 +25,7 @@ const createClient = (ctx: NextPageContext) => new ApolloClient({
                 posts: [...(existing?.posts || []), ...incoming.posts],
               };
             },
-          },
+          }
         },
       },
     },

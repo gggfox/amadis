@@ -14,6 +14,14 @@ export type Scalars = {
   Float: number;
 };
 
+export type Category = {
+  __typename?: 'Category';
+  name: Scalars['String'];
+  promotors?: Maybe<Array<User>>;
+  createdAt: Scalars['String'];
+  updatedAt: Scalars['String'];
+};
+
 export type FieldError = {
   __typename?: 'FieldError';
   field: Scalars['String'];
@@ -28,9 +36,15 @@ export type Mutation = {
   deletePost: Scalars['Boolean'];
   changePassword: UserResponse;
   forgotPassword: Scalars['Boolean'];
+  addSocialMedia: Scalars['Boolean'];
+  deleteSocialMedia: Scalars['Boolean'];
   register: UserResponse;
   login: UserResponse;
   logout: Scalars['Boolean'];
+  chooseCategories4Promotor?: Maybe<UserResponse>;
+  votePromotor: Scalars['Boolean'];
+  createCategory: Category;
+  deleteCategory: Scalars['Boolean'];
 };
 
 
@@ -68,6 +82,17 @@ export type MutationForgotPasswordArgs = {
 };
 
 
+export type MutationAddSocialMediaArgs = {
+  social_media: Scalars['String'];
+  link: Scalars['String'];
+};
+
+
+export type MutationDeleteSocialMediaArgs = {
+  link: Scalars['String'];
+};
+
+
 export type MutationRegisterArgs = {
   options: UsernamePasswordInput;
 };
@@ -76,6 +101,28 @@ export type MutationRegisterArgs = {
 export type MutationLoginArgs = {
   password: Scalars['String'];
   usernameOrEmail: Scalars['String'];
+};
+
+
+export type MutationChooseCategories4PromotorArgs = {
+  categories: Array<Scalars['String']>;
+  id: Scalars['Int'];
+};
+
+
+export type MutationVotePromotorArgs = {
+  value: Scalars['Int'];
+  promotorId: Scalars['Int'];
+};
+
+
+export type MutationCreateCategoryArgs = {
+  name: Scalars['String'];
+};
+
+
+export type MutationDeleteCategoryArgs = {
+  name: Scalars['String'];
 };
 
 export type PaginatedPosts = {
@@ -95,6 +142,7 @@ export type Post = {
   discount: Scalars['Float'];
   creatorId: Scalars['Float'];
   creator: User;
+  categories?: Maybe<Array<Post_Category>>;
   createdAt: Scalars['String'];
   updatedAt: Scalars['String'];
   textSnippet: Scalars['String'];
@@ -103,6 +151,13 @@ export type Post = {
 export type PostInput = {
   title: Scalars['String'];
   text: Scalars['String'];
+  categoryNames?: Maybe<Array<Scalars['String']>>;
+};
+
+export type Post_Category = {
+  __typename?: 'Post_Category';
+  postId: Scalars['Int'];
+  categoryName: Scalars['String'];
 };
 
 export type Query = {
@@ -110,10 +165,16 @@ export type Query = {
   hello: Scalars['String'];
   posts: PaginatedPosts;
   post?: Maybe<Post>;
+  postsByCategory?: Maybe<Array<Post>>;
   me?: Maybe<User>;
   promotores: Array<User>;
+  promotor: User;
+  promotoresByCategory?: Maybe<Array<User>>;
   users: Array<User>;
   user: User;
+  allCategories: Array<Category>;
+  allPostCategories: Array<Post_Category>;
+  postCategories?: Maybe<Array<Post_Category>>;
 };
 
 
@@ -128,8 +189,36 @@ export type QueryPostArgs = {
 };
 
 
+export type QueryPostsByCategoryArgs = {
+  categoryName: Scalars['String'];
+};
+
+
+export type QueryPromotorArgs = {
+  id: Scalars['Int'];
+};
+
+
+export type QueryPromotoresByCategoryArgs = {
+  categoryName: Scalars['String'];
+};
+
+
 export type QueryUserArgs = {
   id: Scalars['Int'];
+};
+
+
+export type QueryPostCategoriesArgs = {
+  postId: Scalars['Int'];
+};
+
+export type SocialMedia = {
+  __typename?: 'SocialMedia';
+  social_media: Scalars['String'];
+  link: Scalars['String'];
+  createdAt: Scalars['String'];
+  updatedAt: Scalars['String'];
 };
 
 export type User = {
@@ -137,7 +226,11 @@ export type User = {
   id: Scalars['Float'];
   username: Scalars['String'];
   email: Scalars['String'];
+  socialMedia?: Maybe<Array<SocialMedia>>;
   userType: Scalars['String'];
+  influencerVoteStatus?: Maybe<Scalars['Int']>;
+  influencerPoints: Scalars['Float'];
+  categories?: Maybe<Array<Category>>;
   createdAt: Scalars['String'];
   updatedAt: Scalars['String'];
 };
@@ -163,6 +256,18 @@ export type PostSnippetFragment = (
   ) }
 );
 
+export type PromotorUserFragment = (
+  { __typename?: 'User' }
+  & Pick<User, 'id' | 'username' | 'userType' | 'influencerPoints' | 'influencerVoteStatus'>
+  & { categories?: Maybe<Array<(
+    { __typename?: 'Category' }
+    & Pick<Category, 'name'>
+  )>>, socialMedia?: Maybe<Array<(
+    { __typename?: 'SocialMedia' }
+    & Pick<SocialMedia, 'link' | 'social_media'>
+  )>> }
+);
+
 export type RegularErrorFragment = (
   { __typename?: 'FieldError' }
   & Pick<FieldError, 'field' | 'message'>
@@ -184,6 +289,17 @@ export type RegularUserResponseFragment = (
   )> }
 );
 
+export type AddSocialMediaMutationVariables = Exact<{
+  social_media: Scalars['String'];
+  link: Scalars['String'];
+}>;
+
+
+export type AddSocialMediaMutation = (
+  { __typename?: 'Mutation' }
+  & Pick<Mutation, 'addSocialMedia'>
+);
+
 export type ChangePasswordMutationVariables = Exact<{
   token: Scalars['String'];
   newPassword: Scalars['String'];
@@ -195,6 +311,43 @@ export type ChangePasswordMutation = (
   & { changePassword: (
     { __typename?: 'UserResponse' }
     & RegularUserResponseFragment
+  ) }
+);
+
+export type ChooseCategories4PromotorMutationVariables = Exact<{
+  id: Scalars['Int'];
+  categories: Array<Scalars['String']> | Scalars['String'];
+}>;
+
+
+export type ChooseCategories4PromotorMutation = (
+  { __typename?: 'Mutation' }
+  & { chooseCategories4Promotor?: Maybe<(
+    { __typename?: 'UserResponse' }
+    & { errors?: Maybe<Array<(
+      { __typename?: 'FieldError' }
+      & Pick<FieldError, 'field' | 'message'>
+    )>>, user?: Maybe<(
+      { __typename?: 'User' }
+      & Pick<User, 'id' | 'username' | 'userType'>
+      & { categories?: Maybe<Array<(
+        { __typename?: 'Category' }
+        & Pick<Category, 'name'>
+      )>> }
+    )> }
+  )> }
+);
+
+export type CreateCategoryMutationVariables = Exact<{
+  name: Scalars['String'];
+}>;
+
+
+export type CreateCategoryMutation = (
+  { __typename?: 'Mutation' }
+  & { createCategory: (
+    { __typename?: 'Category' }
+    & Pick<Category, 'name' | 'createdAt' | 'updatedAt'>
   ) }
 );
 
@@ -219,6 +372,16 @@ export type DeletePostMutationVariables = Exact<{
 export type DeletePostMutation = (
   { __typename?: 'Mutation' }
   & Pick<Mutation, 'deletePost'>
+);
+
+export type DeleteSocialMediaMutationVariables = Exact<{
+  link: Scalars['String'];
+}>;
+
+
+export type DeleteSocialMediaMutation = (
+  { __typename?: 'Mutation' }
+  & Pick<Mutation, 'deleteSocialMedia'>
 );
 
 export type ForgotPasswordMutationVariables = Exact<{
@@ -292,6 +455,28 @@ export type VoteMutation = (
   & Pick<Mutation, 'vote'>
 );
 
+export type VotePromotorMutationVariables = Exact<{
+  value: Scalars['Int'];
+  promotorId: Scalars['Int'];
+}>;
+
+
+export type VotePromotorMutation = (
+  { __typename?: 'Mutation' }
+  & Pick<Mutation, 'votePromotor'>
+);
+
+export type CategoryQueryVariables = Exact<{ [key: string]: never; }>;
+
+
+export type CategoryQuery = (
+  { __typename?: 'Query' }
+  & { allCategories: Array<(
+    { __typename?: 'Category' }
+    & Pick<Category, 'name'>
+  )> }
+);
+
 export type MeQueryVariables = Exact<{ [key: string]: never; }>;
 
 
@@ -316,7 +501,10 @@ export type PostQuery = (
     & { creator: (
       { __typename?: 'User' }
       & Pick<User, 'id' | 'username'>
-    ) }
+    ), categories?: Maybe<Array<(
+      { __typename?: 'Post_Category' }
+      & Pick<Post_Category, 'categoryName'>
+    )>> }
   )> }
 );
 
@@ -338,6 +526,39 @@ export type PostsQuery = (
   ) }
 );
 
+export type PostsByCategoryQueryVariables = Exact<{
+  categoryName: Scalars['String'];
+}>;
+
+
+export type PostsByCategoryQuery = (
+  { __typename?: 'Query' }
+  & { postsByCategory?: Maybe<Array<(
+    { __typename?: 'Post' }
+    & PostSnippetFragment
+  )>> }
+);
+
+export type PromotorQueryVariables = Exact<{
+  id: Scalars['Int'];
+}>;
+
+
+export type PromotorQuery = (
+  { __typename?: 'Query' }
+  & { promotor: (
+    { __typename?: 'User' }
+    & Pick<User, 'id' | 'username' | 'userType'>
+    & { categories?: Maybe<Array<(
+      { __typename?: 'Category' }
+      & Pick<Category, 'name'>
+    )>>, socialMedia?: Maybe<Array<(
+      { __typename?: 'SocialMedia' }
+      & Pick<SocialMedia, 'link' | 'social_media'>
+    )>> }
+  ) }
+);
+
 export type PromotoresQueryVariables = Exact<{ [key: string]: never; }>;
 
 
@@ -345,8 +566,21 @@ export type PromotoresQuery = (
   { __typename?: 'Query' }
   & { promotores: Array<(
     { __typename?: 'User' }
-    & RegularUserFragment
+    & PromotorUserFragment
   )> }
+);
+
+export type PromotoresByCategoryQueryVariables = Exact<{
+  categoryName: Scalars['String'];
+}>;
+
+
+export type PromotoresByCategoryQuery = (
+  { __typename?: 'Query' }
+  & { promotoresByCategory?: Maybe<Array<(
+    { __typename?: 'User' }
+    & PromotorUserFragment
+  )>> }
 );
 
 export type UserQueryVariables = Exact<{
@@ -378,6 +612,22 @@ export const PostSnippetFragmentDoc = gql`
   }
 }
     `;
+export const PromotorUserFragmentDoc = gql`
+    fragment PromotorUser on User {
+  id
+  username
+  userType
+  influencerPoints
+  influencerVoteStatus
+  categories {
+    name
+  }
+  socialMedia {
+    link
+    social_media
+  }
+}
+    `;
 export const RegularErrorFragmentDoc = gql`
     fragment RegularError on FieldError {
   field
@@ -402,6 +652,38 @@ export const RegularUserResponseFragmentDoc = gql`
 }
     ${RegularErrorFragmentDoc}
 ${RegularUserFragmentDoc}`;
+export const AddSocialMediaDocument = gql`
+    mutation AddSocialMedia($social_media: String!, $link: String!) {
+  addSocialMedia(social_media: $social_media, link: $link)
+}
+    `;
+export type AddSocialMediaMutationFn = Apollo.MutationFunction<AddSocialMediaMutation, AddSocialMediaMutationVariables>;
+
+/**
+ * __useAddSocialMediaMutation__
+ *
+ * To run a mutation, you first call `useAddSocialMediaMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useAddSocialMediaMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [addSocialMediaMutation, { data, loading, error }] = useAddSocialMediaMutation({
+ *   variables: {
+ *      social_media: // value for 'social_media'
+ *      link: // value for 'link'
+ *   },
+ * });
+ */
+export function useAddSocialMediaMutation(baseOptions?: Apollo.MutationHookOptions<AddSocialMediaMutation, AddSocialMediaMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<AddSocialMediaMutation, AddSocialMediaMutationVariables>(AddSocialMediaDocument, options);
+      }
+export type AddSocialMediaMutationHookResult = ReturnType<typeof useAddSocialMediaMutation>;
+export type AddSocialMediaMutationResult = Apollo.MutationResult<AddSocialMediaMutation>;
+export type AddSocialMediaMutationOptions = Apollo.BaseMutationOptions<AddSocialMediaMutation, AddSocialMediaMutationVariables>;
 export const ChangePasswordDocument = gql`
     mutation ChangePassword($token: String!, $newPassword: String!) {
   changePassword(token: $token, newPassword: $newPassword) {
@@ -436,6 +718,86 @@ export function useChangePasswordMutation(baseOptions?: Apollo.MutationHookOptio
 export type ChangePasswordMutationHookResult = ReturnType<typeof useChangePasswordMutation>;
 export type ChangePasswordMutationResult = Apollo.MutationResult<ChangePasswordMutation>;
 export type ChangePasswordMutationOptions = Apollo.BaseMutationOptions<ChangePasswordMutation, ChangePasswordMutationVariables>;
+export const ChooseCategories4PromotorDocument = gql`
+    mutation ChooseCategories4Promotor($id: Int!, $categories: [String!]!) {
+  chooseCategories4Promotor(id: $id, categories: $categories) {
+    errors {
+      field
+      message
+    }
+    user {
+      id
+      username
+      userType
+      categories {
+        name
+      }
+    }
+  }
+}
+    `;
+export type ChooseCategories4PromotorMutationFn = Apollo.MutationFunction<ChooseCategories4PromotorMutation, ChooseCategories4PromotorMutationVariables>;
+
+/**
+ * __useChooseCategories4PromotorMutation__
+ *
+ * To run a mutation, you first call `useChooseCategories4PromotorMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useChooseCategories4PromotorMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [chooseCategories4PromotorMutation, { data, loading, error }] = useChooseCategories4PromotorMutation({
+ *   variables: {
+ *      id: // value for 'id'
+ *      categories: // value for 'categories'
+ *   },
+ * });
+ */
+export function useChooseCategories4PromotorMutation(baseOptions?: Apollo.MutationHookOptions<ChooseCategories4PromotorMutation, ChooseCategories4PromotorMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<ChooseCategories4PromotorMutation, ChooseCategories4PromotorMutationVariables>(ChooseCategories4PromotorDocument, options);
+      }
+export type ChooseCategories4PromotorMutationHookResult = ReturnType<typeof useChooseCategories4PromotorMutation>;
+export type ChooseCategories4PromotorMutationResult = Apollo.MutationResult<ChooseCategories4PromotorMutation>;
+export type ChooseCategories4PromotorMutationOptions = Apollo.BaseMutationOptions<ChooseCategories4PromotorMutation, ChooseCategories4PromotorMutationVariables>;
+export const CreateCategoryDocument = gql`
+    mutation CreateCategory($name: String!) {
+  createCategory(name: $name) {
+    name
+    createdAt
+    updatedAt
+  }
+}
+    `;
+export type CreateCategoryMutationFn = Apollo.MutationFunction<CreateCategoryMutation, CreateCategoryMutationVariables>;
+
+/**
+ * __useCreateCategoryMutation__
+ *
+ * To run a mutation, you first call `useCreateCategoryMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useCreateCategoryMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [createCategoryMutation, { data, loading, error }] = useCreateCategoryMutation({
+ *   variables: {
+ *      name: // value for 'name'
+ *   },
+ * });
+ */
+export function useCreateCategoryMutation(baseOptions?: Apollo.MutationHookOptions<CreateCategoryMutation, CreateCategoryMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<CreateCategoryMutation, CreateCategoryMutationVariables>(CreateCategoryDocument, options);
+      }
+export type CreateCategoryMutationHookResult = ReturnType<typeof useCreateCategoryMutation>;
+export type CreateCategoryMutationResult = Apollo.MutationResult<CreateCategoryMutation>;
+export type CreateCategoryMutationOptions = Apollo.BaseMutationOptions<CreateCategoryMutation, CreateCategoryMutationVariables>;
 export const CreatePostDocument = gql`
     mutation CreatePost($input: PostInput!) {
   createPost(input: $input) {
@@ -506,6 +868,37 @@ export function useDeletePostMutation(baseOptions?: Apollo.MutationHookOptions<D
 export type DeletePostMutationHookResult = ReturnType<typeof useDeletePostMutation>;
 export type DeletePostMutationResult = Apollo.MutationResult<DeletePostMutation>;
 export type DeletePostMutationOptions = Apollo.BaseMutationOptions<DeletePostMutation, DeletePostMutationVariables>;
+export const DeleteSocialMediaDocument = gql`
+    mutation DeleteSocialMedia($link: String!) {
+  deleteSocialMedia(link: $link)
+}
+    `;
+export type DeleteSocialMediaMutationFn = Apollo.MutationFunction<DeleteSocialMediaMutation, DeleteSocialMediaMutationVariables>;
+
+/**
+ * __useDeleteSocialMediaMutation__
+ *
+ * To run a mutation, you first call `useDeleteSocialMediaMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useDeleteSocialMediaMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [deleteSocialMediaMutation, { data, loading, error }] = useDeleteSocialMediaMutation({
+ *   variables: {
+ *      link: // value for 'link'
+ *   },
+ * });
+ */
+export function useDeleteSocialMediaMutation(baseOptions?: Apollo.MutationHookOptions<DeleteSocialMediaMutation, DeleteSocialMediaMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<DeleteSocialMediaMutation, DeleteSocialMediaMutationVariables>(DeleteSocialMediaDocument, options);
+      }
+export type DeleteSocialMediaMutationHookResult = ReturnType<typeof useDeleteSocialMediaMutation>;
+export type DeleteSocialMediaMutationResult = Apollo.MutationResult<DeleteSocialMediaMutation>;
+export type DeleteSocialMediaMutationOptions = Apollo.BaseMutationOptions<DeleteSocialMediaMutation, DeleteSocialMediaMutationVariables>;
 export const ForgotPasswordDocument = gql`
     mutation ForgotPassword($email: String!) {
   forgotPassword(email: $email)
@@ -704,6 +1097,72 @@ export function useVoteMutation(baseOptions?: Apollo.MutationHookOptions<VoteMut
 export type VoteMutationHookResult = ReturnType<typeof useVoteMutation>;
 export type VoteMutationResult = Apollo.MutationResult<VoteMutation>;
 export type VoteMutationOptions = Apollo.BaseMutationOptions<VoteMutation, VoteMutationVariables>;
+export const VotePromotorDocument = gql`
+    mutation VotePromotor($value: Int!, $promotorId: Int!) {
+  votePromotor(value: $value, promotorId: $promotorId)
+}
+    `;
+export type VotePromotorMutationFn = Apollo.MutationFunction<VotePromotorMutation, VotePromotorMutationVariables>;
+
+/**
+ * __useVotePromotorMutation__
+ *
+ * To run a mutation, you first call `useVotePromotorMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useVotePromotorMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [votePromotorMutation, { data, loading, error }] = useVotePromotorMutation({
+ *   variables: {
+ *      value: // value for 'value'
+ *      promotorId: // value for 'promotorId'
+ *   },
+ * });
+ */
+export function useVotePromotorMutation(baseOptions?: Apollo.MutationHookOptions<VotePromotorMutation, VotePromotorMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<VotePromotorMutation, VotePromotorMutationVariables>(VotePromotorDocument, options);
+      }
+export type VotePromotorMutationHookResult = ReturnType<typeof useVotePromotorMutation>;
+export type VotePromotorMutationResult = Apollo.MutationResult<VotePromotorMutation>;
+export type VotePromotorMutationOptions = Apollo.BaseMutationOptions<VotePromotorMutation, VotePromotorMutationVariables>;
+export const CategoryDocument = gql`
+    query Category {
+  allCategories {
+    name
+  }
+}
+    `;
+
+/**
+ * __useCategoryQuery__
+ *
+ * To run a query within a React component, call `useCategoryQuery` and pass it any options that fit your needs.
+ * When your component renders, `useCategoryQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useCategoryQuery({
+ *   variables: {
+ *   },
+ * });
+ */
+export function useCategoryQuery(baseOptions?: Apollo.QueryHookOptions<CategoryQuery, CategoryQueryVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<CategoryQuery, CategoryQueryVariables>(CategoryDocument, options);
+      }
+export function useCategoryLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<CategoryQuery, CategoryQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<CategoryQuery, CategoryQueryVariables>(CategoryDocument, options);
+        }
+export type CategoryQueryHookResult = ReturnType<typeof useCategoryQuery>;
+export type CategoryLazyQueryHookResult = ReturnType<typeof useCategoryLazyQuery>;
+export type CategoryQueryResult = Apollo.QueryResult<CategoryQuery, CategoryQueryVariables>;
 export const MeDocument = gql`
     query Me {
   me {
@@ -751,6 +1210,9 @@ export const PostDocument = gql`
     creator {
       id
       username
+    }
+    categories {
+      categoryName
     }
   }
 }
@@ -822,13 +1284,92 @@ export function usePostsLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<Post
 export type PostsQueryHookResult = ReturnType<typeof usePostsQuery>;
 export type PostsLazyQueryHookResult = ReturnType<typeof usePostsLazyQuery>;
 export type PostsQueryResult = Apollo.QueryResult<PostsQuery, PostsQueryVariables>;
+export const PostsByCategoryDocument = gql`
+    query PostsByCategory($categoryName: String!) {
+  postsByCategory(categoryName: $categoryName) {
+    ...PostSnippet
+  }
+}
+    ${PostSnippetFragmentDoc}`;
+
+/**
+ * __usePostsByCategoryQuery__
+ *
+ * To run a query within a React component, call `usePostsByCategoryQuery` and pass it any options that fit your needs.
+ * When your component renders, `usePostsByCategoryQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = usePostsByCategoryQuery({
+ *   variables: {
+ *      categoryName: // value for 'categoryName'
+ *   },
+ * });
+ */
+export function usePostsByCategoryQuery(baseOptions: Apollo.QueryHookOptions<PostsByCategoryQuery, PostsByCategoryQueryVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<PostsByCategoryQuery, PostsByCategoryQueryVariables>(PostsByCategoryDocument, options);
+      }
+export function usePostsByCategoryLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<PostsByCategoryQuery, PostsByCategoryQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<PostsByCategoryQuery, PostsByCategoryQueryVariables>(PostsByCategoryDocument, options);
+        }
+export type PostsByCategoryQueryHookResult = ReturnType<typeof usePostsByCategoryQuery>;
+export type PostsByCategoryLazyQueryHookResult = ReturnType<typeof usePostsByCategoryLazyQuery>;
+export type PostsByCategoryQueryResult = Apollo.QueryResult<PostsByCategoryQuery, PostsByCategoryQueryVariables>;
+export const PromotorDocument = gql`
+    query Promotor($id: Int!) {
+  promotor(id: $id) {
+    id
+    username
+    userType
+    categories {
+      name
+    }
+    socialMedia {
+      link
+      social_media
+    }
+  }
+}
+    `;
+
+/**
+ * __usePromotorQuery__
+ *
+ * To run a query within a React component, call `usePromotorQuery` and pass it any options that fit your needs.
+ * When your component renders, `usePromotorQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = usePromotorQuery({
+ *   variables: {
+ *      id: // value for 'id'
+ *   },
+ * });
+ */
+export function usePromotorQuery(baseOptions: Apollo.QueryHookOptions<PromotorQuery, PromotorQueryVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<PromotorQuery, PromotorQueryVariables>(PromotorDocument, options);
+      }
+export function usePromotorLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<PromotorQuery, PromotorQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<PromotorQuery, PromotorQueryVariables>(PromotorDocument, options);
+        }
+export type PromotorQueryHookResult = ReturnType<typeof usePromotorQuery>;
+export type PromotorLazyQueryHookResult = ReturnType<typeof usePromotorLazyQuery>;
+export type PromotorQueryResult = Apollo.QueryResult<PromotorQuery, PromotorQueryVariables>;
 export const PromotoresDocument = gql`
     query Promotores {
   promotores {
-    ...RegularUser
+    ...PromotorUser
   }
 }
-    ${RegularUserFragmentDoc}`;
+    ${PromotorUserFragmentDoc}`;
 
 /**
  * __usePromotoresQuery__
@@ -856,6 +1397,41 @@ export function usePromotoresLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions
 export type PromotoresQueryHookResult = ReturnType<typeof usePromotoresQuery>;
 export type PromotoresLazyQueryHookResult = ReturnType<typeof usePromotoresLazyQuery>;
 export type PromotoresQueryResult = Apollo.QueryResult<PromotoresQuery, PromotoresQueryVariables>;
+export const PromotoresByCategoryDocument = gql`
+    query PromotoresByCategory($categoryName: String!) {
+  promotoresByCategory(categoryName: $categoryName) {
+    ...PromotorUser
+  }
+}
+    ${PromotorUserFragmentDoc}`;
+
+/**
+ * __usePromotoresByCategoryQuery__
+ *
+ * To run a query within a React component, call `usePromotoresByCategoryQuery` and pass it any options that fit your needs.
+ * When your component renders, `usePromotoresByCategoryQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = usePromotoresByCategoryQuery({
+ *   variables: {
+ *      categoryName: // value for 'categoryName'
+ *   },
+ * });
+ */
+export function usePromotoresByCategoryQuery(baseOptions: Apollo.QueryHookOptions<PromotoresByCategoryQuery, PromotoresByCategoryQueryVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<PromotoresByCategoryQuery, PromotoresByCategoryQueryVariables>(PromotoresByCategoryDocument, options);
+      }
+export function usePromotoresByCategoryLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<PromotoresByCategoryQuery, PromotoresByCategoryQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<PromotoresByCategoryQuery, PromotoresByCategoryQueryVariables>(PromotoresByCategoryDocument, options);
+        }
+export type PromotoresByCategoryQueryHookResult = ReturnType<typeof usePromotoresByCategoryQuery>;
+export type PromotoresByCategoryLazyQueryHookResult = ReturnType<typeof usePromotoresByCategoryLazyQuery>;
+export type PromotoresByCategoryQueryResult = Apollo.QueryResult<PromotoresByCategoryQuery, PromotoresByCategoryQueryVariables>;
 export const UserDocument = gql`
     query User($id: Int!) {
   user(id: $id) {

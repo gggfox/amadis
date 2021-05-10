@@ -5,17 +5,17 @@ import { usePromotoresQuery } from "../generated/graphql";
 import { withApollo } from "../utils/withApollo";
 import NextLink from "next/link";
 import { Wrapper } from "../components/Wrapper";
+import { PromotorUpdootSection } from "../components/PromotorUpdootSection";
 
 const Promotores = () => {
     const {data, error, loading} = usePromotoresQuery();
-
     if(!loading && !data){//done loading and no data
         return (
         <div>
             <div>No te llego ningun promotor</div>
             <div>{error?.message}</div>
         </div>);
-    }console.log(data?.promotores)
+    }
     return(
       <Layout>
 
@@ -25,6 +25,7 @@ const Promotores = () => {
             {data?.promotores.map((p) => 
             !p ? null : (
                 <Flex key={p.id} p={5} shadow="md" borderWidth="1px">
+                  <PromotorUpdootSection promotor={p}/>
                   <Box flex={1}>
                   <NextLink href="/user/[id]" as={`/user/${p.id}`}>
                   <Link>
@@ -33,8 +34,12 @@ const Promotores = () => {
                      </Heading>
                   </Link>
                   </NextLink>
-                  
-                </Box>
+
+            
+                    {p.categories?.map((c) => (
+                      <Box>{c.name}</Box>
+                    ))}
+                 </Box>
                </Flex>
             ))}
       </Stack>

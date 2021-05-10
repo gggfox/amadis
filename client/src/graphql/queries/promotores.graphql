@@ -1,5 +1,5 @@
 query Promotores {
     promotores {
-        ...RegularUser
+        ...PromotorUser
     }
 }

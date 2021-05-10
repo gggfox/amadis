@@ -8,3 +8,25 @@ html{
     width: 100%;
     position:absolute;
 }
+
+select{
+    background-color:#81A1C1;
+    border-radius:6px;
+    border:1px solid #D8DEE9;
+    color:white;
+    height:80%;
+}
+
+option{
+    background-color:#8FBCBB;
+    color:#8FBCBB;
+}
+
+
+#wText{
+    color:white;
+}
+
+.wText{
+    color:white;
+}

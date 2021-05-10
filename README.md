@@ -6,9 +6,9 @@ graphql -> "request.credentials": "include" // cookie sotrage
 
 sudo -u postgres -i
 createdb amadis
+psql postgres --password
 
 how to make migrations
-
 
 docker
 build -t gera/amadis:test .

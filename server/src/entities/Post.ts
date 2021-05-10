@@ -1,5 +1,16 @@
 import { Field, Int, ObjectType } from "type-graphql";
-import { BaseEntity, Column, CreateDateColumn, Entity, ManyToOne, OneToMany, PrimaryGeneratedColumn, UpdateDateColumn } from "typeorm";
+import { 
+    BaseEntity, 
+    Column, 
+    CreateDateColumn, 
+    Entity,
+    ManyToMany,
+    ManyToOne, 
+    OneToMany, 
+    PrimaryGeneratedColumn, 
+    UpdateDateColumn 
+  } from "typeorm";
+import { Post_Category } from "./Post_Category";
 import { Updoot } from "./Updoot";
 import { User } from "./User";
 
@@ -44,6 +55,15 @@ export class Post extends BaseEntity{
     @OneToMany(() => Updoot, (updoot) => updoot.post)
     updoots: Updoot[];
 
+    @Field(() => [Post_Category], {nullable: true})
+    @OneToMany(() => Post_Category, categories => categories.post)
+    categories?: Post_Category[];
+
+
+    @Field(() => [User], {nullable: true})
+    @ManyToMany(() => User, user => user.promotes)
+    promotors?: User[];
+
     @Field(() => String)
     @CreateDateColumn()
     createdAt: Date;
@@ -51,5 +71,4 @@ export class Post extends BaseEntity{
     @Field(() => String)
     @UpdateDateColumn()
     updatedAt: Date;
-
 }

@@ -50,6 +50,7 @@ const updateAfterVote = (
 export const UpdootSection: React.FC<UpdootSectionProps> = ({post}) => {
     const [loadingState, setLoadingState] = useState<'updoot-loading' | 'downdoot-loading' | 'not-loading'>('not-loading');
     const [vote] = useVoteMutation();
+
     return (
             <Flex flexDirection="column" mr={3} alignItems="center">
                 <IconButton

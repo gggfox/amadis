@@ -12,7 +12,7 @@ export const InputField: React.FC<InputFieldProps> = ({label, textarea, size: _,
     const [field, {error}] = useField(props);
     let InputOrTextarea = textarea ? Textarea : Input;
     return (    
-        <FormControl isInvalid={!!error}>
+        <FormControl isInvalid={!!error} h="100%">
             <FormLabel color="snowStorm.0" htmlFor={field.name}>{label}</FormLabel>
             <InputOrTextarea color="snowStorm.0" {...field} {...props} id={field.name} />
             {error ? <FormErrorMessage>{error}</FormErrorMessage> : null}

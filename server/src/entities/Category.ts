@@ -1,17 +1,21 @@
 import { Field, ObjectType } from "type-graphql";
-import { BaseEntity, Column, CreateDateColumn, Entity, PrimaryGeneratedColumn, UpdateDateColumn } from "typeorm";
-
+import { BaseEntity, CreateDateColumn, Entity, ManyToMany, OneToMany, PrimaryColumn, UpdateDateColumn } from "typeorm";
+import { Post_Category } from "./Post_Category";
+import { User } from "./User";
 
 @ObjectType()//this generator allows us to use graphql resolvers
 @Entity()
 export class Category extends BaseEntity{
-    @Field()//this generator exposes the item below to graphql
-    @PrimaryGeneratedColumn()
-    id!: number;
-
     @Field()
-    @Column({unique: true})
-    name!: string;
+    @PrimaryColumn()
+    name: String;
+
+    @OneToMany(() => Post_Category, post_category => post_category.category)
+    post_category: Post_Category[];
+
+    @Field(() => [User], {nullable: true})
+    @ManyToMany(() => User, user => user.categories)
+    promotors?: User[];
 
     @Field(() => String)
     @CreateDateColumn()
