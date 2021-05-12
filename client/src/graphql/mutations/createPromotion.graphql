@@ -1,0 +1,3 @@
+mutation CreatePromotion($postId: Int!){
+    createPromotion(postId:$postId)
+}

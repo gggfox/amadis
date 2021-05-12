@@ -42,6 +42,8 @@ export type Mutation = {
   login: UserResponse;
   logout: Scalars['Boolean'];
   chooseCategories4Promotor?: Maybe<UserResponse>;
+  createPromotion: Scalars['Boolean'];
+  deletePromotion: Scalars['Boolean'];
   votePromotor: Scalars['Boolean'];
   createCategory: Category;
   deleteCategory: Scalars['Boolean'];
@@ -110,6 +112,16 @@ export type MutationChooseCategories4PromotorArgs = {
 };
 
 
+export type MutationCreatePromotionArgs = {
+  postId: Scalars['Int'];
+};
+
+
+export type MutationDeletePromotionArgs = {
+  postId: Scalars['Int'];
+};
+
+
 export type MutationVotePromotorArgs = {
   value: Scalars['Int'];
   promotorId: Scalars['Int'];
@@ -143,6 +155,7 @@ export type Post = {
   creatorId: Scalars['Float'];
   creator: User;
   categories?: Maybe<Array<Post_Category>>;
+  promotors?: Maybe<Array<User>>;
   createdAt: Scalars['String'];
   updatedAt: Scalars['String'];
   textSnippet: Scalars['String'];
@@ -230,7 +243,9 @@ export type User = {
   userType: Scalars['String'];
   influencerVoteStatus?: Maybe<Scalars['Int']>;
   influencerPoints: Scalars['Float'];
+  activePromotions: Scalars['Float'];
   categories?: Maybe<Array<Category>>;
+  promotes?: Maybe<Array<Post>>;
   createdAt: Scalars['String'];
   updatedAt: Scalars['String'];
 };
@@ -364,6 +379,16 @@ export type CreatePostMutation = (
   ) }
 );
 
+export type CreatePromotionMutationVariables = Exact<{
+  postId: Scalars['Int'];
+}>;
+
+
+export type CreatePromotionMutation = (
+  { __typename?: 'Mutation' }
+  & Pick<Mutation, 'createPromotion'>
+);
+
 export type DeletePostMutationVariables = Exact<{
   id: Scalars['Int'];
 }>;
@@ -372,6 +397,16 @@ export type DeletePostMutationVariables = Exact<{
 export type DeletePostMutation = (
   { __typename?: 'Mutation' }
   & Pick<Mutation, 'deletePost'>
+);
+
+export type DeletePromotionMutationVariables = Exact<{
+  postId: Scalars['Int'];
+}>;
+
+
+export type DeletePromotionMutation = (
+  { __typename?: 'Mutation' }
+  & Pick<Mutation, 'deletePromotion'>
 );
 
 export type DeleteSocialMediaMutationVariables = Exact<{
@@ -504,6 +539,9 @@ export type PostQuery = (
     ), categories?: Maybe<Array<(
       { __typename?: 'Post_Category' }
       & Pick<Post_Category, 'categoryName'>
+    )>>, promotors?: Maybe<Array<(
+      { __typename?: 'User' }
+      & Pick<User, 'id' | 'username'>
     )>> }
   )> }
 );
@@ -548,13 +586,16 @@ export type PromotorQuery = (
   { __typename?: 'Query' }
   & { promotor: (
     { __typename?: 'User' }
-    & Pick<User, 'id' | 'username' | 'userType'>
+    & Pick<User, 'id' | 'username' | 'userType' | 'activePromotions'>
     & { categories?: Maybe<Array<(
       { __typename?: 'Category' }
       & Pick<Category, 'name'>
     )>>, socialMedia?: Maybe<Array<(
       { __typename?: 'SocialMedia' }
       & Pick<SocialMedia, 'link' | 'social_media'>
+    )>>, promotes?: Maybe<Array<(
+      { __typename?: 'Post' }
+      & Pick<Post, 'id' | 'title'>
     )>> }
   ) }
 );
@@ -837,6 +878,37 @@ export function useCreatePostMutation(baseOptions?: Apollo.MutationHookOptions<C
 export type CreatePostMutationHookResult = ReturnType<typeof useCreatePostMutation>;
 export type CreatePostMutationResult = Apollo.MutationResult<CreatePostMutation>;
 export type CreatePostMutationOptions = Apollo.BaseMutationOptions<CreatePostMutation, CreatePostMutationVariables>;
+export const CreatePromotionDocument = gql`
+    mutation CreatePromotion($postId: Int!) {
+  createPromotion(postId: $postId)
+}
+    `;
+export type CreatePromotionMutationFn = Apollo.MutationFunction<CreatePromotionMutation, CreatePromotionMutationVariables>;
+
+/**
+ * __useCreatePromotionMutation__
+ *
+ * To run a mutation, you first call `useCreatePromotionMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useCreatePromotionMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [createPromotionMutation, { data, loading, error }] = useCreatePromotionMutation({
+ *   variables: {
+ *      postId: // value for 'postId'
+ *   },
+ * });
+ */
+export function useCreatePromotionMutation(baseOptions?: Apollo.MutationHookOptions<CreatePromotionMutation, CreatePromotionMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<CreatePromotionMutation, CreatePromotionMutationVariables>(CreatePromotionDocument, options);
+      }
+export type CreatePromotionMutationHookResult = ReturnType<typeof useCreatePromotionMutation>;
+export type CreatePromotionMutationResult = Apollo.MutationResult<CreatePromotionMutation>;
+export type CreatePromotionMutationOptions = Apollo.BaseMutationOptions<CreatePromotionMutation, CreatePromotionMutationVariables>;
 export const DeletePostDocument = gql`
     mutation DeletePost($id: Int!) {
   deletePost(id: $id)
@@ -868,6 +940,37 @@ export function useDeletePostMutation(baseOptions?: Apollo.MutationHookOptions<D
 export type DeletePostMutationHookResult = ReturnType<typeof useDeletePostMutation>;
 export type DeletePostMutationResult = Apollo.MutationResult<DeletePostMutation>;
 export type DeletePostMutationOptions = Apollo.BaseMutationOptions<DeletePostMutation, DeletePostMutationVariables>;
+export const DeletePromotionDocument = gql`
+    mutation DeletePromotion($postId: Int!) {
+  deletePromotion(postId: $postId)
+}
+    `;
+export type DeletePromotionMutationFn = Apollo.MutationFunction<DeletePromotionMutation, DeletePromotionMutationVariables>;
+
+/**
+ * __useDeletePromotionMutation__
+ *
+ * To run a mutation, you first call `useDeletePromotionMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useDeletePromotionMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [deletePromotionMutation, { data, loading, error }] = useDeletePromotionMutation({
+ *   variables: {
+ *      postId: // value for 'postId'
+ *   },
+ * });
+ */
+export function useDeletePromotionMutation(baseOptions?: Apollo.MutationHookOptions<DeletePromotionMutation, DeletePromotionMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<DeletePromotionMutation, DeletePromotionMutationVariables>(DeletePromotionDocument, options);
+      }
+export type DeletePromotionMutationHookResult = ReturnType<typeof useDeletePromotionMutation>;
+export type DeletePromotionMutationResult = Apollo.MutationResult<DeletePromotionMutation>;
+export type DeletePromotionMutationOptions = Apollo.BaseMutationOptions<DeletePromotionMutation, DeletePromotionMutationVariables>;
 export const DeleteSocialMediaDocument = gql`
     mutation DeleteSocialMedia($link: String!) {
   deleteSocialMedia(link: $link)
@@ -1214,6 +1317,10 @@ export const PostDocument = gql`
     categories {
       categoryName
     }
+    promotors {
+      id
+      username
+    }
   }
 }
     `;
@@ -1332,6 +1439,11 @@ export const PromotorDocument = gql`
       link
       social_media
     }
+    promotes {
+      id
+      title
+    }
+    activePromotions
   }
 }
     `;

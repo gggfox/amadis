@@ -3,27 +3,15 @@ import { Box, Flex } from '@chakra-ui/react';
 import React from 'react';
 import { EditDeletePostButtons } from '../../components/EditDeletePostButtons';
 import { Layout } from '../../components/Layout';
+import { PromoteProductBtn } from '../../components/PromoteProductBtn';
 import { Wrapper } from '../../components/Wrapper';
-import { usePostQuery } from '../../generated/graphql';
-import { useGetIntId } from '../../utils/useGetIntId';
+import { useMeQuery } from '../../generated/graphql';
 import { useGetPostFromUrl } from '../../utils/useGetPostFromUrl';
 import { withApollo } from '../../utils/withApollo';
 
 const Post = ({}) => {
     const {data, error, loading} = useGetPostFromUrl(); 
-
-
-    // const intId = await useGetIntId(); 
-    
-    // const {data, error, loading} = await usePostQuery({
-    //     skip: intId === -1,
-    //     variables: {
-    //         id: intId,
-    //     },
-    // });
-
-    console.log("data: "+data);
-    
+    const {data: meData} = useMeQuery();
     if(loading){
         return(
             <Layout>
@@ -41,6 +29,16 @@ const Post = ({}) => {
             <Box>could not find post</Box>
         </Layout>
     }
+
+    let alreadyAPromotor = false;
+    if(data.post.promotors){
+        data.post.promotors.map((c) => {
+            if(c.id === meData?.me?.id){
+                alreadyAPromotor = true;
+            }
+        });
+    }
+
     
         return (
             <Layout>
@@ -52,11 +50,15 @@ const Post = ({}) => {
                (<Flex flexDirection="column">
                    Categorias:
                    {data.post.categories?.map((c)=>(
-                       <Box>{JSON.stringify(c.categoryName)}</Box>
+                       <Box>{c.categoryName}</Box>
                    ))}
                </Flex>
                )}
-               <EditDeletePostButtons id={data.post.id} creatorId={data.post.creator.id} />
+               <Flex mt={4}>
+                   {alreadyAPromotor?(null):(<Box mr={2}><PromoteProductBtn postId={data.post.id} /></Box>)}
+                    <EditDeletePostButtons id={data.post.id} creatorId={data.post.creator.id} />
+               </Flex>
+
                </Wrapper>
             </Layout>
         );

@@ -142,15 +142,10 @@ let PostResolver = class PostResolver {
     }
     post(id) {
         return __awaiter(this, void 0, void 0, function* () {
-            const post = yield Post_1.Post.findOne(id);
-            const categories = yield typeorm_1.getConnection().query(`
-        SELECT pc."categoryName"
-        FROM post__category pc
-        WHERE pc."postId" = $1
-        `, [id]);
-            if (post) {
-                post.categories = categories;
-            }
+            const post = yield Post_1.Post.findOne({
+                where: { id: id },
+                relations: ["categories", "promotors"]
+            });
             return post;
         });
     }

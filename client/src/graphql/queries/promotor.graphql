@@ -10,5 +10,10 @@ query Promotor($id: Int!){
       link
       social_media
     }
+    promotes{
+      id
+      title
+    }
+    activePromotions
   }
 }

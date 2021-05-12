@@ -47,6 +47,10 @@ export class User extends BaseEntity{
     @Column({type: "int", default: 0})
     influencerPoints!: number;
 
+    @Field()
+    @Column({type:"int", default:0})
+    activePromotions!: number;
+
     @OneToMany(() => Updoot, (updoot) => updoot.post)
     influencerUpdoots: Updoot[];
 

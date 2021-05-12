@@ -150,7 +150,12 @@ let UserResolver = class UserResolver {
     }
     promotor(id) {
         return __awaiter(this, void 0, void 0, function* () {
-            const promotor = yield User_1.User.findOne({ where: { id: id }, relations: ["categories", "socialMedia"] });
+            const promotor = yield User_1.User.findOne({
+                where: {
+                    id: id
+                },
+                relations: ["categories", "socialMedia", "promotes"]
+            });
             return promotor;
         });
     }
@@ -283,7 +288,7 @@ let UserResolver = class UserResolver {
             });
         });
     }
-    chooseCategories4Promotor(id, categories, { req }) {
+    chooseCategories4Promotor(id, categories) {
         return __awaiter(this, void 0, void 0, function* () {
             if (categories.length < 1) {
                 return {
@@ -324,6 +329,68 @@ let UserResolver = class UserResolver {
             promotor.categories = categories4Promotor;
             yield promotor.save();
             return { user: promotor, };
+        });
+    }
+    createPromotion(postId, { req }) {
+        return __awaiter(this, void 0, void 0, function* () {
+            const userId = req.session.userId;
+            const user = yield User_1.User.findOne(userId);
+            if ((user === null || user === void 0 ? void 0 : user.userType) !== "influencer" && (user === null || user === void 0 ? void 0 : user.userType) !== "admin") {
+                return false;
+            }
+            if (user.activePromotions > 5) {
+                return false;
+            }
+            yield typeorm_1.getConnection().transaction((tm) => __awaiter(this, void 0, void 0, function* () {
+                yield tm.query(`
+                insert into 
+                user_promotes_post("userId", "postId")
+                values ($1, $2)`, [user.id, postId]);
+                yield tm.query(`
+                update public.user
+                set "activePromotions" = "activePromotions" + 1
+                where id = $1`, [user.id]);
+            }));
+            return true;
+        });
+    }
+    deletePromotion(postId, { req }) {
+        return __awaiter(this, void 0, void 0, function* () {
+            const userId = req.session.userId;
+            const user = yield User_1.User.findOne({
+                where: { id: userId },
+                relations: ["promotes"]
+            });
+            if ((user === null || user === void 0 ? void 0 : user.userType) !== "influencer" && (user === null || user === void 0 ? void 0 : user.userType) !== "admin") {
+                return false;
+            }
+            if (user.activePromotions <= 0) {
+                return false;
+            }
+            let postExists = false;
+            if (user.promotes) {
+                const promotions = user.promotes.length;
+                for (let i = 0; i < promotions; i++) {
+                    postExists || (postExists = user.promotes[i].id === postId);
+                }
+            }
+            else {
+                return false;
+            }
+            if (!postExists) {
+                return false;
+            }
+            yield typeorm_1.getConnection().transaction((tm) => __awaiter(this, void 0, void 0, function* () {
+                yield tm.query(`
+                DELETE FROM user_promotes_post
+                WHERE "userId" = $1
+                AND   "postId" = $2`, [user.id, postId]);
+                yield tm.query(`
+                update public.user
+                set "activePromotions" = "activePromotions" - 1
+                where id = $1`, [user.id]);
+            }));
+            return true;
         });
     }
     votePromotor(promotorId, value, { req }) {
@@ -487,11 +554,26 @@ __decorate([
     type_graphql_1.UseMiddleware(isAuth_1.isAuth),
     __param(0, type_graphql_1.Arg('id', () => type_graphql_1.Int)),
     __param(1, type_graphql_1.Arg('categories', () => [String])),
-    __param(2, type_graphql_1.Ctx()),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [Number, Array, Object]),
+    __metadata("design:paramtypes", [Number, Array]),
     __metadata("design:returntype", Promise)
 ], UserResolver.prototype, "chooseCategories4Promotor", null);
+__decorate([
+    type_graphql_1.Mutation(() => Boolean),
+    __param(0, type_graphql_1.Arg('postId', () => type_graphql_1.Int)),
+    __param(1, type_graphql_1.Ctx()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [Number, Object]),
+    __metadata("design:returntype", Promise)
+], UserResolver.prototype, "createPromotion", null);
+__decorate([
+    type_graphql_1.Mutation(() => Boolean),
+    __param(0, type_graphql_1.Arg('postId', () => type_graphql_1.Int)),
+    __param(1, type_graphql_1.Ctx()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [Number, Object]),
+    __metadata("design:returntype", Promise)
+], UserResolver.prototype, "deletePromotion", null);
 __decorate([
     type_graphql_1.Mutation(() => Boolean),
     type_graphql_1.UseMiddleware(isAuth_1.isAuth),

@@ -159,18 +159,13 @@ export class PostResolver {
     async post(
         @Arg('id', () => Int) id: number
     ): Promise<Post | undefined> {
-        const post = await Post.findOne(id)
-        const categories = await getConnection().query(`
-        SELECT pc."categoryName"
-        FROM post__category pc
-        WHERE pc."postId" = $1
-        `, [id]);
-
-        if(post){
-            post.categories = categories;
-        }
+        const post = await Post.findOne({
+            where:{id: id},
+            relations:["categories","promotors"]
+        });
         return post;
     }
+
 
     @Query(() => [Post],{nullable: true})
     async postsByCategory(

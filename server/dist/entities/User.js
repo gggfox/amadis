@@ -65,6 +65,11 @@ __decorate([
     __metadata("design:type", Number)
 ], User.prototype, "influencerPoints", void 0);
 __decorate([
+    type_graphql_1.Field(),
+    typeorm_1.Column({ type: "int", default: 0 }),
+    __metadata("design:type", Number)
+], User.prototype, "activePromotions", void 0);
+__decorate([
     typeorm_1.OneToMany(() => Updoot_1.Updoot, (updoot) => updoot.post),
     __metadata("design:type", Array)
 ], User.prototype, "influencerUpdoots", void 0);

@@ -154,7 +154,12 @@ export class UserResolver {
     async promotor(
         @Arg('id', () => Int) id: number
     ){
-        const promotor = await User.findOne({ where:{id:id},relations: ["categories","socialMedia"] })
+        const promotor = await User.findOne({ 
+            where: {
+                id:id
+            },
+            relations: ["categories","socialMedia","promotes"] 
+        });
         return promotor;
     }
 
@@ -331,7 +336,6 @@ export class UserResolver {
     async chooseCategories4Promotor(
         @Arg('id',() => Int) id: number,
         @Arg('categories', () => [String]) categories: string[],
-        @Ctx() {req}: MyContext
     ):Promise<UserResponse>{
         //to add categories the length should be between 1-5
         if(categories.length < 1){
@@ -377,11 +381,95 @@ export class UserResolver {
 
         await promotor.save();
         
-        
         return {user: promotor,};
-
-
     }
+
+    @Mutation(() => Boolean)
+    async createPromotion(
+        @Arg('postId',() => Int) postId: number,
+        @Ctx(){req}:MyContext
+    ){
+        const userId = req.session.userId;
+        const user = await User.findOne(userId);
+        if(user?.userType !== "influencer" && user?.userType !== "admin"){
+            return false;
+        }
+        if(user.activePromotions > 5){
+            return false;
+        }
+
+        await getConnection().transaction(async (tm) => {
+            await tm.query(`
+                insert into 
+                user_promotes_post("userId", "postId")
+                values ($1, $2)`,
+                [user.id, postId]
+            );
+
+            await tm.query(`
+                update public.user
+                set "activePromotions" = "activePromotions" + 1
+                where id = $1`,
+                [user.id]
+            );
+        });
+        return true;
+        //create query builder
+    }
+
+    @Mutation(() => Boolean)
+    async deletePromotion(
+        @Arg('postId',() => Int) postId: number,
+        @Ctx(){req}:MyContext
+    ){
+        const userId = req.session.userId;
+        const user = await User.findOne({
+            where:{id:userId},
+            relations: ["promotes"] 
+        });
+        if(user?.userType !== "influencer" && user?.userType !== "admin"){
+            return false;
+        }
+
+        if(user.activePromotions <= 0 ){
+            return false;
+        }
+
+        let postExists = false;
+        
+        if(user.promotes){
+            const promotions = user.promotes.length;
+            for(let i = 0; i< promotions;i++){
+                postExists ||= (user.promotes[i].id === postId);
+            }
+        }else{
+            return false;
+        }
+        
+
+        if(!postExists){
+            return false;
+        }
+        await getConnection().transaction(async (tm) => {
+            await tm.query(`
+                DELETE FROM user_promotes_post
+                WHERE "userId" = $1
+                AND   "postId" = $2`,
+                [user.id, postId]
+            );
+
+            await tm.query(`
+                update public.user
+                set "activePromotions" = "activePromotions" - 1
+                where id = $1`,
+                [user.id]
+            );
+        });
+        return true;
+        //create query builder
+    }
+
+
 
     @Mutation(() => Boolean)
     @UseMiddleware(isAuth)

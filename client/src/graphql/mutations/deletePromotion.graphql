@@ -1,0 +1,3 @@
+mutation DeletePromotion($postId: Int!){
+    deletePromotion(postId:$postId)
+}

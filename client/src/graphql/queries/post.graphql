@@ -13,6 +13,10 @@ query Post($id: Int!) {
         }
         categories{
             categoryName
-        }  
+        }
+        promotors{
+            id
+            username
+        }
     }
 }
