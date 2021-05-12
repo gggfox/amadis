@@ -3,63 +3,87 @@ import { Box, Button, Flex, Icon, Link } from '@chakra-ui/react';
 import NextLink from 'next/link';
 import { useLogoutMutation, useMeQuery } from '../generated/graphql';
 import { isServer } from '../utils/isServer';
-import {useRouter} from 'next/router';
-import {MdShoppingCart} from 'react-icons/md';
+import {BsFillHouseDoorFill,BsFillPersonFill,BsFillHeartFill,BsSearch} from 'react-icons/bs'
+import { useApolloClient } from '@apollo/client';
 
 interface NavBarProps {
 
 }
 
 export const NavBar: React.FC<NavBarProps> = ({}) => {
-    const router = useRouter();
-    const [{fetching: logoutFetching},logout] = useLogoutMutation();
-    const [{data, fetching}] = useMeQuery({
-        pause: isServer(), //
+    const [logout,{loading: logoutFetching}] = useLogoutMutation();
+    const apolloClient = useApolloClient();
+    const {data, loading} = useMeQuery({
+        skip: isServer(), //
     });
-    let basic = (
-        <>
-    <NextLink href="/">
-        <Link color="white">productos  </Link>
-    </NextLink>
-    <Icon as={MdShoppingCart}/></>)
-    let body = basic;
 
-    if(fetching) {//data is loading
-        body = basic;
-    }if(!data?.me) {
-        // user is logged in
-        body = 
-        (<>
-            {basic}
-            <NextLink href='/login'>
-                <Link color="white" mr={2}>login</Link>
-            </NextLink>
-            <NextLink href='/register'>
-                <Link color="white">registrate</Link>
-            </NextLink>
-        </>);
-    }else{
-        body = (
-            <Flex>
-                {basic}
-                <Box ml={2} mr={2}>
-                    {data.me.username}[{data.me.userType}]
-                </Box>
-                <Button 
-                    onClick={async() => {
-                        await logout();
-                        router.reload();
-                    }} 
-                    isLoading={logoutFetching}
-                    variant="link">
-                        logout
-                </Button>
-            </Flex>)
+   
+ 
+    const personLink = (!data?.me)?(
+        <NextLink href="/login">
+            <Link color="frost.1">
+                <Icon as={BsFillPersonFill} boxSize={8}></Icon>
+            </Link>
+        </NextLink> 
+    ):(
+        <Flex>
+        <NextLink href="/user/[id]" as={`/user/${data?.me?.id}`}>
+            <Link color="frost.1">
+                <Icon as={BsFillPersonFill} boxSize={8}></Icon>
+            </Link>
+        </NextLink>
+        <Box ml={2} mr={2}>
+            {data?.me?.username}[{data?.me?.userType}]
+        </Box>
+        <Button 
+            onClick={async() => {
+                await logout();
+                await apolloClient.resetStore();
+            }} 
+            isLoading={logoutFetching}
+            variant="link">
+                logout
+        </Button>
+        </Flex>
+    );
+    
+
+    const basic = (
+        <Flex>
+        <NextLink href="/">
+            <Link color="frost.1">
+                <Icon as={BsFillHouseDoorFill} boxSize={8} mr={4}/>
+            </Link>
+        </NextLink>
+        <NextLink href="/categories">
+            <Link color="frost.1">
+                <Icon as={BsSearch} boxSize={8} mr={4}/>
+            </Link>
+        </NextLink>
+        <NextLink href="/">
+            <Link color="frost.1">
+                <Icon as={BsFillHeartFill} boxSize={8} mr={4}/>
+            </Link>
+        </NextLink>
+        {personLink}
+
+    </Flex>)
+
+    if(loading) {//data is loading
+      //should have a page skeleton here
     }
+    
     return (
-        <Flex zIndex={1} position='sticky' top={0} bg="polarNight.1" p={4}>
-            <Box ml={"auto"}>
-                {body}
+        <Flex 
+          zIndex={1} 
+          bg="polarNight.1" 
+          p={4}
+          justifyContent="center"
+          flexDirection="row"
+        >
+            <Box>
+                {basic}
             </Box>
-        </Flex>);
+        </Flex>
+    );
 }

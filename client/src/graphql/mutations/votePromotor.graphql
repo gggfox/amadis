@@ -1,0 +1,3 @@
+mutation VotePromotor($value: Int!, $promotorId: Int!){
+  votePromotor(value:$value, promotorId:$promotorId)
+}

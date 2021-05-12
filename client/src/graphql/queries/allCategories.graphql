@@ -1,0 +1,5 @@
+query Category {
+        allCategories{
+            name
+        }
+}

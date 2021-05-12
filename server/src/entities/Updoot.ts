@@ -2,7 +2,6 @@ import { BaseEntity, Column, Entity, ManyToOne, PrimaryColumn } from "typeorm";
 import { Post } from "./Post";
 import { User } from "./User";
 
-
 @Entity()
 export class Updoot extends BaseEntity{
 

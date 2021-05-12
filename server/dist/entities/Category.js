@@ -12,18 +12,24 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.Category = void 0;
 const type_graphql_1 = require("type-graphql");
 const typeorm_1 = require("typeorm");
+const Post_Category_1 = require("./Post_Category");
+const User_1 = require("./User");
 let Category = class Category extends typeorm_1.BaseEntity {
 };
 __decorate([
     type_graphql_1.Field(),
-    typeorm_1.PrimaryGeneratedColumn(),
-    __metadata("design:type", Number)
-], Category.prototype, "id", void 0);
-__decorate([
-    type_graphql_1.Field(),
-    typeorm_1.Column({ unique: true }),
+    typeorm_1.PrimaryColumn(),
     __metadata("design:type", String)
 ], Category.prototype, "name", void 0);
+__decorate([
+    typeorm_1.OneToMany(() => Post_Category_1.Post_Category, post_category => post_category.category),
+    __metadata("design:type", Array)
+], Category.prototype, "post_category", void 0);
+__decorate([
+    type_graphql_1.Field(() => [User_1.User], { nullable: true }),
+    typeorm_1.ManyToMany(() => User_1.User, user => user.categories),
+    __metadata("design:type", Array)
+], Category.prototype, "promotors", void 0);
 __decorate([
     type_graphql_1.Field(() => String),
     typeorm_1.CreateDateColumn(),

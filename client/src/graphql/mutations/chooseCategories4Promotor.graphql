@@ -1,0 +1,16 @@
+mutation ChooseCategories4Promotor($id: Int!, $categories:[String!]!){
+  chooseCategories4Promotor(id:$id,categories:$categories){
+    errors{
+      field
+      message
+    }
+    user{
+      id
+      username
+      userType
+      categories{
+        name
+      }
+    }
+  }
+}

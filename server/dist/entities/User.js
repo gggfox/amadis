@@ -12,7 +12,9 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.User = void 0;
 const type_graphql_1 = require("type-graphql");
 const typeorm_1 = require("typeorm");
+const Category_1 = require("./Category");
 const Post_1 = require("./Post");
+const SocialMedia_1 = require("./SocialMedia");
 const Updoot_1 = require("./Updoot");
 let User = class User extends typeorm_1.BaseEntity {
 };
@@ -44,10 +46,40 @@ __decorate([
     __metadata("design:type", Array)
 ], User.prototype, "updoots", void 0);
 __decorate([
+    type_graphql_1.Field(() => [SocialMedia_1.SocialMedia], { nullable: true }),
+    typeorm_1.OneToMany(() => SocialMedia_1.SocialMedia, (socialMedia) => socialMedia.user),
+    __metadata("design:type", Array)
+], User.prototype, "socialMedia", void 0);
+__decorate([
     type_graphql_1.Field(),
     typeorm_1.Column({ default: "regular" }),
     __metadata("design:type", String)
 ], User.prototype, "userType", void 0);
+__decorate([
+    type_graphql_1.Field(() => type_graphql_1.Int, { nullable: true }),
+    __metadata("design:type", Object)
+], User.prototype, "influencerVoteStatus", void 0);
+__decorate([
+    type_graphql_1.Field(),
+    typeorm_1.Column({ type: "int", default: 0 }),
+    __metadata("design:type", Number)
+], User.prototype, "influencerPoints", void 0);
+__decorate([
+    typeorm_1.OneToMany(() => Updoot_1.Updoot, (updoot) => updoot.post),
+    __metadata("design:type", Array)
+], User.prototype, "influencerUpdoots", void 0);
+__decorate([
+    type_graphql_1.Field(() => [Category_1.Category], { nullable: true }),
+    typeorm_1.ManyToMany(() => Category_1.Category, categories => categories.promotors),
+    typeorm_1.JoinTable(),
+    __metadata("design:type", Array)
+], User.prototype, "categories", void 0);
+__decorate([
+    type_graphql_1.Field(() => [Post_1.Post], { nullable: true }),
+    typeorm_1.ManyToMany(() => Post_1.Post, posts => posts.promotors),
+    typeorm_1.JoinTable(),
+    __metadata("design:type", Array)
+], User.prototype, "promotes", void 0);
 __decorate([
     type_graphql_1.Field(() => String),
     typeorm_1.CreateDateColumn(),

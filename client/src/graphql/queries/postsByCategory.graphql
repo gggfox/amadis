@@ -1,0 +1,5 @@
+query PostsByCategory($categoryName: String!) {
+    postsByCategory(categoryName:$categoryName){
+        ...PostSnippet
+    }
+}

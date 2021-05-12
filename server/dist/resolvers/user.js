@@ -28,12 +28,15 @@ exports.UserResolver = void 0;
 const User_1 = require("../entities/User");
 const type_graphql_1 = require("type-graphql");
 const argon2_1 = __importDefault(require("argon2"));
-const constants_1 = require("../constants");
 const UsernamePasswordInput_1 = require("./UsernamePasswordInput");
 const validateRegister_1 = require("../utils/validateRegister");
 const sendEmail_1 = require("../utils/sendEmail");
 const uuid_1 = require("uuid");
 const typeorm_1 = require("typeorm");
+const PromotorUpdoot_1 = require("../entities/PromotorUpdoot");
+const isAuth_1 = require("../middleware/isAuth");
+const Category_1 = require("../entities/Category");
+const SocialMedia_1 = require("../entities/SocialMedia");
 let FieldError = class FieldError {
 };
 __decorate([
@@ -67,6 +70,18 @@ let UserResolver = class UserResolver {
         }
         return "";
     }
+    influencerVoteStatus(user, { promotorUpdootLoader, req }) {
+        return __awaiter(this, void 0, void 0, function* () {
+            if (!req.session.userId) {
+                return null;
+            }
+            const updoot = yield promotorUpdootLoader.load({
+                promotorId: user.id,
+                userId: req.session.userId,
+            });
+            return updoot ? updoot.value : null;
+        });
+    }
     changePassword(token, newPassword, { redis, req }) {
         return __awaiter(this, void 0, void 0, function* () {
             if (newPassword.length <= 2) {
@@ -79,7 +94,7 @@ let UserResolver = class UserResolver {
                     ]
                 };
             }
-            const key = constants_1.FORGOT_PASSWORD_PREFIX + token;
+            const key = 'forgot-password:' + token;
             const userId = yield redis.get(key);
             if (!userId) {
                 return {
@@ -116,8 +131,8 @@ let UserResolver = class UserResolver {
                 return true;
             }
             const token = uuid_1.v4();
-            yield redis.set(constants_1.FORGOT_PASSWORD_PREFIX + token, user.id, 'ex', 1000 * 60 * 60 * 24 * 3);
-            sendEmail_1.sendEmail(email, `<a href="${constants_1.CLIENT_NAME}/change-password/${token}"> reset password</a>`);
+            yield redis.set('forgot-password:' + token, user.id, 'ex', 1000 * 60 * 60 * 24 * 3);
+            sendEmail_1.sendEmail(email, `<a href="${process.env.CORS_ORIGIN}/change-password/${token}"> reset password</a>`);
             return true;
         });
     }
@@ -127,22 +142,63 @@ let UserResolver = class UserResolver {
         }
         return User_1.User.findOne(req.session.userId);
     }
-    influencers() {
+    promotores() {
         return __awaiter(this, void 0, void 0, function* () {
-            const users = yield typeorm_1.getConnection().query(`
-            SELECT * FROM "user" WHERE "userType" = 'influencer';
-        `);
-            console.log(users);
-            return users;
+            const promotores = yield User_1.User.find({ where: { userType: "influencer" }, relations: ["categories"] });
+            return promotores;
+        });
+    }
+    promotor(id) {
+        return __awaiter(this, void 0, void 0, function* () {
+            const promotor = yield User_1.User.findOne({ where: { id: id }, relations: ["categories", "socialMedia"] });
+            return promotor;
+        });
+    }
+    promotoresByCategory(categoryName) {
+        return __awaiter(this, void 0, void 0, function* () {
+            const promotores = yield typeorm_1.getConnection().query(`
+        SELECT * FROM "user" u 
+        LEFT JOIN user_categories_category ucc 
+        ON u.id=ucc."userId" 
+        LEFT JOIN "category" c
+        ON ucc."categoryName"=c.name
+        WHERE c.name= $1
+        `, [categoryName]);
+            console.log("promotores: " + promotores);
+            return promotores;
+        });
+    }
+    addSocialMedia(link, social_media, { req }) {
+        return __awaiter(this, void 0, void 0, function* () {
+            const userId = req.session.userId;
+            if (!userId || link === "" || social_media === "") {
+                return false;
+            }
+            yield SocialMedia_1.SocialMedia.create({ userId, link, social_media }).save();
+            return true;
+        });
+    }
+    deleteSocialMedia(link, { req }) {
+        return __awaiter(this, void 0, void 0, function* () {
+            const userId = req.session.userId;
+            yield typeorm_1.getConnection()
+                .createQueryBuilder()
+                .delete()
+                .from(SocialMedia_1.SocialMedia)
+                .where('"userId" = :userId and link = :link', { userId: userId, link: link })
+                .execute();
+            return true;
         });
     }
     users() {
         return __awaiter(this, void 0, void 0, function* () {
-            const users = yield typeorm_1.getConnection().query(`
-            SELECT * FROM "user";
-        `);
-            console.log(users);
+            const users = yield User_1.User.find();
             return users;
+        });
+    }
+    user(id) {
+        return __awaiter(this, void 0, void 0, function* () {
+            return User_1.User.findOne(id);
         });
     }
     register(options, { req }) {
@@ -222,19 +278,112 @@ let UserResolver = class UserResolver {
                     resolve(false);
                     return;
                 }
-                res.clearCookie(constants_1.COOKIE_NAME);
+                res.clearCookie("qid");
                 resolve(true);
             });
+        });
+    }
+    chooseCategories4Promotor(id, categories, { req }) {
+        return __awaiter(this, void 0, void 0, function* () {
+            if (categories.length < 1) {
+                return {
+                    errors: [
+                        {
+                            field: "",
+                            message: "no categories",
+                        },
+                    ],
+                };
+            }
+            if (categories.length > 5) {
+                return {
+                    errors: [
+                        {
+                            field: "",
+                            message: "no excedded limit of 5 categories",
+                        },
+                    ],
+                };
+            }
+            const promotor = yield User_1.User.findOne({ where: { id, userType: "influencer" } });
+            if (!promotor) {
+                return {
+                    errors: [
+                        {
+                            field: "",
+                            message: "no promotor found",
+                        },
+                    ],
+                };
+            }
+            let names = [];
+            for (let i = 0; i < categories.length; i++) {
+                names.push({ name: categories[i] });
+            }
+            const categories4Promotor = yield Category_1.Category.find({ where: names });
+            promotor.categories = categories4Promotor;
+            yield promotor.save();
+            return { user: promotor, };
+        });
+    }
+    votePromotor(promotorId, value, { req }) {
+        return __awaiter(this, void 0, void 0, function* () {
+            const isUpdoot = (value !== -1);
+            const { userId } = req.session;
+            const realValue = isUpdoot ? 1 : -1;
+            const updoot = yield PromotorUpdoot_1.PromotorUpdoot.findOne({ where: { promotorId, userId } });
+            if (updoot && updoot.value !== realValue) {
+                yield typeorm_1.getConnection().transaction((tm) => __awaiter(this, void 0, void 0, function* () {
+                    yield tm.query(`
+                    update promotor_updoot
+                    set value = $1
+                    where "promotorId" = $2 and "userId" = $3
+                    `, [realValue, promotorId, userId]);
+                    yield tm.query(`
+                    update public.user
+                    set "influencerPoints" = "influencerPoints" + $1
+                    where id = $2
+                    `, [2 * realValue, promotorId]);
+                }));
+            }
+            else if (!updoot) {
+                yield typeorm_1.getConnection().transaction((tm) => __awaiter(this, void 0, void 0, function* () {
+                    yield tm.query(`
+                    insert into promotor_updoot ("userId", "promotorId", value)
+                    values ($1, $2, $3)
+                    `, [userId, promotorId, realValue]);
+                    yield tm.query(`
+                    update public.user
+                    set "influencerPoints" = "influencerPoints" + $1
+                    where id = $2
+                    `, [realValue, promotorId]);
+                }));
+            }
+            PromotorUpdoot_1.PromotorUpdoot.insert({
+                userId,
+                promotorId,
+                value: realValue,
+            });
+            return true;
         });
     }
 };
 __decorate([
     type_graphql_1.FieldResolver(() => String),
-    __param(0, type_graphql_1.Root()), __param(1, type_graphql_1.Ctx()),
+    __param(0, type_graphql_1.Root()),
+    __param(1, type_graphql_1.Ctx()),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [User_1.User, Object]),
     __metadata("design:returntype", void 0)
 ], UserResolver.prototype, "email", null);
+__decorate([
+    type_graphql_1.FieldResolver(() => type_graphql_1.Int, { nullable: true }),
+    __param(0, type_graphql_1.Root()),
+    __param(1, type_graphql_1.Ctx()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [User_1.User, Object]),
+    __metadata("design:returntype", Promise)
+], UserResolver.prototype, "influencerVoteStatus", null);
 __decorate([
     type_graphql_1.Mutation(() => UserResponse),
     __param(0, type_graphql_1.Arg('token')),
@@ -264,13 +413,51 @@ __decorate([
     __metadata("design:type", Function),
     __metadata("design:paramtypes", []),
     __metadata("design:returntype", Promise)
-], UserResolver.prototype, "influencers", null);
+], UserResolver.prototype, "promotores", null);
+__decorate([
+    type_graphql_1.Query(() => User_1.User),
+    __param(0, type_graphql_1.Arg('id', () => type_graphql_1.Int)),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [Number]),
+    __metadata("design:returntype", Promise)
+], UserResolver.prototype, "promotor", null);
+__decorate([
+    type_graphql_1.Query(() => [User_1.User], { nullable: true }),
+    __param(0, type_graphql_1.Arg('categoryName', () => String)),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [String]),
+    __metadata("design:returntype", Promise)
+], UserResolver.prototype, "promotoresByCategory", null);
+__decorate([
+    type_graphql_1.Mutation(() => Boolean),
+    __param(0, type_graphql_1.Arg('link', () => String)),
+    __param(1, type_graphql_1.Arg('social_media', () => String)),
+    __param(2, type_graphql_1.Ctx()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [String, String, Object]),
+    __metadata("design:returntype", Promise)
+], UserResolver.prototype, "addSocialMedia", null);
+__decorate([
+    type_graphql_1.Mutation(() => Boolean),
+    __param(0, type_graphql_1.Arg('link', () => String)),
+    __param(1, type_graphql_1.Ctx()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [String, Object]),
+    __metadata("design:returntype", Promise)
+], UserResolver.prototype, "deleteSocialMedia", null);
 __decorate([
     type_graphql_1.Query(() => [User_1.User]),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", []),
     __metadata("design:returntype", Promise)
 ], UserResolver.prototype, "users", null);
+__decorate([
+    type_graphql_1.Query(() => User_1.User),
+    __param(0, type_graphql_1.Arg('id', () => type_graphql_1.Int)),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [Number]),
+    __metadata("design:returntype", Promise)
+], UserResolver.prototype, "user", null);
 __decorate([
     type_graphql_1.Mutation(() => UserResponse),
     __param(0, type_graphql_1.Arg('options')),
@@ -295,6 +482,26 @@ __decorate([
     __metadata("design:paramtypes", [Object]),
     __metadata("design:returntype", void 0)
 ], UserResolver.prototype, "logout", null);
+__decorate([
+    type_graphql_1.Mutation(() => UserResponse, { nullable: true }),
+    type_graphql_1.UseMiddleware(isAuth_1.isAuth),
+    __param(0, type_graphql_1.Arg('id', () => type_graphql_1.Int)),
+    __param(1, type_graphql_1.Arg('categories', () => [String])),
+    __param(2, type_graphql_1.Ctx()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [Number, Array, Object]),
+    __metadata("design:returntype", Promise)
+], UserResolver.prototype, "chooseCategories4Promotor", null);
+__decorate([
+    type_graphql_1.Mutation(() => Boolean),
+    type_graphql_1.UseMiddleware(isAuth_1.isAuth),
+    __param(0, type_graphql_1.Arg('promotorId', () => type_graphql_1.Int)),
+    __param(1, type_graphql_1.Arg('value', () => type_graphql_1.Int)),
+    __param(2, type_graphql_1.Ctx()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [Number, Number, Object]),
+    __metadata("design:returntype", Promise)
+], UserResolver.prototype, "votePromotor", null);
 UserResolver = __decorate([
     type_graphql_1.Resolver(User_1.User)
 ], UserResolver);

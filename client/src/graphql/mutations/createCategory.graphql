@@ -1,0 +1,7 @@
+mutation CreateCategory($name: String!) {
+    createCategory(name: $name) {
+        name
+        createdAt
+        updatedAt
+    }
+}

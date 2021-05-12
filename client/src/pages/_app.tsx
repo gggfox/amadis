@@ -1,6 +1,8 @@
 import { CSSReset, ThemeProvider } from '@chakra-ui/react'
 import theme from '../theme'
 import './styles.css'
+
+
 function MyApp({ Component, pageProps }: any) {
   return (
     <ThemeProvider theme={theme}>
