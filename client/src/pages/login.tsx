@@ -48,14 +48,12 @@ const Login: React.FC<{}> = ({}) => {
             {({isSubmitting}) => (
                 <Form>
                     <InputField
-                    textarea={false}
                     name="usernameOrEmail"
                     placeholder="usuario o email"
                     label="Usuario o Email"
                     />
                     <Box mt={4}>
                     <InputField
-                    textarea={false}
                     name="password"
                     placeholder="contraseña"
                     label="Contraseña"

@@ -1,15 +1,17 @@
 import React from "react"
 import { Layout } from "../components/Layout"
-import { usePostsQuery } from "../generated/graphql"
+import { useMeQuery, usePostsQuery } from "../generated/graphql"
 import NextLink from "next/link";
 import { Box, Button, Flex, Heading, Link, Stack, Text } from "@chakra-ui/react"
 import { UpdootSection } from "../components/UpdootSection"
 import { EditDeletePostButtons } from "../components/EditDeletePostButtons"
 import { withApollo } from "../utils/withApollo";
 import { Wrapper } from "../components/Wrapper";
+import { SavePostBtn } from "../components/SavePostBtn";
 
 const Index = () => {
-   //const [{ data: meData}] = useMeQuery();
+   const { data: meData} = useMeQuery();
+   
    const {data, error, loading, fetchMore, variables} = usePostsQuery({
       variables:{
          limit: 10, 
@@ -24,16 +26,19 @@ const Index = () => {
          <div>{error?.message}</div>
       </div>);
  }
+ const meType = meData?.me?.userType;
     return(
  <Layout>
     <Wrapper variant="regular">
     <Flex align="center">
       <Heading color="snowStorm.0">Productos</Heading>
-      <NextLink href="/create-post">
-         <Link ml="auto" color="snowStorm.0">
-            crear producto
-         </Link>
-      </NextLink>
+      {(meType != "admin" && meType != "business")? null : (
+         <NextLink href="/create-post">
+            <Link ml="auto" color="snowStorm.0">
+               crear producto
+            </Link>
+         </NextLink>
+      )}
     </Flex>
     {!data && loading 
       ? (<div>loading...</div>) 
@@ -61,7 +66,12 @@ const Index = () => {
                      <Flex flexDirection="row">
                      <Text lex={1} mt={2} color="snowStorm.1">{p.textSnippet}...</Text>
                      <Box ml="auto">
-                        <EditDeletePostButtons id={p.id} creatorId={p.creator.id}/>
+                        {(meData?.me?.id === p.creator.id)
+                           ?(<EditDeletePostButtons id={p.id} creatorId={p.creator.id}/>)
+                           :(<SavePostBtn postId={p.id}/>)
+                        }
+                        
+                        
                      </Box>
                   </Flex>
                 </Box>

@@ -5,11 +5,6 @@ import { Post_Category } from "../entities/Post_Category";
 @Resolver(Post_Category)
 export class Post_CategoryResolver {
 
-    // @Query(() => [Post_Category])
-    // async allPostCategories():Promise<Post_Category>{
-    //     return await Post_Category.find();
-    // }
-
     @Query(() => [Post_Category])
     async allPostCategories(){
         return await Post_Category.find();

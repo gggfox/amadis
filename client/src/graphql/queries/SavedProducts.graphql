@@ -1,0 +1,24 @@
+query SavedProducts {
+    savedProducts {
+        savedProducts{
+            id
+            createdAt
+            updatedAt
+            title
+            points
+            text
+            voteStatus
+            creator{
+                id
+                username
+            }
+            categories{
+                categoryName
+            }
+            promotors{
+                id
+                username
+            }
+        }
+    }
+}

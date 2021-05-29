@@ -37,6 +37,7 @@ const PromotorUpdoot_1 = require("../entities/PromotorUpdoot");
 const isAuth_1 = require("../middleware/isAuth");
 const Category_1 = require("../entities/Category");
 const SocialMedia_1 = require("../entities/SocialMedia");
+const Post_1 = require("../entities/Post");
 let FieldError = class FieldError {
 };
 __decorate([
@@ -142,6 +143,13 @@ let UserResolver = class UserResolver {
         }
         return User_1.User.findOne(req.session.userId);
     }
+    savedProducts({ req }) {
+        if (!req.session.userId) {
+            return null;
+        }
+        const userId = req.session.userId;
+        return User_1.User.findOne({ where: { id: userId }, relations: ["savedProducts"] });
+    }
     promotores() {
         return __awaiter(this, void 0, void 0, function* () {
             const promotores = yield User_1.User.find({ where: { userType: "influencer" }, relations: ["categories"] });
@@ -169,7 +177,6 @@ let UserResolver = class UserResolver {
         ON ucc."categoryName"=c.name
         WHERE c.name= $1
         `, [categoryName]);
-            console.log("promotores: " + promotores);
             return promotores;
         });
     }
@@ -271,7 +278,6 @@ let UserResolver = class UserResolver {
                 };
             }
             req.session.userId = user.id;
-            console.log(req.session.userId);
             return { user, };
         });
     }
@@ -393,6 +399,46 @@ let UserResolver = class UserResolver {
             return true;
         });
     }
+    saveProduct(postId, { req }) {
+        return __awaiter(this, void 0, void 0, function* () {
+            const userId = req.session.userId;
+            if (!userId) {
+                return false;
+            }
+            const product = yield Post_1.Post.findOne(postId);
+            const user = yield User_1.User.findOne(userId);
+            if (product && user) {
+                const res = yield typeorm_1.getConnection().query(`
+            INSERT INTO user_saved_products_post
+            ("userId","postId")
+            VALUES($1,$2)
+            `, [user.id, product.id]);
+                console.log("res: " + res);
+                return true;
+            }
+            return false;
+        });
+    }
+    unSaveProduct(postId, { req }) {
+        return __awaiter(this, void 0, void 0, function* () {
+            const userId = req.session.userId;
+            if (!userId) {
+                return false;
+            }
+            const product = yield Post_1.Post.findOne(postId);
+            const user = yield User_1.User.findOne(userId);
+            if (product && user) {
+                const res = yield typeorm_1.getConnection().query(`
+            DELETE FROM user_saved_products_post
+            WHERE "userId" = $1
+            AND "postId" =  $2
+            `, [user.id, product.id]);
+                console.log("res: " + res);
+                return true;
+            }
+            return false;
+        });
+    }
     votePromotor(promotorId, value, { req }) {
         return __awaiter(this, void 0, void 0, function* () {
             const isUpdoot = (value !== -1);
@@ -475,6 +521,13 @@ __decorate([
     __metadata("design:paramtypes", [Object]),
     __metadata("design:returntype", void 0)
 ], UserResolver.prototype, "me", null);
+__decorate([
+    type_graphql_1.Query(() => User_1.User, { nullable: true }),
+    __param(0, type_graphql_1.Ctx()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [Object]),
+    __metadata("design:returntype", void 0)
+], UserResolver.prototype, "savedProducts", null);
 __decorate([
     type_graphql_1.Query(() => [User_1.User]),
     __metadata("design:type", Function),
@@ -574,6 +627,24 @@ __decorate([
     __metadata("design:paramtypes", [Number, Object]),
     __metadata("design:returntype", Promise)
 ], UserResolver.prototype, "deletePromotion", null);
+__decorate([
+    type_graphql_1.Mutation(() => Boolean),
+    type_graphql_1.UseMiddleware(isAuth_1.isAuth),
+    __param(0, type_graphql_1.Arg('postId', () => type_graphql_1.Int)),
+    __param(1, type_graphql_1.Ctx()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [Number, Object]),
+    __metadata("design:returntype", Promise)
+], UserResolver.prototype, "saveProduct", null);
+__decorate([
+    type_graphql_1.Mutation(() => Boolean),
+    type_graphql_1.UseMiddleware(isAuth_1.isAuth),
+    __param(0, type_graphql_1.Arg('postId', () => type_graphql_1.Int)),
+    __param(1, type_graphql_1.Ctx()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [Number, Object]),
+    __metadata("design:returntype", Promise)
+], UserResolver.prototype, "unSaveProduct", null);
 __decorate([
     type_graphql_1.Mutation(() => Boolean),
     type_graphql_1.UseMiddleware(isAuth_1.isAuth),

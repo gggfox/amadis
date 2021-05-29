@@ -48,14 +48,12 @@ const EditPost = ({}) => {
                     {({isSubmitting}) => (
                         <Form>
                             <InputField
-                              textarea={false}
                               name="title"
                               placeholder="titulo"
                               label="Titulo"
                             />
                             <Box mt={4}>
                             <InputField
-                              textarea
                               name="text"
                               placeholder="texto..."
                               label="Descripcion"

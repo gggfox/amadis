@@ -35,7 +35,6 @@ const CreateCategory: React.FC<{}> = ({}) => {
                     {({isSubmitting}) => (
                         <Form>
                             <InputField
-                              textarea={false}
                               name="name"
                               placeholder="nombre de la categoria"
                               label="Nombre de la categoria"

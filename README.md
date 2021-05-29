@@ -20,11 +20,32 @@ yarn gen //genrate graphql mutation hook
 update environment variables
 npx gen-env-types .env -o src/env.d.ts -e .
 
-
-typeorm migration:create -n MockPosts
-typeorm migration:generate -n Initial
+# create typeorm migrations
+npx typeorm migration:create -n MockPosts
+npx typeorm migration:generate -n Initial
 
 Recordar que debes tener en client el archivo .env.local
 este archivo debe contener el url para conectarte con el backend NEXT_PUBLIC_API_URL = url:port\graphql
 
 En .env cambiar la información para que se conecte con tu base de datos local DATABASE_URL= //user:password@localhost:port/dbName
+
+
+# docker dev
+//docker build -t docker_username/project_name:version
+docker build -t gggfox/amadis:version
+// should have image created at docker hub
+docker push gggfox/amadis:version
+
+# docker prod (ssh)
+sudo docker pull gggfox/amadis:version
+sudo docker tag gggfox/amadis:version dokku/api:version
+dokku tags:deploy api latest
+
+
+# dokku
+postgres
+redis
+letsencrypt 
+//https://github.com/dokku/dokku-letsencrypt
+## dokku-comands
+dokku domains:report 

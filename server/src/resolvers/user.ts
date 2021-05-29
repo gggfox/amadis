@@ -11,6 +11,7 @@ import { PromotorUpdoot } from "../entities/PromotorUpdoot";
 import { isAuth } from "../middleware/isAuth";
 import { Category } from "../entities/Category";
 import { SocialMedia } from "../entities/SocialMedia";
+import { Post } from "../entities/Post";
 
 @ObjectType()
 class FieldError {
@@ -18,7 +19,6 @@ class FieldError {
     field: string;
     @Field()
     message: string;
-
 }
 
 @ObjectType()
@@ -144,6 +144,15 @@ export class UserResolver {
         return User.findOne(req.session.userId);
     }
 
+    @Query(() => User, {nullable:true})
+    savedProducts(@Ctx() { req }: MyContext) {
+        if(!req.session.userId){
+            return null;
+        }
+        const userId = req.session.userId;
+        return User.findOne({where:{id:userId},relations:["savedProducts"]});
+    }
+
     @Query(() => [User])
     async promotores(){
         const promotores = await User.find({ where:{userType: "influencer"},relations: ["categories"] })
@@ -175,8 +184,6 @@ export class UserResolver {
         ON ucc."categoryName"=c.name
         WHERE c.name= $1
         `, [categoryName]);
-
-        console.log("promotores: "+promotores);
         
         return promotores;
     }
@@ -308,8 +315,7 @@ export class UserResolver {
                 ],
             };
         }
-       req.session.userId = user.id;
-        console.log(req.session.userId);
+        req.session.userId = user.id;
         return {user,};
     }
 
@@ -469,6 +475,57 @@ export class UserResolver {
         //create query builder
     }
 
+    @Mutation(() => Boolean)
+    @UseMiddleware(isAuth)
+    async saveProduct(
+        @Arg('postId', () => Int) postId: number,
+        @Ctx() {req}: MyContext
+    ){
+        const userId = req.session.userId;
+        if(!userId){
+            return false;
+        }
+
+        const product = await Post.findOne(postId);
+        const user = await User.findOne(userId);
+        if(product && user){
+            const res = await getConnection().query(`
+            INSERT INTO user_saved_products_post
+            ("userId","postId")
+            VALUES($1,$2)
+            `, [user.id, product.id]);
+
+            console.log("res: "+res)
+            return true;
+        }
+        return false;
+    }
+
+    @Mutation(() => Boolean)
+    @UseMiddleware(isAuth)
+    async unSaveProduct(
+        @Arg('postId', () => Int) postId: number,
+        @Ctx() {req}: MyContext
+    ){
+        const userId = req.session.userId;
+        if(!userId){
+            return false;
+        }
+
+        const product = await Post.findOne(postId);
+        const user = await User.findOne(userId);
+        if(product && user){
+            const res = await getConnection().query(`
+            DELETE FROM user_saved_products_post
+            WHERE "userId" = $1
+            AND "postId" =  $2
+            `, [user.id, product.id]);
+
+            console.log("res: "+res)
+            return true;
+        }
+        return false;
+    }
 
 
     @Mutation(() => Boolean)

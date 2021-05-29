@@ -86,6 +86,12 @@ __decorate([
     __metadata("design:type", Array)
 ], User.prototype, "promotes", void 0);
 __decorate([
+    type_graphql_1.Field(() => [Post_1.Post], { nullable: true }),
+    typeorm_1.ManyToMany(() => Post_1.Post, posts => posts.interestedUsers),
+    typeorm_1.JoinTable(),
+    __metadata("design:type", Array)
+], User.prototype, "savedProducts", void 0);
+__decorate([
     type_graphql_1.Field(() => String),
     typeorm_1.CreateDateColumn(),
     __metadata("design:type", Date)

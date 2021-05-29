@@ -60,7 +60,7 @@ export const NavBar: React.FC<NavBarProps> = ({}) => {
                 <Icon as={BsSearch} boxSize={8} mr={4}/>
             </Link>
         </NextLink>
-        <NextLink href="/">
+        <NextLink href="/savedProducts">
             <Link color="frost.1">
                 <Icon as={BsFillHeartFill} boxSize={8} mr={4}/>
             </Link>

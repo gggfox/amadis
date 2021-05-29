@@ -4,6 +4,6 @@ echo What should the verion be? #chmod +x deploy.sh
 read VERSION
 echo $VERSION
 
-#docker build -t gera/amadis:$VERSION
-#docker push gera/amadis:$VERSION
-#ssh root@64.227.13.208 "docker pull gera/amadis:$VERSION && docker tag gera/amadis:$VERSION dokku/api:$VERSION && dokku deploy api $VERSION"
+docker build -t gggfox/amadis:$VERSION .
+docker push gggfox/amadis:$VERSION
+ssh gera@52.168.30.144 "sudo docker pull gggfox/amadis:$VERSION && sudo docker tag gggfox/amadis:$VERSION dokku/api:$VERSION && dokku deploy api $VERSION"

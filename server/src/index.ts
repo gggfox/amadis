@@ -26,6 +26,7 @@ import { Post_CategoryResolver } from "./resolvers/post_category";
 import { PromotorUpdoot } from "./entities/PromotorUpdoot";
 import { createPromotorUpdootLoader } from "./utils/createPromotorUpdootLoader";
 import { SocialMedia } from "./entities/SocialMedia";
+import { graphqlUploadExpress } from "graphql-upload";
 
 const main = async () => {
     const conn = await createConnection({
@@ -36,7 +37,7 @@ const main = async () => {
         migrations: [path.join(__dirname,"./migrations/*")],
         entities: [Post, User, Updoot, Category, Post_Category,PromotorUpdoot,SocialMedia],
     });
-    //console.log(conn);
+    console.log(conn);
     //await conn.runMigrations();
     //await Post.delete({});
 
@@ -61,7 +62,7 @@ const main = async () => {
                 httpOnly: true,
                 sameSite: 'lax', //crsf
                 secure: __prod__, //only woks in https
-                domain: __prod__ ? '' : undefined,
+                domain: __prod__ ? 'amadis.club' : undefined,//needs a custom domain
              },
              saveUninitialized: false,
             secret: process.env.SESSION_SECRET,
@@ -82,7 +83,10 @@ const main = async () => {
             updootLoader: createUpdootLoader(),
             promotorUpdootLoader: createPromotorUpdootLoader(),
         }),
+        uploads: false
     });
+
+    app.use(graphqlUploadExpress({ maxFileSize: 1000000, maxFiles: 10 }));
 
     apolloServer.applyMiddleware({ 
         app, 

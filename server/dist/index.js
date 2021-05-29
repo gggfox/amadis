@@ -39,6 +39,7 @@ const post_category_1 = require("./resolvers/post_category");
 const PromotorUpdoot_1 = require("./entities/PromotorUpdoot");
 const createPromotorUpdootLoader_1 = require("./utils/createPromotorUpdootLoader");
 const SocialMedia_1 = require("./entities/SocialMedia");
+const graphql_upload_1 = require("graphql-upload");
 const main = () => __awaiter(void 0, void 0, void 0, function* () {
     const conn = yield typeorm_1.createConnection({
         type: 'postgres',
@@ -48,6 +49,7 @@ const main = () => __awaiter(void 0, void 0, void 0, function* () {
         migrations: [path_1.default.join(__dirname, "./migrations/*")],
         entities: [Post_1.Post, User_1.User, Updoot_1.Updoot, Category_1.Category, Post_Category_1.Post_Category, PromotorUpdoot_1.PromotorUpdoot, SocialMedia_1.SocialMedia],
     });
+    console.log(conn);
     const app = express_1.default();
     const RedisStore = connect_redis_1.default(express_session_1.default);
     const redis = new ioredis_1.default(process.env.REDIS_URL);
@@ -67,7 +69,7 @@ const main = () => __awaiter(void 0, void 0, void 0, function* () {
             httpOnly: true,
             sameSite: 'lax',
             secure: constants_1.__prod__,
-            domain: constants_1.__prod__ ? '' : undefined,
+            domain: constants_1.__prod__ ? 'amadis.club' : undefined,
         },
         saveUninitialized: false,
         secret: process.env.SESSION_SECRET,
@@ -86,7 +88,9 @@ const main = () => __awaiter(void 0, void 0, void 0, function* () {
             updootLoader: createUpdootLoader_1.createUpdootLoader(),
             promotorUpdootLoader: createPromotorUpdootLoader_1.createPromotorUpdootLoader(),
         }),
+        uploads: false
     });
+    app.use(graphql_upload_1.graphqlUploadExpress({ maxFileSize: 1000000, maxFiles: 10 }));
     apolloServer.applyMiddleware({
         app,
         cors: false,

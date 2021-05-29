@@ -1,12 +1,13 @@
 import React from "react"
 import { Layout } from "../components/Layout"
-import { useCategoryQuery } from "../generated/graphql"
+import { useCategoryQuery, useMeQuery } from "../generated/graphql"
 import { Box, Flex, Heading, Link, Stack, Text } from "@chakra-ui/react"
 import { withApollo } from "../utils/withApollo";
 import { Wrapper } from "../components/Wrapper";
 import NextLink from "next/link";
 
 const AllCategories = () => {
+   const { data: meData} = useMeQuery();
    const {data, error, loading} = useCategoryQuery();
    if(!loading && !data){//done loading and no data
       return (
@@ -15,17 +16,22 @@ const AllCategories = () => {
             <div>{error?.message}</div>
          </div>);
    }
+
+   const meType = meData?.me?.userType;
    return(
       <Layout>
          <Wrapper variant="regular">
             
             <Flex align="center">
                <Heading color="snowStorm.0">Categorias</Heading>
+
+               {(meType != "admin" && meType != "business") ? null : (
                <NextLink href="/create-category">
                   <Link ml="auto" color="snowStorm.0">
                      crear categoria
                   </Link>
                </NextLink>
+               )}
             </Flex>
             <Flex p={2}>
             <Box  p={5} flexGrow={1}>

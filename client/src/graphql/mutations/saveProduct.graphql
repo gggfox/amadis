@@ -1,0 +1,3 @@
+mutation SaveProduct($postId: Int!){
+    saveProduct(postId: $postId)
+}

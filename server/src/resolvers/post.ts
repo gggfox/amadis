@@ -6,6 +6,8 @@ import { getConnection } from "typeorm";
 import { Updoot } from "../entities/Updoot";
 import { User } from "../entities/User";
 import { Post_Category } from "../entities/Post_Category";
+import { GraphQLUpload, FileUpload } from "graphql-upload";
+import { createWriteStream } from "fs";
 
 @InputType()
 class PostInput {
@@ -13,6 +15,8 @@ class PostInput {
     title: string
     @Field()
     text: string
+    // @Field(() => GraphQLUpload)
+    // picture?: Upload
     @Field(() => [String], {nullable: true})
     categoryNames?: string[] | null
 }
@@ -23,6 +27,23 @@ class PaginatedPosts {
     posts: Post[]
     @Field()
     hasMore: boolean;
+}
+
+@ObjectType()
+class PostFieldError {
+    @Field()
+    field: string;
+    @Field()
+    message: string;
+}
+
+@ObjectType()
+class PostResponse {
+    @Field(() => [PostFieldError], {nullable: true})
+    errors?: PostFieldError[];
+
+    @Field(() => Post, {nullable: true})
+    post?: Post;
 }
 
 @Resolver(Post)
@@ -41,6 +62,25 @@ export class PostResolver {
         @Ctx() {userLoader}: MyContext,
     ){
         return userLoader.load(post.creatorId);
+    }
+
+    @Mutation(() => Boolean)
+    async addPicture(@Arg("picture", () => GraphQLUpload)
+    {
+        createReadStream,
+        filename
+    }: FileUpload): Promise<boolean> {
+        console.log("\n\n\nfilename"+filename+"\n\n\n");
+        return new Promise(async (resolve, reject) => {
+        
+            createReadStream()
+                .pipe(createWriteStream(__dirname + `/../../images/${filename}`))
+                .on("finish", () => resolve(true))
+                .on("error", () => reject(false))
+        
+           
+        }
+        );
     }
 
     @FieldResolver(() => Int, {nullable: true})
@@ -181,12 +221,30 @@ export class PostResolver {
         return posts;
     }
 
-    @Mutation(() => Post)
+    @Mutation(() => PostResponse)
     @UseMiddleware(isAuth)
     async createPost(
         @Arg('input') input: PostInput,
         @Ctx() {req}: MyContext
-        ): Promise<Post> {
+        ): Promise<PostResponse> {
+            let errors: PostFieldError[] = [];
+        if(input.title.trim() === ""){
+                errors.push({
+                    field: "title",
+                    message: "se necesita un titulo para el producto",
+                });
+        }
+        
+        if(input.text.trim() === ""){
+            errors.push({
+                field: "text",
+                message: "se necesita una descripcion para el producto",
+            });
+        }
+
+        if(errors.length > 0){
+            return {errors,}
+        }
 
         const post = await Post.create({
             title: input.title,
@@ -200,7 +258,7 @@ export class PostResolver {
                 await Post_Category.create({postId:post.id,categoryName:categories[i]}).save()
             }
         }
-        return post;
+        return {post,};
     }
 
     @Mutation(() => Post, {nullable: true})

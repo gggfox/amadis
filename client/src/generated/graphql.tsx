@@ -12,6 +12,8 @@ export type Scalars = {
   Boolean: boolean;
   Int: number;
   Float: number;
+  /** The `Upload` scalar type represents a file upload. */
+  Upload: any;
 };
 
 export type Category = {
@@ -30,8 +32,9 @@ export type FieldError = {
 
 export type Mutation = {
   __typename?: 'Mutation';
+  addPicture: Scalars['Boolean'];
   vote: Scalars['Boolean'];
-  createPost: Post;
+  createPost: PostResponse;
   updatePost?: Maybe<Post>;
   deletePost: Scalars['Boolean'];
   changePassword: UserResponse;
@@ -44,9 +47,16 @@ export type Mutation = {
   chooseCategories4Promotor?: Maybe<UserResponse>;
   createPromotion: Scalars['Boolean'];
   deletePromotion: Scalars['Boolean'];
+  saveProduct: Scalars['Boolean'];
+  unSaveProduct: Scalars['Boolean'];
   votePromotor: Scalars['Boolean'];
   createCategory: Category;
   deleteCategory: Scalars['Boolean'];
+};
+
+
+export type MutationAddPictureArgs = {
+  picture: Scalars['Upload'];
 };
 
 
@@ -122,6 +132,16 @@ export type MutationDeletePromotionArgs = {
 };
 
 
+export type MutationSaveProductArgs = {
+  postId: Scalars['Int'];
+};
+
+
+export type MutationUnSaveProductArgs = {
+  postId: Scalars['Int'];
+};
+
+
 export type MutationVotePromotorArgs = {
   value: Scalars['Int'];
   promotorId: Scalars['Int'];
@@ -156,15 +176,28 @@ export type Post = {
   creator: User;
   categories?: Maybe<Array<Post_Category>>;
   promotors?: Maybe<Array<User>>;
+  interestedUsers?: Maybe<Array<User>>;
   createdAt: Scalars['String'];
   updatedAt: Scalars['String'];
   textSnippet: Scalars['String'];
+};
+
+export type PostFieldError = {
+  __typename?: 'PostFieldError';
+  field: Scalars['String'];
+  message: Scalars['String'];
 };
 
 export type PostInput = {
   title: Scalars['String'];
   text: Scalars['String'];
   categoryNames?: Maybe<Array<Scalars['String']>>;
+};
+
+export type PostResponse = {
+  __typename?: 'PostResponse';
+  errors?: Maybe<Array<PostFieldError>>;
+  post?: Maybe<Post>;
 };
 
 export type Post_Category = {
@@ -180,6 +213,7 @@ export type Query = {
   post?: Maybe<Post>;
   postsByCategory?: Maybe<Array<Post>>;
   me?: Maybe<User>;
+  savedProducts?: Maybe<User>;
   promotores: Array<User>;
   promotor: User;
   promotoresByCategory?: Maybe<Array<User>>;
@@ -234,6 +268,7 @@ export type SocialMedia = {
   updatedAt: Scalars['String'];
 };
 
+
 export type User = {
   __typename?: 'User';
   id: Scalars['Float'];
@@ -246,6 +281,7 @@ export type User = {
   activePromotions: Scalars['Float'];
   categories?: Maybe<Array<Category>>;
   promotes?: Maybe<Array<Post>>;
+  savedProducts?: Maybe<Array<Post>>;
   createdAt: Scalars['String'];
   updatedAt: Scalars['String'];
 };
@@ -288,6 +324,17 @@ export type RegularErrorFragment = (
   & Pick<FieldError, 'field' | 'message'>
 );
 
+export type RegularPostResponseFragment = (
+  { __typename?: 'PostResponse' }
+  & { errors?: Maybe<Array<(
+    { __typename?: 'PostFieldError' }
+    & Pick<PostFieldError, 'field' | 'message'>
+  )>>, post?: Maybe<(
+    { __typename?: 'Post' }
+    & Pick<Post, 'id' | 'createdAt' | 'updatedAt' | 'title' | 'text' | 'points' | 'creatorId'>
+  )> }
+);
+
 export type RegularUserFragment = (
   { __typename?: 'User' }
   & Pick<User, 'id' | 'username' | 'userType'>
@@ -302,6 +349,16 @@ export type RegularUserResponseFragment = (
     { __typename?: 'User' }
     & RegularUserFragment
   )> }
+);
+
+export type AddPictureMutationVariables = Exact<{
+  picture: Scalars['Upload'];
+}>;
+
+
+export type AddPictureMutation = (
+  { __typename?: 'Mutation' }
+  & Pick<Mutation, 'addPicture'>
 );
 
 export type AddSocialMediaMutationVariables = Exact<{
@@ -374,8 +431,8 @@ export type CreatePostMutationVariables = Exact<{
 export type CreatePostMutation = (
   { __typename?: 'Mutation' }
   & { createPost: (
-    { __typename?: 'Post' }
-    & Pick<Post, 'id' | 'createdAt' | 'updatedAt' | 'title' | 'text' | 'points' | 'creatorId'>
+    { __typename?: 'PostResponse' }
+    & RegularPostResponseFragment
   ) }
 );
 
@@ -464,6 +521,26 @@ export type RegisterMutation = (
   ) }
 );
 
+export type SaveProductMutationVariables = Exact<{
+  postId: Scalars['Int'];
+}>;
+
+
+export type SaveProductMutation = (
+  { __typename?: 'Mutation' }
+  & Pick<Mutation, 'saveProduct'>
+);
+
+export type UnSaveProductMutationVariables = Exact<{
+  postId: Scalars['Int'];
+}>;
+
+
+export type UnSaveProductMutation = (
+  { __typename?: 'Mutation' }
+  & Pick<Mutation, 'unSaveProduct'>
+);
+
 export type UpdatePostMutationVariables = Exact<{
   id: Scalars['Int'];
   title: Scalars['String'];
@@ -499,6 +576,30 @@ export type VotePromotorMutationVariables = Exact<{
 export type VotePromotorMutation = (
   { __typename?: 'Mutation' }
   & Pick<Mutation, 'votePromotor'>
+);
+
+export type SavedProductsQueryVariables = Exact<{ [key: string]: never; }>;
+
+
+export type SavedProductsQuery = (
+  { __typename?: 'Query' }
+  & { savedProducts?: Maybe<(
+    { __typename?: 'User' }
+    & { savedProducts?: Maybe<Array<(
+      { __typename?: 'Post' }
+      & Pick<Post, 'id' | 'createdAt' | 'updatedAt' | 'title' | 'points' | 'text' | 'voteStatus'>
+      & { creator: (
+        { __typename?: 'User' }
+        & Pick<User, 'id' | 'username'>
+      ), categories?: Maybe<Array<(
+        { __typename?: 'Post_Category' }
+        & Pick<Post_Category, 'categoryName'>
+      )>>, promotors?: Maybe<Array<(
+        { __typename?: 'User' }
+        & Pick<User, 'id' | 'username'>
+      )>> }
+    )>> }
+  )> }
 );
 
 export type CategoryQueryVariables = Exact<{ [key: string]: never; }>;
@@ -669,6 +770,23 @@ export const PromotorUserFragmentDoc = gql`
   }
 }
     `;
+export const RegularPostResponseFragmentDoc = gql`
+    fragment RegularPostResponse on PostResponse {
+  errors {
+    field
+    message
+  }
+  post {
+    id
+    createdAt
+    updatedAt
+    title
+    text
+    points
+    creatorId
+  }
+}
+    `;
 export const RegularErrorFragmentDoc = gql`
     fragment RegularError on FieldError {
   field
@@ -693,6 +811,37 @@ export const RegularUserResponseFragmentDoc = gql`
 }
     ${RegularErrorFragmentDoc}
 ${RegularUserFragmentDoc}`;
+export const AddPictureDocument = gql`
+    mutation AddPicture($picture: Upload!) {
+  addPicture(picture: $picture)
+}
+    `;
+export type AddPictureMutationFn = Apollo.MutationFunction<AddPictureMutation, AddPictureMutationVariables>;
+
+/**
+ * __useAddPictureMutation__
+ *
+ * To run a mutation, you first call `useAddPictureMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useAddPictureMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [addPictureMutation, { data, loading, error }] = useAddPictureMutation({
+ *   variables: {
+ *      picture: // value for 'picture'
+ *   },
+ * });
+ */
+export function useAddPictureMutation(baseOptions?: Apollo.MutationHookOptions<AddPictureMutation, AddPictureMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<AddPictureMutation, AddPictureMutationVariables>(AddPictureDocument, options);
+      }
+export type AddPictureMutationHookResult = ReturnType<typeof useAddPictureMutation>;
+export type AddPictureMutationResult = Apollo.MutationResult<AddPictureMutation>;
+export type AddPictureMutationOptions = Apollo.BaseMutationOptions<AddPictureMutation, AddPictureMutationVariables>;
 export const AddSocialMediaDocument = gql`
     mutation AddSocialMedia($social_media: String!, $link: String!) {
   addSocialMedia(social_media: $social_media, link: $link)
@@ -842,16 +991,10 @@ export type CreateCategoryMutationOptions = Apollo.BaseMutationOptions<CreateCat
 export const CreatePostDocument = gql`
     mutation CreatePost($input: PostInput!) {
   createPost(input: $input) {
-    id
-    createdAt
-    updatedAt
-    title
-    text
-    points
-    creatorId
+    ...RegularPostResponse
   }
 }
-    `;
+    ${RegularPostResponseFragmentDoc}`;
 export type CreatePostMutationFn = Apollo.MutationFunction<CreatePostMutation, CreatePostMutationVariables>;
 
 /**
@@ -1130,6 +1273,68 @@ export function useRegisterMutation(baseOptions?: Apollo.MutationHookOptions<Reg
 export type RegisterMutationHookResult = ReturnType<typeof useRegisterMutation>;
 export type RegisterMutationResult = Apollo.MutationResult<RegisterMutation>;
 export type RegisterMutationOptions = Apollo.BaseMutationOptions<RegisterMutation, RegisterMutationVariables>;
+export const SaveProductDocument = gql`
+    mutation SaveProduct($postId: Int!) {
+  saveProduct(postId: $postId)
+}
+    `;
+export type SaveProductMutationFn = Apollo.MutationFunction<SaveProductMutation, SaveProductMutationVariables>;
+
+/**
+ * __useSaveProductMutation__
+ *
+ * To run a mutation, you first call `useSaveProductMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useSaveProductMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [saveProductMutation, { data, loading, error }] = useSaveProductMutation({
+ *   variables: {
+ *      postId: // value for 'postId'
+ *   },
+ * });
+ */
+export function useSaveProductMutation(baseOptions?: Apollo.MutationHookOptions<SaveProductMutation, SaveProductMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<SaveProductMutation, SaveProductMutationVariables>(SaveProductDocument, options);
+      }
+export type SaveProductMutationHookResult = ReturnType<typeof useSaveProductMutation>;
+export type SaveProductMutationResult = Apollo.MutationResult<SaveProductMutation>;
+export type SaveProductMutationOptions = Apollo.BaseMutationOptions<SaveProductMutation, SaveProductMutationVariables>;
+export const UnSaveProductDocument = gql`
+    mutation UnSaveProduct($postId: Int!) {
+  unSaveProduct(postId: $postId)
+}
+    `;
+export type UnSaveProductMutationFn = Apollo.MutationFunction<UnSaveProductMutation, UnSaveProductMutationVariables>;
+
+/**
+ * __useUnSaveProductMutation__
+ *
+ * To run a mutation, you first call `useUnSaveProductMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useUnSaveProductMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [unSaveProductMutation, { data, loading, error }] = useUnSaveProductMutation({
+ *   variables: {
+ *      postId: // value for 'postId'
+ *   },
+ * });
+ */
+export function useUnSaveProductMutation(baseOptions?: Apollo.MutationHookOptions<UnSaveProductMutation, UnSaveProductMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<UnSaveProductMutation, UnSaveProductMutationVariables>(UnSaveProductDocument, options);
+      }
+export type UnSaveProductMutationHookResult = ReturnType<typeof useUnSaveProductMutation>;
+export type UnSaveProductMutationResult = Apollo.MutationResult<UnSaveProductMutation>;
+export type UnSaveProductMutationOptions = Apollo.BaseMutationOptions<UnSaveProductMutation, UnSaveProductMutationVariables>;
 export const UpdatePostDocument = gql`
     mutation UpdatePost($id: Int!, $title: String!, $text: String!) {
   updatePost(id: $id, title: $title, text: $text) {
@@ -1232,6 +1437,59 @@ export function useVotePromotorMutation(baseOptions?: Apollo.MutationHookOptions
 export type VotePromotorMutationHookResult = ReturnType<typeof useVotePromotorMutation>;
 export type VotePromotorMutationResult = Apollo.MutationResult<VotePromotorMutation>;
 export type VotePromotorMutationOptions = Apollo.BaseMutationOptions<VotePromotorMutation, VotePromotorMutationVariables>;
+export const SavedProductsDocument = gql`
+    query SavedProducts {
+  savedProducts {
+    savedProducts {
+      id
+      createdAt
+      updatedAt
+      title
+      points
+      text
+      voteStatus
+      creator {
+        id
+        username
+      }
+      categories {
+        categoryName
+      }
+      promotors {
+        id
+        username
+      }
+    }
+  }
+}
+    `;
+
+/**
+ * __useSavedProductsQuery__
+ *
+ * To run a query within a React component, call `useSavedProductsQuery` and pass it any options that fit your needs.
+ * When your component renders, `useSavedProductsQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useSavedProductsQuery({
+ *   variables: {
+ *   },
+ * });
+ */
+export function useSavedProductsQuery(baseOptions?: Apollo.QueryHookOptions<SavedProductsQuery, SavedProductsQueryVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<SavedProductsQuery, SavedProductsQueryVariables>(SavedProductsDocument, options);
+      }
+export function useSavedProductsLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<SavedProductsQuery, SavedProductsQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<SavedProductsQuery, SavedProductsQueryVariables>(SavedProductsDocument, options);
+        }
+export type SavedProductsQueryHookResult = ReturnType<typeof useSavedProductsQuery>;
+export type SavedProductsLazyQueryHookResult = ReturnType<typeof useSavedProductsLazyQuery>;
+export type SavedProductsQueryResult = Apollo.QueryResult<SavedProductsQuery, SavedProductsQueryVariables>;
 export const CategoryDocument = gql`
     query Category {
   allCategories {

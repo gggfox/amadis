@@ -29,6 +29,8 @@ const typeorm_1 = require("typeorm");
 const Updoot_1 = require("../entities/Updoot");
 const User_1 = require("../entities/User");
 const Post_Category_1 = require("../entities/Post_Category");
+const graphql_upload_1 = require("graphql-upload");
+const fs_1 = require("fs");
 let PostInput = class PostInput {
 };
 __decorate([
@@ -59,12 +61,49 @@ __decorate([
 PaginatedPosts = __decorate([
     type_graphql_1.ObjectType()
 ], PaginatedPosts);
+let PostFieldError = class PostFieldError {
+};
+__decorate([
+    type_graphql_1.Field(),
+    __metadata("design:type", String)
+], PostFieldError.prototype, "field", void 0);
+__decorate([
+    type_graphql_1.Field(),
+    __metadata("design:type", String)
+], PostFieldError.prototype, "message", void 0);
+PostFieldError = __decorate([
+    type_graphql_1.ObjectType()
+], PostFieldError);
+let PostResponse = class PostResponse {
+};
+__decorate([
+    type_graphql_1.Field(() => [PostFieldError], { nullable: true }),
+    __metadata("design:type", Array)
+], PostResponse.prototype, "errors", void 0);
+__decorate([
+    type_graphql_1.Field(() => Post_1.Post, { nullable: true }),
+    __metadata("design:type", Post_1.Post)
+], PostResponse.prototype, "post", void 0);
+PostResponse = __decorate([
+    type_graphql_1.ObjectType()
+], PostResponse);
 let PostResolver = class PostResolver {
     textSnippet(root) {
         return root.text.slice(0, 50);
     }
     creator(post, { userLoader }) {
         return userLoader.load(post.creatorId);
+    }
+    addPicture({ createReadStream, filename }) {
+        return __awaiter(this, void 0, void 0, function* () {
+            console.log("\n\n\nfilename" + filename + "\n\n\n");
+            return new Promise((resolve, reject) => __awaiter(this, void 0, void 0, function* () {
+                createReadStream()
+                    .pipe(fs_1.createWriteStream(__dirname + `/../../images/${filename}`))
+                    .on("finish", () => resolve(true))
+                    .on("error", () => reject(false));
+            }));
+        });
     }
     voteStatus(post, { updootLoader, req }) {
         return __awaiter(this, void 0, void 0, function* () {
@@ -162,6 +201,22 @@ let PostResolver = class PostResolver {
     }
     createPost(input, { req }) {
         return __awaiter(this, void 0, void 0, function* () {
+            let errors = [];
+            if (input.title.trim() === "") {
+                errors.push({
+                    field: "title",
+                    message: "se necesita un titulo para el producto",
+                });
+            }
+            if (input.text.trim() === "") {
+                errors.push({
+                    field: "text",
+                    message: "se necesita una descripcion para el producto",
+                });
+            }
+            if (errors.length > 0) {
+                return { errors, };
+            }
             const post = yield Post_1.Post.create({
                 title: input.title,
                 text: input.text,
@@ -173,7 +228,7 @@ let PostResolver = class PostResolver {
                     yield Post_Category_1.Post_Category.create({ postId: post.id, categoryName: categories[i] }).save();
                 }
             }
-            return post;
+            return { post, };
         });
     }
     updatePost(id, title, text, { req }) {
@@ -230,6 +285,13 @@ __decorate([
     __metadata("design:returntype", void 0)
 ], PostResolver.prototype, "creator", null);
 __decorate([
+    type_graphql_1.Mutation(() => Boolean),
+    __param(0, type_graphql_1.Arg("picture", () => graphql_upload_1.GraphQLUpload)),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [Object]),
+    __metadata("design:returntype", Promise)
+], PostResolver.prototype, "addPicture", null);
+__decorate([
     type_graphql_1.FieldResolver(() => type_graphql_1.Int, { nullable: true }),
     __param(0, type_graphql_1.Root()),
     __param(1, type_graphql_1.Ctx()),
@@ -270,7 +332,7 @@ __decorate([
     __metadata("design:returntype", Promise)
 ], PostResolver.prototype, "postsByCategory", null);
 __decorate([
-    type_graphql_1.Mutation(() => Post_1.Post),
+    type_graphql_1.Mutation(() => PostResponse),
     type_graphql_1.UseMiddleware(isAuth_1.isAuth),
     __param(0, type_graphql_1.Arg('input')),
     __param(1, type_graphql_1.Ctx()),

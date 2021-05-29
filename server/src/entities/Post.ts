@@ -64,6 +64,11 @@ export class Post extends BaseEntity{
     @ManyToMany(() => User, user => user.promotes)
     promotors?: User[];
 
+
+    @Field(() => [User], {nullable: true})
+    @ManyToMany(() => User, user => user.savedProducts)
+    interestedUsers?: User[];
+
     @Field(() => String)
     @CreateDateColumn()
     createdAt: Date;
