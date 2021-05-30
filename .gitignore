@@ -1,5 +1,5 @@
 server/node_modules
-dists
+dist
 
 /node_modules
 /dist
