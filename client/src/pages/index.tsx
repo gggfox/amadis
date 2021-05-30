@@ -1,8 +1,8 @@
 import React from "react"
 import { Layout } from "../components/Layout"
-import { useMeQuery, useMySavedProductsQuery, usePostsQuery } from "../generated/graphql"
+import { useMeQuery, usePostsQuery } from "../generated/graphql"
 import NextLink from "next/link";
-import { Box, Button, Flex, Heading, Link, Stack, Text } from "@chakra-ui/react"
+import { Box, Button, Flex, Heading, Link, Stack, Text, Image} from "@chakra-ui/react"
 import { UpdootSection } from "../components/UpdootSection"
 import { EditDeletePostButtons } from "../components/EditDeletePostButtons"
 import { withApollo } from "../utils/withApollo";
@@ -60,6 +60,17 @@ const Index = () => {
                   {!meData?.me? (null):(
                   <UpdootSection post={p}/>
                   )}
+                  
+                     <Image
+                        boxSize="100px"
+                        borderRadius={50}
+                        src={`https://amadisimages.blob.core.windows.net/imagenes/post:${p.id}`}
+                        alt="product image"
+                        fallbackSrc="https://media.giphy.com/media/duzpaTbCUy9Vu/giphy.gif"
+                        mr={5}
+                     />
+                  
+
                   <Box flex={1}>
                   <NextLink href="/post/[id]" as={`/post/${p.id}`}>
                   <Link>

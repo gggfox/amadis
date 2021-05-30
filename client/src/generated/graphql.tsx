@@ -32,8 +32,8 @@ export type FieldError = {
 
 export type Mutation = {
   __typename?: 'Mutation';
-  addPicture: Scalars['Boolean'];
   vote: Scalars['Boolean'];
+  addPicture: Scalars['Boolean'];
   createPost: PostResponse;
   updatePost?: Maybe<Post>;
   deletePost: Scalars['Boolean'];
@@ -55,14 +55,15 @@ export type Mutation = {
 };
 
 
-export type MutationAddPictureArgs = {
-  picture: Scalars['Upload'];
-};
-
-
 export type MutationVoteArgs = {
   value: Scalars['Int'];
   postId: Scalars['Int'];
+};
+
+
+export type MutationAddPictureArgs = {
+  postId: Scalars['Int'];
+  picture: Scalars['Upload'];
 };
 
 
@@ -358,6 +359,7 @@ export type RegularUserResponseFragment = (
 
 export type AddPictureMutationVariables = Exact<{
   picture: Scalars['Upload'];
+  postId: Scalars['Int'];
 }>;
 
 
@@ -834,8 +836,8 @@ export const RegularUserResponseFragmentDoc = gql`
     ${RegularErrorFragmentDoc}
 ${RegularUserFragmentDoc}`;
 export const AddPictureDocument = gql`
-    mutation AddPicture($picture: Upload!) {
-  addPicture(picture: $picture)
+    mutation AddPicture($picture: Upload!, $postId: Int!) {
+  addPicture(picture: $picture, postId: $postId)
 }
     `;
 export type AddPictureMutationFn = Apollo.MutationFunction<AddPictureMutation, AddPictureMutationVariables>;
@@ -854,6 +856,7 @@ export type AddPictureMutationFn = Apollo.MutationFunction<AddPictureMutation, A
  * const [addPictureMutation, { data, loading, error }] = useAddPictureMutation({
  *   variables: {
  *      picture: // value for 'picture'
+ *      postId: // value for 'postId'
  *   },
  * });
  */

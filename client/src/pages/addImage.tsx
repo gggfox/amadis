@@ -18,7 +18,8 @@ const AddImage: React.FC<{}> = ({}) => {
 
       await addImage({ 
         variables: { 
-          picture: file
+          picture: file,
+          postId: 1
         }
       });
     }
