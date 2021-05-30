@@ -62,7 +62,11 @@ export const NavBar: React.FC<NavBarProps> = ({}) => {
         </NextLink>
         <NextLink href="/savedProducts">
             <Link color="frost.1">
-                <Icon as={BsFillHeartFill} boxSize={8} mr={4}/>
+                <Icon as={BsFillHeartFill} boxSize={8} mr={4}            
+                onClick={async() => {
+              
+                await apolloClient.resetStore();
+            }} />
             </Link>
         </NextLink>
         {personLink}

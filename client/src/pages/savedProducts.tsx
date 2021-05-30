@@ -6,13 +6,11 @@ import { Box, Flex, Heading, Link, Stack, Text } from "@chakra-ui/react"
 import { UpdootSection } from "../components/UpdootSection"
 import { withApollo } from "../utils/withApollo";
 import { Wrapper } from "../components/Wrapper";
-import { UnSavePostBtn } from "../components/UnSavePostBtn";
 import { useIsAuth } from "../utils/useIsAuth";
 import { SavePostBtn } from "../components/SavePostBtn";
 
 const SavedProducts = () => {
    const meData = useIsAuth();
-   //const [{ data: meData}] = useMeQuery();
    const {data, error, loading} = useSavedProductsQuery();
    if(!loading && !data){//done loading and no data
       return (

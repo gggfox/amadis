@@ -11,7 +11,8 @@ import { SavePostBtn } from "../components/SavePostBtn";
 
 const Index = () => {
    const { data: meData} = useMeQuery();
-
+   
+   //apolloClient.resetStore();
    const {data, error, loading, fetchMore, variables} = usePostsQuery({
       variables:{
          limit: 10, 
@@ -81,7 +82,7 @@ const Index = () => {
                      <Box ml="auto">
                         
                         {(meData?.me?.id === p.creator.id)
-                           ?(<EditDeletePostButtons me={meData?.me} id={p.id} creatorId={p.creator.id}/>)
+                           ?(<EditDeletePostButtons id={p.id} creatorId={p.creator.id}/>)
                            :(<SavePostBtn meId={meData.me.id} like={isLiked(p.id) as boolean} postId={p.id} origin={'User'}/>)
                         }  
                      </Box>
