@@ -1,0 +1,14 @@
+fragment PromotorUser on User {
+    id
+    username
+    userType
+    influencerPoints
+    influencerVoteStatus
+    categories{
+        name
+    }
+    socialMedia{
+        link
+        social_media
+    }
+}

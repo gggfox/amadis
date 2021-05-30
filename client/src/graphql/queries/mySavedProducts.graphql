@@ -1,0 +1,7 @@
+query mySavedProducts {
+    savedProducts {
+        savedProducts{
+            id
+        }
+    }
+}

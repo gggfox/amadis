@@ -1,0 +1,19 @@
+query Promotor($id: Int!){
+  promotor(id:$id){
+    id
+  	username
+    userType
+    categories{
+      name
+    }
+    socialMedia{
+      link
+      social_media
+    }
+    promotes{
+      id
+      title
+    }
+    activePromotions
+  }
+}

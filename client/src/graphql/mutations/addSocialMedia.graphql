@@ -1,0 +1,3 @@
+mutation AddSocialMedia($social_media:String!,$link:String!){
+  addSocialMedia(social_media:$social_media,link:$link)
+}
