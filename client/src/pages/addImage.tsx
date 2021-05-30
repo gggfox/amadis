@@ -1,22 +1,31 @@
-import React from 'react'
+import React, { useState } from 'react'
 import { useAddPictureMutation } from '../generated/graphql';
 import { Layout } from '../components/Layout';
 import { useIsAdmin } from '../utils/useIsAdmin';
 import { withApollo } from '../utils/withApollo';
 import { Wrapper } from '../components/Wrapper';
+import { Button, Flex } from '@chakra-ui/react';
 
 const AddImage: React.FC<{}> = ({}) => { 
     useIsAdmin();
+
     const [addImage] = useAddPictureMutation();
+    const [file, changeFile] = useState("");
+
+
+    const uploadFile = async() => {
+      if(file === "") return;
+
+      await addImage({ 
+        variables: { 
+          picture: file
+        }
+      });
+    }
 
     const handleFileChange = async (e:any) => {
       if(!e.target.files[0]) return;
-      console.log(e.currentTarget.files[0].name)
-      await addImage({ 
-        variables: { 
-          picture: e.currentTarget.files[0]
-        }
-      });
+      changeFile(e.target.files[0]);
     } 
     
 
@@ -24,9 +33,10 @@ const AddImage: React.FC<{}> = ({}) => {
             <Layout variant="small">
               <Wrapper variant="small">
 
-
-              <input type="file" id="photo" name="photo" required onChange={handleFileChange} />
-
+                <Flex>
+                  <input type="file" id="photo" name="photo" required onChange={handleFileChange} />
+                  <Button onClick={uploadFile}>subir imagen</Button>
+                </Flex>
                 </Wrapper>
             </Layout>
         );
