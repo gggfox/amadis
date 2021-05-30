@@ -141,7 +141,7 @@ let UserResolver = class UserResolver {
         if (!req.session.userId) {
             return null;
         }
-        return User_1.User.findOne(req.session.userId);
+        return User_1.User.findOne({ where: { id: req.session.userId }, relations: ["savedProducts"] });
     }
     savedProducts({ req }) {
         if (!req.session.userId) {
@@ -408,12 +408,11 @@ let UserResolver = class UserResolver {
             const product = yield Post_1.Post.findOne(postId);
             const user = yield User_1.User.findOne(userId);
             if (product && user) {
-                const res = yield typeorm_1.getConnection().query(`
+                yield typeorm_1.getConnection().query(`
             INSERT INTO user_saved_products_post
             ("userId","postId")
             VALUES($1,$2)
             `, [user.id, product.id]);
-                console.log("res: " + res);
                 return true;
             }
             return false;

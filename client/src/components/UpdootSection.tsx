@@ -50,7 +50,6 @@ const updateAfterVote = (
 export const UpdootSection: React.FC<UpdootSectionProps> = ({post}) => {
     const [loadingState, setLoadingState] = useState<'updoot-loading' | 'downdoot-loading' | 'not-loading'>('not-loading');
     const [vote] = useVoteMutation();
-
     return (
             <Flex flexDirection="column" mr={3} alignItems="center">
                 <IconButton
@@ -58,6 +57,7 @@ export const UpdootSection: React.FC<UpdootSectionProps> = ({post}) => {
                     aria-label="Updoot post"
                     
                     onClick={async () => {
+                        
                         if(post.voteStatus === 1) {
                             return;
                         }
@@ -69,6 +69,7 @@ export const UpdootSection: React.FC<UpdootSectionProps> = ({post}) => {
                             },
                             update: (cache) => updateAfterVote(1, post.id, cache),
                         });
+                     
                         setLoadingState('not-loading');
                     }} 
                     bg={post.voteStatus === 1 ? "aurora.green" : "snowStorm.2"}

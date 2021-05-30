@@ -32,6 +32,9 @@ export const AddSocialMediaModal:React.FC<AddSocialMediaModalProps> = ({userId})
 
                         onSubmit={async (values) => {
                             console.log(values)
+                            if(values.social_media === ""){
+                                values.social_media = "Facebook";
+                            }
                             const {errors} = await addSocialMedia({variables: values,
                             update: (cache) => {
                                 cache.evict({id: "User:" + userId});

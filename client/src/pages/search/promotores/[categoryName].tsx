@@ -7,8 +7,10 @@ import { useGetPromotoresFromUrlByCategory } from "../../../utils/useGetPromotor
 import { Heading, Stack, Flex, Box, Link } from "@chakra-ui/react";
 import { PromotorUpdootSection } from "../../../components/PromotorUpdootSection";
 import { useGetStringCategory } from "../../../utils/useGetStringCategory";
+import { useMeQuery } from "../../../generated/graphql";
 
 const SearchPromotoresByCategory = () => {
+const { data:meData } = useMeQuery();
 const {data, error, loading} = useGetPromotoresFromUrlByCategory();
 const category = useGetStringCategory();
  console.log("data: "+data?.promotoresByCategory)
@@ -29,7 +31,9 @@ const category = useGetStringCategory();
           {data?.promotoresByCategory?.map((p) => 
           !p ? null : (
               <Flex key={p.id} p={5} shadow="md" borderWidth="1px">
+                 {!meData?.me? (null):(
                 <PromotorUpdootSection promotor={p}/>
+                 )}
                 <Box flex={1}>
                 <NextLink href="/user/[id]" as={`/user/${p.id}`}>
                 <Link>

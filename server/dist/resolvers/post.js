@@ -94,17 +94,6 @@ let PostResolver = class PostResolver {
     creator(post, { userLoader }) {
         return userLoader.load(post.creatorId);
     }
-    addPicture({ createReadStream, filename }) {
-        return __awaiter(this, void 0, void 0, function* () {
-            console.log("\n\n\nfilename" + filename + "\n\n\n");
-            return new Promise((resolve, reject) => __awaiter(this, void 0, void 0, function* () {
-                createReadStream()
-                    .pipe(fs_1.createWriteStream(__dirname + `/../../images/${filename}`))
-                    .on("finish", () => resolve(true))
-                    .on("error", () => reject(false));
-            }));
-        });
-    }
     voteStatus(post, { updootLoader, req }) {
         return __awaiter(this, void 0, void 0, function* () {
             if (!req.session.userId) {
@@ -117,10 +106,21 @@ let PostResolver = class PostResolver {
             return updoot ? updoot.value : null;
         });
     }
+    addPicture({ createReadStream, filename }) {
+        return __awaiter(this, void 0, void 0, function* () {
+            console.log("\n\n\nfilename" + filename + "\n\n\n");
+            return new Promise((resolve, reject) => __awaiter(this, void 0, void 0, function* () {
+                createReadStream()
+                    .pipe(fs_1.createWriteStream(__dirname + `/../../images/${filename}`))
+                    .on("finish", () => resolve(true))
+                    .on("error", () => reject(false));
+            }));
+        });
+    }
     vote(postId, value, { req }) {
         return __awaiter(this, void 0, void 0, function* () {
             const isUpdoot = (value !== -1);
-            const { userId } = req.session;
+            const userId = req.session.userId;
             const realValue = isUpdoot ? 1 : -1;
             const updoot = yield Updoot_1.Updoot.findOne({ where: { postId, userId } });
             if (updoot && updoot.value !== realValue) {
@@ -285,13 +285,6 @@ __decorate([
     __metadata("design:returntype", void 0)
 ], PostResolver.prototype, "creator", null);
 __decorate([
-    type_graphql_1.Mutation(() => Boolean),
-    __param(0, type_graphql_1.Arg("picture", () => graphql_upload_1.GraphQLUpload)),
-    __metadata("design:type", Function),
-    __metadata("design:paramtypes", [Object]),
-    __metadata("design:returntype", Promise)
-], PostResolver.prototype, "addPicture", null);
-__decorate([
     type_graphql_1.FieldResolver(() => type_graphql_1.Int, { nullable: true }),
     __param(0, type_graphql_1.Root()),
     __param(1, type_graphql_1.Ctx()),
@@ -299,6 +292,13 @@ __decorate([
     __metadata("design:paramtypes", [Post_1.Post, Object]),
     __metadata("design:returntype", Promise)
 ], PostResolver.prototype, "voteStatus", null);
+__decorate([
+    type_graphql_1.Mutation(() => Boolean),
+    __param(0, type_graphql_1.Arg("picture", () => graphql_upload_1.GraphQLUpload)),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [Object]),
+    __metadata("design:returntype", Promise)
+], PostResolver.prototype, "addPicture", null);
 __decorate([
     type_graphql_1.Mutation(() => Boolean),
     type_graphql_1.UseMiddleware(isAuth_1.isAuth),

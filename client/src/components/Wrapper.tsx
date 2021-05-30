@@ -14,6 +14,7 @@ export const Wrapper: React.FC<WrapperProps> = ({children, variant='regular'}) =
               bg="polarNight.2"
               p={variant === 'regular' ? 7 : 5}
               borderRadius={25}
+              boxShadow="lg"
             >
                 {children}
             </Box>

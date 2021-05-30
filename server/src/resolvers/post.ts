@@ -64,6 +64,22 @@ export class PostResolver {
         return userLoader.load(post.creatorId);
     }
 
+    @FieldResolver(() => Int, {nullable: true})
+    async voteStatus(
+        @Root() post: Post,
+        @Ctx() {updootLoader, req}: MyContext,
+    ){
+        if(!req.session.userId){
+            return null;
+        }
+        const updoot = await updootLoader.load({
+            postId: post.id, 
+            userId: req.session.userId,
+        });
+        return updoot ? updoot.value : null;
+    }
+    
+
     @Mutation(() => Boolean)
     async addPicture(@Arg("picture", () => GraphQLUpload)
     {
@@ -82,21 +98,7 @@ export class PostResolver {
         }
         );
     }
-
-    @FieldResolver(() => Int, {nullable: true})
-    async voteStatus(
-        @Root() post: Post,
-        @Ctx() {updootLoader, req}: MyContext,
-    ){
-        if(!req.session.userId){
-            return null;
-        }
-        const updoot = await updootLoader.load({
-            postId: post.id, 
-            userId: req.session.userId,
-        });
-        return updoot ? updoot.value : null;
-    } 
+    
 
     @Mutation(() => Boolean)
     @UseMiddleware(isAuth)
@@ -105,8 +107,9 @@ export class PostResolver {
         @Arg('value', () => Int) value: number,
         @Ctx() {req}: MyContext
     ) {
+        
         const isUpdoot = (value !== -1);
-        const {userId} = req.session;
+        const userId = req.session.userId;
         const realValue = isUpdoot ? 1 : -1;
 
 

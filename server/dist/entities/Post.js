@@ -42,6 +42,10 @@ __decorate([
     __metadata("design:type", Object)
 ], Post.prototype, "voteStatus", void 0);
 __decorate([
+    type_graphql_1.Field(() => Boolean, { defaultValue: false }),
+    __metadata("design:type", Boolean)
+], Post.prototype, "saved", void 0);
+__decorate([
     type_graphql_1.Field(),
     typeorm_1.Column({ type: "int", default: 5 }),
     __metadata("design:type", Number)

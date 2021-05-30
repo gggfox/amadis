@@ -170,6 +170,7 @@ export type Post = {
   text: Scalars['String'];
   points: Scalars['Float'];
   voteStatus?: Maybe<Scalars['Int']>;
+  saved?: Maybe<Scalars['Boolean']>;
   comision: Scalars['Float'];
   discount: Scalars['Float'];
   creatorId: Scalars['Float'];
@@ -338,6 +339,10 @@ export type RegularPostResponseFragment = (
 export type RegularUserFragment = (
   { __typename?: 'User' }
   & Pick<User, 'id' | 'username' | 'userType'>
+  & { savedProducts?: Maybe<Array<(
+    { __typename?: 'Post' }
+    & Pick<Post, 'id'>
+  )>> }
 );
 
 export type RegularUserResponseFragment = (
@@ -624,6 +629,20 @@ export type MeQuery = (
   )> }
 );
 
+export type MySavedProductsQueryVariables = Exact<{ [key: string]: never; }>;
+
+
+export type MySavedProductsQuery = (
+  { __typename?: 'Query' }
+  & { savedProducts?: Maybe<(
+    { __typename?: 'User' }
+    & { savedProducts?: Maybe<Array<(
+      { __typename?: 'Post' }
+      & Pick<Post, 'id'>
+    )>> }
+  )> }
+);
+
 export type PostQueryVariables = Exact<{
   id: Scalars['Int'];
 }>;
@@ -798,6 +817,9 @@ export const RegularUserFragmentDoc = gql`
   id
   username
   userType
+  savedProducts {
+    id
+  }
 }
     `;
 export const RegularUserResponseFragmentDoc = gql`
@@ -1558,6 +1580,42 @@ export function useMeLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<MeQuery
 export type MeQueryHookResult = ReturnType<typeof useMeQuery>;
 export type MeLazyQueryHookResult = ReturnType<typeof useMeLazyQuery>;
 export type MeQueryResult = Apollo.QueryResult<MeQuery, MeQueryVariables>;
+export const MySavedProductsDocument = gql`
+    query mySavedProducts {
+  savedProducts {
+    savedProducts {
+      id
+    }
+  }
+}
+    `;
+
+/**
+ * __useMySavedProductsQuery__
+ *
+ * To run a query within a React component, call `useMySavedProductsQuery` and pass it any options that fit your needs.
+ * When your component renders, `useMySavedProductsQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useMySavedProductsQuery({
+ *   variables: {
+ *   },
+ * });
+ */
+export function useMySavedProductsQuery(baseOptions?: Apollo.QueryHookOptions<MySavedProductsQuery, MySavedProductsQueryVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<MySavedProductsQuery, MySavedProductsQueryVariables>(MySavedProductsDocument, options);
+      }
+export function useMySavedProductsLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<MySavedProductsQuery, MySavedProductsQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<MySavedProductsQuery, MySavedProductsQueryVariables>(MySavedProductsDocument, options);
+        }
+export type MySavedProductsQueryHookResult = ReturnType<typeof useMySavedProductsQuery>;
+export type MySavedProductsLazyQueryHookResult = ReturnType<typeof useMySavedProductsLazyQuery>;
+export type MySavedProductsQueryResult = Apollo.QueryResult<MySavedProductsQuery, MySavedProductsQueryVariables>;
 export const PostDocument = gql`
     query Post($id: Int!) {
   post(id: $id) {

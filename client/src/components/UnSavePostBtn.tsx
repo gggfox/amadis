@@ -21,9 +21,9 @@ export const UnSavePostBtn: React.FC<UnSavePostBtnProps> = ({postId}) => {
 
             onClick={ () => {
                 unsaveProduct({
-                    variables: { postId},
+                    variables: { postId },
                     update:(cache) => {
-                        cache.evict({id: 'User:' + data?.me?.id});
+                        cache.evict({id: 'Post:' + postId});
                     }
                 });
             }}/>

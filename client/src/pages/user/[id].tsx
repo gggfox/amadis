@@ -29,18 +29,20 @@ const User = ({}) => {
     }
 
     if(!data?.promotor){
-        return <Layout>
-            <Box>could not find post</Box>
-        </Layout>
+        return (
+            <Layout>
+                <Box>could not find post</Box>
+            </Layout>
+        )
     }
 
     const hide = data?.promotor.id !== meData?.me?.id;
-
+    
         return (
             <Layout variant="small">
                 <Wrapper variant="small">
                     <Flex justifyContent="space-between">
-                        <Heading mb={4}>
+                        <Heading mb={4} color="snowStorm.2">
                             {data.promotor.username}
                         </Heading>
                         {hide?(null):
@@ -49,21 +51,26 @@ const User = ({}) => {
                     </Flex>
                
                <Box>
-
                {!data.promotor.socialMedia ? (null):(
-                   <Box mt={3}>Redes Sociales</Box>
+                    <Heading mt={3} size="md" color="snowStorm.0">
+                       Redes Sociales
+                    </Heading>
                )}
 
                {data.promotor.socialMedia?.map((media)=>(
-                   <Box>
-               <a href={"https://www."+media.link} target="_blank">{media.social_media}</a>
+                   <Flex justifyContent="space-between">
+                       <Heading size="xs" color="frost.3">
+                <Link href={"https://www."+media.link} target="_blank" color="frost.3">
+                   {media.social_media}
+                </Link>
+                </Heading>
                {hide ? (null):(
                     <IconButton 
                         ml={2}
                         aria-label="Delete SocialMedia" 
                         icon={<DeleteIcon/>}
                         bg="snowStorm.2"
-
+                        size="sm"
                         onClick={ () => {
                             deleteSocialMedia({
                                 variables: { link: media.link},
@@ -74,15 +81,17 @@ const User = ({}) => {
                         }}
                     />
                 )}
-                </Box>
+                </Flex>
                ))}
                </Box>
 
-
-               {!data.promotor.categories ? (null):(
-                   <Flex justifyContent="space-between">
-                   <Box mt={3}>Categorias</Box>
-                   <ChooseCategories4PromotorModal promotorId={data.promotor.id}/>
+            
+               {!data.promotor.categories? (null):(
+                   <Flex justifyContent="space-between" mt={5}>
+                   <Heading mt={3} size="md" color="snowStorm.0">Categorias</Heading>
+                    {!(data.promotor.id === meData?.me?.id) ? (null) : (
+                        <ChooseCategories4PromotorModal promotorId={data.promotor.id}/>
+                    )}
                    </Flex>
                )}
                
@@ -93,17 +102,17 @@ const User = ({}) => {
                ))}
 
 
-                {!data.promotor.promotes 
+                {!data.promotor.promotes || data.promotor.activePromotions == 0
                     ? (null)
-                    :(<Box mt={3}>Promociones: {data.promotor.activePromotions}</Box>)
+                    :(<Heading mt={3} size="md" color="snowStorm.0">Promociones: {data.promotor.activePromotions}</Heading>)
                 }
                
                 {data.promotor.promotes?.map((p) => (
                    <Flex flexDirection="column">
-                       <Flex flexDirection="row">
+                       <Flex flexDirection="row" justifyContent="space-between">
                         <NextLink href="/post/[id]" as={`/post/${p.id}`}>
                             <Link>
-                                <Heading fontSize="xl" color="snowStorm.1">
+                                <Heading size="xs" color="frost.3">
                                     {p.title}
                                 </Heading>
                             </Link>
@@ -114,7 +123,7 @@ const User = ({}) => {
                         aria-label="Delete SocialMedia" 
                         icon={<DeleteIcon/>}
                         bg="snowStorm.2"
-
+                        size="sm"
                         onClick={ () => {
                             deletePromotion({
                                 variables: { postId: p.id},

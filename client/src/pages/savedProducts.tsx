@@ -7,16 +7,20 @@ import { UpdootSection } from "../components/UpdootSection"
 import { withApollo } from "../utils/withApollo";
 import { Wrapper } from "../components/Wrapper";
 import { UnSavePostBtn } from "../components/UnSavePostBtn";
+import { useIsAuth } from "../utils/useIsAuth";
+import { SavePostBtn } from "../components/SavePostBtn";
 
 const SavedProducts = () => {
+   const meData = useIsAuth();
    //const [{ data: meData}] = useMeQuery();
    const {data, error, loading} = useSavedProductsQuery();
- if(!loading && !data){//done loading and no data
-    return (
-      <div>
-         <div>you got no posts for some reason</div>
-         <div>{error?.message}</div>
-      </div>);
+   if(!loading && !data){//done loading and no data
+      return (
+         <div>
+            <div>you got no posts for some reason</div>
+            <div>{error?.message}</div>
+         </div>
+      );
  }
  console.log(data?.savedProducts?.savedProducts)
     return(
@@ -53,7 +57,7 @@ const SavedProducts = () => {
                      <Flex flexDirection="row">
                      <Text lex={1} mt={2} color="snowStorm.1">{p.text}...</Text>
                      <Box ml="auto">
-                        <UnSavePostBtn postId={p.id}/>
+                        <SavePostBtn meId={meData?.me?.id as number} like={true} postId={p.id} origin={'Post'}/>
                      </Box>
                   </Flex>
                 </Box>

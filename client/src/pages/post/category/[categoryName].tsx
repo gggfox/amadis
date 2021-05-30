@@ -9,8 +9,10 @@ import { UpdootSection } from "../../../components/UpdootSection";
 import { Wrapper } from "../../../components/Wrapper";
 import { withApollo } from "../../../utils/withApollo";
 import { useGetStringCategory } from "../../../utils/useGetStringCategory";
+import { useMeQuery } from "../../../generated/graphql";
 
 const SearchPostsByCategory = () => {
+   const { data: meData} = useMeQuery();
    const {data, error, loading} = useGetPostsFromUrlByCategory();
    console.log("data: "+data?.postsByCategory);
  if(!loading && !data){//done loading and no data
@@ -31,7 +33,9 @@ const SearchPostsByCategory = () => {
             {data!.postsByCategory?.map((p) => 
             !p ? null : (
                <Flex key={p.id} p={5} shadow="md" borderWidth="1px">
-                  <UpdootSection post={p}/>
+                  {!meData?.me? (null):(
+                     <UpdootSection post={p}/>
+                  )}
                   <Box flex={1}>
                   <NextLink href="/post/[id]" as={`/post/${p.id}`}>
                   <Link>
@@ -51,7 +55,7 @@ const SearchPostsByCategory = () => {
                      <Flex flexDirection="row">
                      <Text lex={1} mt={2} color="snowStorm.1">{p.textSnippet}...</Text>
                      <Box ml="auto">
-                        <EditDeletePostButtons id={p.id} creatorId={p.creator.id}/>
+                        <EditDeletePostButtons me={meData?.me} id={p.id} creatorId={p.creator.id}/>
                      </Box>
                   </Flex>
                 </Box>

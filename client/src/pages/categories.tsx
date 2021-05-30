@@ -5,6 +5,7 @@ import { Box, Flex, Heading, Link, Stack, Text } from "@chakra-ui/react"
 import { withApollo } from "../utils/withApollo";
 import { Wrapper } from "../components/Wrapper";
 import NextLink from "next/link";
+import { useIsAuth } from "../utils/useIsAuth";
 
 const AllCategories = () => {
    const { data: meData} = useMeQuery();

@@ -141,7 +141,7 @@ export class UserResolver {
         if(!req.session.userId){
             return null;
         }
-        return User.findOne(req.session.userId);
+        return User.findOne({where: {id: req.session.userId}, relations:["savedProducts"]});
     }
 
     @Query(() => User, {nullable:true})
@@ -488,14 +488,14 @@ export class UserResolver {
 
         const product = await Post.findOne(postId);
         const user = await User.findOne(userId);
+        
         if(product && user){
-            const res = await getConnection().query(`
+            await getConnection().query(`
             INSERT INTO user_saved_products_post
             ("userId","postId")
             VALUES($1,$2)
             `, [user.id, product.id]);
 
-            console.log("res: "+res)
             return true;
         }
         return false;
