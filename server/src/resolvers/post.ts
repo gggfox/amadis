@@ -7,7 +7,8 @@ import { Updoot } from "../entities/Updoot";
 import { User } from "../entities/User";
 import { Post_Category } from "../entities/Post_Category";
 import { GraphQLUpload, FileUpload } from "graphql-upload";
-import { createWriteStream } from "fs";
+import { BlobServiceClient } from "@azure/storage-blob"
+
 
 @InputType()
 class PostInput {
@@ -15,8 +16,6 @@ class PostInput {
     title: string
     @Field()
     text: string
-    // @Field(() => GraphQLUpload)
-    // picture?: Upload
     @Field(() => [String], {nullable: true})
     categoryNames?: string[] | null
 }
@@ -78,27 +77,6 @@ export class PostResolver {
         });
         return updoot ? updoot.value : null;
     }
-    
-
-    @Mutation(() => Boolean)
-    async addPicture(@Arg("picture", () => GraphQLUpload)
-    {
-        createReadStream,
-        filename
-    }: FileUpload): Promise<boolean> {
-        console.log("\n\n\nfilename"+filename+"\n\n\n");
-        return new Promise(async (resolve, reject) => {
-        
-            createReadStream()
-                .pipe(createWriteStream(__dirname + `/../../images/${filename}`))
-                .on("finish", () => resolve(true))
-                .on("error", () => reject(false))
-        
-           
-        }
-        );
-    }
-    
 
     @Mutation(() => Boolean)
     @UseMiddleware(isAuth)
@@ -222,6 +200,48 @@ export class PostResolver {
         `, [categoryName]);
         
         return posts;
+    }
+
+
+    @Mutation(() => Boolean)
+    async addPicture(
+        @Arg("picture", () => GraphQLUpload){createReadStream}:FileUpload,
+        @Arg("postId",() => Int) postId: number,
+    ){
+        const ONE_MEGABYTE = 1024 * 1024;
+        const uploadOptions = { bufferSize: 4 * ONE_MEGABYTE, maxBuffers: 20 };
+        const blobServiceClient = BlobServiceClient.fromConnectionString(
+            process.env.AZURE_STORAGE_CONNECTION_STRING as string
+        )
+        const containerClinet = blobServiceClient.getContainerClient("imagenes");
+
+        try{
+            await containerClinet.getBlockBlobClient(`post:${postId}`).uploadStream(
+                createReadStream(),
+                uploadOptions.bufferSize,
+                uploadOptions.maxBuffers,
+                { blobHTTPHeaders: { blobContentType: "image/jpeg" } }
+            )
+            return true;
+        }catch(err){
+            console.log(
+                `uploadStream failed, 
+                 requestId - ${err.details.requestId}, 
+                 statusCode - ${err.statusCode}, 
+                 errorCode - ${err.details.errorCode}`
+            );
+        }
+        return false;
+
+
+        // return new Promise(
+        //     async (resolve, reject) => {
+        //         createReadStream()
+        //             .pipe(createWriteStream(__dirname + `/../../images/${filename}`))
+        //             .on("finish", () => resolve(true))
+        //             .on("error", () => reject(false))
+        //     }
+        // );
     }
 
     @Mutation(() => PostResponse)

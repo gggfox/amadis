@@ -1,37 +1,41 @@
 import { UsernamePasswordInput } from "src/resolvers/UsernamePasswordInput";
 
 export const validateRegister = (options: UsernamePasswordInput) => {
+    let errors = [];
     if(!options.email.includes('@')){
-        return  [
+        errors.push(
             {
                 field: "email",
-                message: "invalid email",
+                message: "Email invalido",
             },
-            ];
+        );
     }
     if(options.username.includes("@")){
-        return [
+        errors.push(
             {
                 field: "username",
-                message: "username can't contain @",
+                message: "El nombre no puede llevar @",
             },
-            ];
+        );
     }
     if(options.username.length <= 2){
-        return  [
+        errors.push(
             {
                 field: "username",
-                message: "length must be greater than 2",
+                message: "El tamaño debe de ser mayor a 2",
             },
-            ];
+        );
     }
     if(options.password.length <= 2){
-        return  [
+        errors.push(
             {
                 field: "password",
-                message: "length must be greater than 2",
+                message: "El tamaño debe de ser mayor a 2",
             },
-            ];
+        );
+    }
+    if(errors.length > 0){
+        return errors;
     }
     return null;
 }

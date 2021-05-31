@@ -1,5 +1,5 @@
 import { Heading } from '@chakra-ui/layout';
-import { Box, Flex } from '@chakra-ui/react';
+import { Box, Flex, Image } from '@chakra-ui/react';
 import React from 'react';
 import { EditDeletePostButtons } from '../../components/EditDeletePostButtons';
 import { Layout } from '../../components/Layout';
@@ -44,6 +44,14 @@ const Post = ({}) => {
             <Layout>
                 <Wrapper variant="regular">
                 <Heading mb={4}>{data.post.title}</Heading>
+                <Flex justifyContent="center">
+                <Image
+                boxSize="300px"
+                src={`https://amadisimages.blob.core.windows.net/imagenes/post:${data.post.id}`}
+                alt="product image"
+                fallbackSrc="https://media.giphy.com/media/duzpaTbCUy9Vu/giphy.gif"
+                />
+                </Flex>
                <Box mb={4}>{data.post.text}</Box>
 
                {(data?.post?.categories?.length === 0)  ? null : 
@@ -60,6 +68,7 @@ const Post = ({}) => {
                </Flex>
 
                </Wrapper>
+               <Box m={100}></Box>
             </Layout>
         );
 }

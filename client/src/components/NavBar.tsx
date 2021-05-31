@@ -1,7 +1,7 @@
 import React from 'react'
-import { Box, Button, Flex, Icon, Link } from '@chakra-ui/react';
+import { Box, Flex, Icon, Link } from '@chakra-ui/react';
 import NextLink from 'next/link';
-import { useLogoutMutation, useMeQuery } from '../generated/graphql';
+import { useMeQuery } from '../generated/graphql';
 import { isServer } from '../utils/isServer';
 import {BsFillHouseDoorFill,BsFillPersonFill,BsFillHeartFill,BsSearch} from 'react-icons/bs'
 import { useApolloClient } from '@apollo/client';
@@ -11,7 +11,7 @@ interface NavBarProps {
 }
 
 export const NavBar: React.FC<NavBarProps> = ({}) => {
-    const [logout,{loading: logoutFetching}] = useLogoutMutation();
+
     const apolloClient = useApolloClient();
     const {data, loading} = useMeQuery({
         skip: isServer(), //
@@ -35,15 +35,7 @@ export const NavBar: React.FC<NavBarProps> = ({}) => {
         <Box ml={2} mr={2}>
             {data?.me?.username}[{data?.me?.userType}]
         </Box>
-        <Button 
-            onClick={async() => {
-                await logout();
-                await apolloClient.resetStore();
-            }} 
-            isLoading={logoutFetching}
-            variant="link">
-                logout
-        </Button>
+
         </Flex>
     );
     
@@ -62,7 +54,12 @@ export const NavBar: React.FC<NavBarProps> = ({}) => {
         </NextLink>
         <NextLink href="/savedProducts">
             <Link color="frost.1">
-                <Icon as={BsFillHeartFill} boxSize={8} mr={4}/>
+
+                <Icon as={BsFillHeartFill} boxSize={8} mr={4}            
+                onClick={async() => {
+              
+                await apolloClient.resetStore();
+            }} />
             </Link>
         </NextLink>
         {personLink}

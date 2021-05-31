@@ -1,9 +1,9 @@
 import { Icon, IconButton } from '@chakra-ui/react';
 import React, { useState } from 'react'
-import { Post, SaveProductMutation, UnSaveProductMutation, useSaveProductMutation, useUnSaveProductMutation } from '../generated/graphql';
+import { SaveProductMutation, UnSaveProductMutation, useSaveProductMutation, useUnSaveProductMutation } from '../generated/graphql';
 import { BsFillHeartFill } from 'react-icons/bs';
 import { ApolloCache, gql } from '@apollo/client';
-import { timeStamp } from 'node:console';
+
 
 interface SavePostBtnProps {
     meId: number,
@@ -72,16 +72,17 @@ const updateAfterSave = (
 export const SavePostBtn: React.FC<SavePostBtnProps> = ({meId, like, postId, origin}) => {
     const [saveProduct] = useSaveProductMutation();
     const [unsaveProduct] = useUnSaveProductMutation();
-    const [saved, setSaved] = useState(like ? "red" : "black");
+
+
+    const setColor = (bool:boolean) => {
+       return bool ? "aurora.purple" : "polarNight.0"
+    }
+
+    const [saved, setSaved] = useState(setColor(like));
+    
+
 
     const action = like ? unsaveProduct : saveProduct;
-
-    const getColor = (like:boolean) => {
-        if(like){
-            return "red"
-        }
-        return "black"
-    }
 
     return (
             <IconButton 
@@ -91,14 +92,19 @@ export const SavePostBtn: React.FC<SavePostBtnProps> = ({meId, like, postId, ori
             bg=""
             color={saved}
             onClick={ () => {
-                setSaved(like ? "black" : "red"),
+
+                setSaved(setColor(!like)),
                 action({
                     variables: { postId },
                     update: (cache:any) => {
                         if(origin === 'User'){
-                            updateAfterSave( postId, meId, like, cache)
+
+                            updateAfterSave( postId, meId, like, cache);
+                            
+                        }else{
+                            cache.evict({id: 'Post:' + postId});
                         }
-                        cache.evict({id: 'Post:' + postId});
+                        
                         
                     }
                     })

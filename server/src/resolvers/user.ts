@@ -188,7 +188,7 @@ export class UserResolver {
         return promotores;
     }
 
-    @Mutation(()=>Boolean)
+    @Mutation(() => Boolean)
     async addSocialMedia(
         @Arg('link', () => String)link: string,
         @Arg('social_media',() => String)social_media: string,
@@ -299,7 +299,7 @@ export class UserResolver {
                 errors: [
                     {
                         field: "usernameOrEmail",
-                        message: "username doesn't exist",
+                        message: "El usuario no existe",
                     },
                 ],
             };
@@ -310,7 +310,7 @@ export class UserResolver {
                 errors: [
                     {
                         field: "password",
-                        message: "incorrect password",
+                        message: "Contraseña equivocada",
                     },
                 ],
             };

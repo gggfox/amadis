@@ -29,7 +29,8 @@ import { SocialMedia } from "./entities/SocialMedia";
 import { graphqlUploadExpress } from "graphql-upload";
 
 const main = async () => {
-    const conn = await createConnection({
+
+    await createConnection({
         type: 'postgres',
         url: process.env.DATABASE_URL,
         logging: true,
@@ -37,7 +38,6 @@ const main = async () => {
         migrations: [path.join(__dirname,"./migrations/*")],
         entities: [Post, User, Updoot, Category, Post_Category,PromotorUpdoot,SocialMedia],
     });
-    console.log(conn);
     //await conn.runMigrations();
     //await Post.delete({});
 

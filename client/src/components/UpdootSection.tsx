@@ -1,4 +1,4 @@
-import { Flex, IconButton } from '@chakra-ui/react';
+import { Box, Flex, IconButton } from '@chakra-ui/react';
 import { ArrowUpIcon, ArrowDownIcon } from '@chakra-ui/icons';
 import React, { useState } from 'react'
 import { PostsQuery, useVoteMutation, VoteMutation } from '../generated/graphql';
@@ -75,7 +75,7 @@ export const UpdootSection: React.FC<UpdootSectionProps> = ({post}) => {
                     bg={post.voteStatus === 1 ? "aurora.green" : "snowStorm.2"}
                     isLoading={loadingState==='updoot-loading'}
                     />
-                <div>{post.points}</div>
+                <Box color="frost.0">{post.points}</Box>
                 <IconButton
                     icon={<ArrowDownIcon/>} 
                     aria-label="Downdoot post"
