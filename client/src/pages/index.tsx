@@ -1,8 +1,8 @@
 import React from "react"
 import { Layout } from "../components/Layout"
-import { useMeQuery, useMySavedProductsQuery, usePostsQuery } from "../generated/graphql"
+import { useMeQuery, usePostsQuery } from "../generated/graphql"
 import NextLink from "next/link";
-import { Box, Button, Flex, Heading, Link, Stack, Text } from "@chakra-ui/react"
+import { Box, Button, Flex, Heading, Link, Stack, Text, Image} from "@chakra-ui/react"
 import { UpdootSection } from "../components/UpdootSection"
 import { EditDeletePostButtons } from "../components/EditDeletePostButtons"
 import { withApollo } from "../utils/withApollo";
@@ -11,7 +11,6 @@ import { SavePostBtn } from "../components/SavePostBtn";
 
 const Index = () => {
    const { data: meData} = useMeQuery();
-
    const {data, error, loading, fetchMore, variables} = usePostsQuery({
       variables:{
          limit: 10, 
@@ -59,6 +58,16 @@ const Index = () => {
                   {!meData?.me? (null):(
                   <UpdootSection post={p}/>
                   )}
+           
+                     <Image
+                        boxSize="100px"
+                        borderRadius={50}
+                        src={`https://amadisimages.blob.core.windows.net/imagenes/post:${p.id}`}
+                        alt="product image"
+                        fallbackSrc="https://media.giphy.com/media/duzpaTbCUy9Vu/giphy.gif"
+                        mr={5}
+                     />
+                  
                   <Box flex={1}>
                   <NextLink href="/post/[id]" as={`/post/${p.id}`}>
                   <Link>
@@ -81,7 +90,7 @@ const Index = () => {
                      <Box ml="auto">
                         
                         {(meData?.me?.id === p.creator.id)
-                           ?(<EditDeletePostButtons me={meData?.me} id={p.id} creatorId={p.creator.id}/>)
+                           ?(<EditDeletePostButtons id={p.id} creatorId={p.creator.id}/>)
                            :(<SavePostBtn meId={meData.me.id} like={isLiked(p.id) as boolean} postId={p.id} origin={'User'}/>)
                         }  
                      </Box>
