@@ -1,7 +1,6 @@
 import { Box, Button, Flex} from '@chakra-ui/react';
 import { Formik, Form, Field } from 'formik';
 import React from 'react'
-
 import { useRouter } from "next/router";
 import { useCategoryQuery, useChooseCategories4PromotorMutation } from '../../../generated/graphql';
 import { useGetIntId } from '../../../utils/useGetIntId';

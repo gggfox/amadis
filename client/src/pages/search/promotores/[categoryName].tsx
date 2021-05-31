@@ -30,7 +30,7 @@ const category = useGetStringCategory();
     <Stack spacing={8}>
           {data?.promotoresByCategory?.map((p) => 
           !p ? null : (
-              <Flex key={p.id} p={5} shadow="md" borderWidth="1px">
+              <Flex key={p.id} p={5} shadow="md" borderWidth="1px" borderColor="frost.0">
                  {!meData?.me? (null):(
                 <PromotorUpdootSection promotor={p}/>
                  )}

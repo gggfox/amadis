@@ -37,12 +37,12 @@ const AllCategories = () => {
             <Flex p={2}>
             <Box  p={5} flexGrow={1}>
                <Text textAlign="center" fontSize={20} lex={1} mt={2} color="snowStorm.1" alignItems="center">
-                  productos
+                  PRODUCTOS
             </Text>
             </Box>
             <Box p={5} flexGrow={1}>
                <Text textAlign="center" fontSize={20} lex={1} mt={2} color="snowStorm.1" alignItems="center">
-                  promotores
+                  PROMOTORES
             </Text>
             </Box>
             </Flex>
@@ -53,19 +53,36 @@ const AllCategories = () => {
                   {data!.allCategories.map((p) => 
                   !p ? null : (
                      <Flex key={p.name}  >
-                        <Box borderWidth="1px" shadow="md" p={5} flexGrow={1}>
+                        <Box borderWidth="1px" shadow="md" p={5} flexGrow={1} borderColor="frost.0">
                         <NextLink href="/post/category/[categoryName]" as={`/post/category/${p.name}`}>
                            <Link>          
-                              <Text textAlign="center" fontSize={20} lex={1} mt={2} color="snowStorm.1">{p.name}</Text>
+                              <Text 
+                                 textAlign="center" 
+                                 fontSize={20} 
+                                 lex={1} 
+                                 mt={2} 
+                                 color="snowStorm.1"
+                              >
+                                 {p.name}
+                              </Text>
                            </Link>
                         </NextLink>
                         </Box>
                         
 
-                        <Box borderWidth="1px" shadow="md" p={5} flexGrow={1}>
+                        <Box borderWidth="1px" shadow="md" p={5} flexGrow={1} borderColor="frost.0">
                         <NextLink href="/search/promotores/[categoryName]" as={`/search/promotores/${p.name}`}>
                            <Link>   
-                              <Text textAlign="center" fontSize={20} lex={1} mt={2} color="snowStorm.1" alignItems="center">{p.name}</Text>
+                              <Text 
+                                 textAlign="center" 
+                                 fontSize={20} 
+                                 lex={1} 
+                                 mt={2} 
+                                 color="snowStorm.1" 
+                                 alignItems="center"
+                              >
+                                 {p.name}
+                              </Text>
                            </Link>
                         </NextLink>
                         </Box>

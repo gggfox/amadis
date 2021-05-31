@@ -1,4 +1,4 @@
-import { Box, Flex, Heading, IconButton, Link } from '@chakra-ui/react';
+import { Box, Button, Flex, Heading, IconButton, Link } from '@chakra-ui/react';
 import React from 'react';
 import { Layout } from '../../components/Layout';
 import { Wrapper } from '../../components/Wrapper';
@@ -6,16 +6,18 @@ import { useGetPromotorFromUrl } from '../../utils/useGetPromotorFromUrl';
 import { withApollo } from '../../utils/withApollo';
 import { AddSocialMediaModal } from '../../components/AddSocialMediaModal';
 import { DeleteIcon } from '@chakra-ui/icons';
-import { useDeletePromotionMutation, useDeleteSocialMediaMutation, useMeQuery } from '../../generated/graphql';
+import { useDeletePromotionMutation, useDeleteSocialMediaMutation, useLogoutMutation, useMeQuery } from '../../generated/graphql';
 import NextLink from "next/link";
 import { ChooseCategories4PromotorModal } from '../../components/ChooseCategories4PromotorModal';
+import { useApolloClient } from '@apollo/client';
 
 const User = ({}) => {
+    const [logout,{loading: logoutFetching}] = useLogoutMutation();
     const {data, error, loading} = useGetPromotorFromUrl();
     const [deleteSocialMedia] = useDeleteSocialMediaMutation();
     const {data: meData} = useMeQuery();
     const [deletePromotion] = useDeletePromotionMutation();
-
+    const apolloClient = useApolloClient();
     if(loading){
         return(
             <Layout>
@@ -45,16 +47,29 @@ const User = ({}) => {
                         <Heading mb={4} color="snowStorm.2">
                             {data.promotor.username}
                         </Heading>
-                        {hide?(null):
-                        (<AddSocialMediaModal userId={data.promotor.id}/>)
-                        }
+                        {hide ? (null) : (
+                        <Button 
+                            onClick={async() => {
+                                await logout();
+                                await apolloClient.resetStore();
+                            }} 
+                            isLoading={logoutFetching}
+                            variant="link">
+                                logout
+                        </Button>
+                        )}
                     </Flex>
                
                <Box>
                {!data.promotor.socialMedia ? (null):(
-                    <Heading mt={3} size="md" color="snowStorm.0">
-                       Redes Sociales
-                    </Heading>
+                    <Flex justifyContent="space-between" mb={5}>
+                        <Heading mt={3} size="md" color="snowStorm.0">
+                        Redes Sociales
+                        </Heading>
+                        {hide?(null):
+                            (<AddSocialMediaModal userId={data.promotor.id}/>)
+                        }
+                    </Flex>
                )}
 
                {data.promotor.socialMedia?.map((media)=>(
@@ -89,7 +104,7 @@ const User = ({}) => {
                {!data.promotor.categories? (null):(
                    <Flex justifyContent="space-between" mt={5}>
                    <Heading mt={3} size="md" color="snowStorm.0">Categorias</Heading>
-                    {!(data.promotor.id === meData?.me?.id) ? (null) : (
+                    {!(data.promotor.id === meData?.me?.id && meData.me.userType === "influencer") ? (null) : (
                         <ChooseCategories4PromotorModal promotorId={data.promotor.id}/>
                     )}
                    </Flex>

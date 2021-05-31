@@ -2,7 +2,7 @@ import React from "react"
 import { Layout } from "../components/Layout"
 import { useSavedProductsQuery } from "../generated/graphql"
 import NextLink from "next/link";
-import { Box, Flex, Heading, Link, Stack, Text } from "@chakra-ui/react"
+import { Box, Flex, Heading, Link, Stack, Text, Image } from "@chakra-ui/react"
 import { UpdootSection } from "../components/UpdootSection"
 import { withApollo } from "../utils/withApollo";
 import { Wrapper } from "../components/Wrapper";
@@ -33,9 +33,17 @@ const SavedProducts = () => {
       : (<Stack spacing={8}>
             {data!.savedProducts?.savedProducts!.map((p): any => 
             !p ? null : (
-               <Flex key={p.id} p={5} shadow="md" borderWidth="1px">
+               <Flex key={p.id} p={5} shadow="md" borderWidth="1px" borderColor="frost.0">
                    
                   <UpdootSection post={p as any}/>
+                  <Image
+                        boxSize="100px"
+                        mr={5}
+                        borderRadius={50}
+                        src={`https://amadisimages.blob.core.windows.net/imagenes/post:${p.id}`}
+                        alt="product image"
+                        fallbackSrc="https://media.giphy.com/media/duzpaTbCUy9Vu/giphy.gif"
+                     />
                   <Box flex={1}>
                   <NextLink href="/post/[id]" as={`/post/${p.id}`}>
                   <Link>
@@ -46,7 +54,7 @@ const SavedProducts = () => {
                   </NextLink>
                   <NextLink href="/user/[id]" as={`/user/${p.creator.id}`}>
                      <Link>
-                        <Text>
+                        <Text color="frost.2">
                            vendedor: {p.creator.username}
                         </Text>
                      </Link>

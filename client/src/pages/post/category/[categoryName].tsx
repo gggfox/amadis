@@ -1,7 +1,6 @@
 import React from "react"
-
 import NextLink from "next/link";
-import { Box, Flex, Heading, Link, Stack, Text } from "@chakra-ui/react"
+import { Box, Flex, Heading, Link, Stack, Text, Image } from "@chakra-ui/react"
 import { useGetPostsFromUrlByCategory } from "../../../utils/useGetPostsFromUrlByCategory";
 import { EditDeletePostButtons } from "../../../components/EditDeletePostButtons";
 import { Layout } from "../../../components/Layout";
@@ -32,10 +31,18 @@ const SearchPostsByCategory = () => {
       : (<Stack spacing={8}>
             {data!.postsByCategory?.map((p) => 
             !p ? null : (
-               <Flex key={p.id} p={5} shadow="md" borderWidth="1px">
+               <Flex key={p.id} p={5} shadow="md" borderWidth="1px" borderColor="frost.0">
                   {!meData?.me? (null):(
                      <UpdootSection post={p}/>
                   )}
+                  <Image
+                     mr={5}
+                        boxSize="100px"
+                        borderRadius={50}
+                        src={`https://amadisimages.blob.core.windows.net/imagenes/post:${p.id}`}
+                        alt="product image"
+                        fallbackSrc="https://media.giphy.com/media/duzpaTbCUy9Vu/giphy.gif"
+                  />
                   <Box flex={1}>
                   <NextLink href="/post/[id]" as={`/post/${p.id}`}>
                   <Link>
@@ -46,7 +53,7 @@ const SearchPostsByCategory = () => {
                   </NextLink>
                   <NextLink href="/user/[id]" as={`/user/${p.creator.id}`}>
                      <Link>
-                        <Text>
+                        <Text color="frost.2">
                            vendedor: {p.creator.username}
                         </Text>
                      </Link>
@@ -55,7 +62,7 @@ const SearchPostsByCategory = () => {
                      <Flex flexDirection="row">
                      <Text lex={1} mt={2} color="snowStorm.1">{p.textSnippet}...</Text>
                      <Box ml="auto">
-                        <EditDeletePostButtons me={meData?.me} id={p.id} creatorId={p.creator.id}/>
+                        <EditDeletePostButtons id={p.id} creatorId={p.creator.id}/>
                      </Box>
                   </Flex>
                 </Box>

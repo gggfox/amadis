@@ -54,20 +54,20 @@ const Index = () => {
       : (<Stack spacing={8}>
             {data!.posts.posts.map((p) => 
             !p ? null : (
-               <Flex key={p.id} p={5} shadow="md" borderWidth="1px" borderRadius={5}>
+               <Flex key={p.id} p={5} shadow="md" borderWidth="1px" borderRadius={5} borderColor="frost.0">
                   {!meData?.me? (null):(
                   <UpdootSection post={p}/>
                   )}
-           
+                     
                      <Image
                         boxSize="100px"
+                        mr={5}
                         borderRadius={50}
                         src={`https://amadisimages.blob.core.windows.net/imagenes/post:${p.id}`}
                         alt="product image"
                         fallbackSrc="https://media.giphy.com/media/duzpaTbCUy9Vu/giphy.gif"
-                        mr={5}
                      />
-                  
+               
                   <Box flex={1}>
                   <NextLink href="/post/[id]" as={`/post/${p.id}`}>
                   <Link>
@@ -78,7 +78,7 @@ const Index = () => {
                   </NextLink>
                   <NextLink href="/user/[id]" as={`/user/${p.creator.id}`}>
                      <Link>
-                        <Text>
+                        <Text color="frost.2">
                            vendedor: {p.creator.username}
                         </Text>
                      </Link>
