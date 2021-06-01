@@ -19,6 +19,8 @@ yarn gen //genrate graphql mutation hook
 
 update environment variables
 npx gen-env-types .env -o src/env.d.ts -e .
+# DB
+db url: "//user:password@localhost:port/dbName"
 
 # create typeorm migrations
 npx typeorm migration:create -n MockPosts

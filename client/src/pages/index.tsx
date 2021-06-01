@@ -1,13 +1,11 @@
 import React from "react"
 import { Layout } from "../components/Layout"
-import { useMeQuery, usePostsQuery } from "../generated/graphql"
+import { Post, useMeQuery, usePostsQuery } from "../generated/graphql"
 import NextLink from "next/link";
-import { Box, Button, Flex, Heading, Link, Stack, Text, Image} from "@chakra-ui/react"
-import { UpdootSection } from "../components/UpdootSection"
-import { EditDeletePostButtons } from "../components/EditDeletePostButtons"
+import { Box, Button, Flex, Heading, Link, Stack} from "@chakra-ui/react"
 import { withApollo } from "../utils/withApollo";
 import { Wrapper } from "../components/Wrapper";
-import { SavePostBtn } from "../components/SavePostBtn";
+import { PostPreview } from "../components/PostPreview";
 
 const Index = () => {
    const { data: meData} = useMeQuery();
@@ -18,14 +16,6 @@ const Index = () => {
       },
       notifyOnNetworkStatusChange: true,
    });
-
-   const isLiked = (postId:number) => {
-      const products = meData?.me?.savedProducts?.map((p:any) => {
-          return p.id
-      });
-      return products?.includes(postId);
-  }
-
 
  if(!loading && !data){//done loading and no data
     return (
@@ -54,50 +44,7 @@ const Index = () => {
       : (<Stack spacing={8}>
             {data!.posts.posts.map((p) => 
             !p ? null : (
-               <Flex key={p.id} p={5} shadow="md" borderWidth="1px" borderRadius={5} borderColor="frost.0">
-                  {!meData?.me? (null):(
-                  <UpdootSection post={p}/>
-                  )}
-                     
-                     <Image
-                        boxSize="100px"
-                        mr={5}
-                        borderRadius={50}
-                        src={`https://amadisimages.blob.core.windows.net/imagenes/post:${p.id}`}
-                        alt="product image"
-                        fallbackSrc="https://media.giphy.com/media/duzpaTbCUy9Vu/giphy.gif"
-                     />
-               
-                  <Box flex={1}>
-                  <NextLink href="/post/[id]" as={`/post/${p.id}`}>
-                  <Link>
-                     <Heading fontSize="xl" color="snowStorm.1">
-                        {p.title}
-                     </Heading>
-                  </Link>
-                  </NextLink>
-                  <NextLink href="/user/[id]" as={`/user/${p.creator.id}`}>
-                     <Link>
-                        <Text color="frost.2">
-                           vendedor: {p.creator.username}
-                        </Text>
-                     </Link>
-                  </NextLink>
-
-                     <Flex flexDirection="row">
-                     <Text lex={1} mt={2} color="snowStorm.1">{p.textSnippet}...</Text>
-                     {!meData?.me? (null):(
-                     <Box ml="auto">
-                        
-                        {(meData?.me?.id === p.creator.id)
-                           ?(<EditDeletePostButtons id={p.id} creatorId={p.creator.id}/>)
-                           :(<SavePostBtn meId={meData.me.id} like={isLiked(p.id) as boolean} postId={p.id} origin={'User'}/>)
-                        }  
-                     </Box>
-                     )}
-                  </Flex>
-                </Box>
-               </Flex>
+               <PostPreview p={p as Post} meData={meData}/>
             ))}
          </Stack>)
     }

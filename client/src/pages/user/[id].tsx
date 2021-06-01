@@ -101,7 +101,7 @@ const User = ({}) => {
                </Box>
 
             
-               {!data.promotor.categories? (null):(
+               {!(data.promotor.userType === "influencer") ? (null):(
                    <Flex justifyContent="space-between" mt={5}>
                    <Heading mt={3} size="md" color="snowStorm.0">Categorias</Heading>
                     {!(data.promotor.id === meData?.me?.id && meData.me.userType === "influencer") ? (null) : (
