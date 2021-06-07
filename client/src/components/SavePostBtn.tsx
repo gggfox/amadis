@@ -4,13 +4,11 @@ import { SaveProductMutation, UnSaveProductMutation, useSaveProductMutation, use
 import { BsFillHeartFill } from 'react-icons/bs';
 import { ApolloCache, gql } from '@apollo/client';
 
-
 interface SavePostBtnProps {
     meId: number,
     like: boolean,
     postId: number,
     origin: string,
-    
 }
 
 const updateAfterSave = (
@@ -86,21 +84,17 @@ export const SavePostBtn: React.FC<SavePostBtnProps> = ({meId, like, postId, ori
 
     return (
             <IconButton 
-            ml={2}
             aria-label="Save Post" 
             icon={<Icon as={BsFillHeartFill} boxSize={8}/>}
             bg=""
             color={saved}
             onClick={ () => {
-
                 setSaved(setColor(!like)),
                 action({
                     variables: { postId },
                     update: (cache:any) => {
                         if(origin === 'User'){
-
                             updateAfterSave( postId, meId, like, cache);
-                            
                         }else{
                             cache.evict({id: 'Post:' + postId});
                         }
