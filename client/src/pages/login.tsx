@@ -22,9 +22,9 @@ const Login: React.FC<{}> = ({}) => {
 
         if (socialMedia === "facebook"){
         loginWithFacebook().then(user => {
-          /*  const {email, username} = user
+            const {email,accessToken, username} = user
             setUser(user as any)
-           */ 
+            
             console.log(user)
         }).catch(err => {
             console.log(err)

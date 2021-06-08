@@ -10,14 +10,17 @@ const firebaseConfig = {
 export const loginWithFacebook = () => {
     const facebookProvider = new firebase.auth.FacebookAuthProvider()
     return firebase.auth().signInWithPopup(facebookProvider)
-   /* .then(user => {
+    .then(user => {
         const{additionalUserInfo} = user
         const {profile} = additionalUserInfo
-        const {first_name, last_name, email} = profile
-
+        const {name, email} = profile
+        const{credential} = user
+        const {accessToken} = credential
+        
         return {
             email: email,
-            username : first_name + " " + last_name
+            accessToken : accessToken,
+            username : name
         }   
-    })*/
+    })
 }
