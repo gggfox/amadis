@@ -1,4 +1,4 @@
-import React from 'react'
+import React, {Component, useState} from 'react'
 import {Formik, Form} from 'formik';
 import { Box, Button, Flex, Heading, Link } from '@chakra-ui/react';
 import { InputField } from '../components/InputField';
@@ -10,9 +10,30 @@ import { Layout } from '../components/Layout';
 import { Wrapper } from '../components/Wrapper';
 import { withApollo } from '../utils/withApollo';
 
+import {loginWithFacebook} from '../firebase/client';
+
+
 const Login: React.FC<{}> = ({}) => {
     const router = useRouter();
     const [login] = useLoginMutation();
+    const [user,setUser] = useState(null)
+
+    const handleClick = (socialMedia:string) => {
+
+        if (socialMedia === "facebook"){
+        loginWithFacebook().then(user => {
+          /*  const {email, username} = user
+            setUser(user as any)
+           */ 
+            console.log(user)
+        }).catch(err => {
+            console.log(err)
+        })}
+         //poner el codigo de google
+
+
+    }
+    
     return (
        
         <Layout variant="small">
@@ -69,6 +90,27 @@ const Login: React.FC<{}> = ({}) => {
                       borderRadius={25}
                     >
                      login 
+                    </Button>
+                    <Button 
+                      mt={4} 
+                      type='submit' 
+                      isLoading={isSubmitting} 
+                      bg="frost.1"
+                      w="100%"
+                      borderRadius={25}
+                    >
+                     Google 
+                    </Button>
+                    <Button  onClick = {handleClick("facebook") as any}
+                      mt={4} 
+                      type='submit' 
+                      isLoading={isSubmitting} 
+                      bg="frost.1"
+                      w="100%"
+                      borderRadius={25}
+                    >
+                        
+                     Log in with Facebook 
                     </Button>
                     
                     <Flex justifyContent="center">
