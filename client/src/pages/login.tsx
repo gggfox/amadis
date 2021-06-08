@@ -11,6 +11,7 @@ import { Wrapper } from '../components/Wrapper';
 import { withApollo } from '../utils/withApollo';
 
 import {loginWithFacebook} from '../firebase/client';
+import {loginWithGoogle} from '../firebase/client';
 
 
 const Login: React.FC<{}> = ({}) => {
@@ -18,21 +19,31 @@ const Login: React.FC<{}> = ({}) => {
     const [login] = useLoginMutation();
     const [user,setUser] = useState(null)
 
-    const handleClick = (socialMedia:string) => {
+    const handleClickFacebook =  () => {
 
-        if (socialMedia === "facebook"){
-        loginWithFacebook().then(user => {
+         loginWithFacebook().then(user => {
             const {email,accessToken, username} = user
             setUser(user as any)
             
             console.log(user)
         }).catch(err => {
             console.log(err)
-        })}
-         //poner el codigo de google
-
-
+        })
     }
+
+    const handleClickGoogle =  () => {
+
+        loginWithGoogle().then(user => {
+           const {email,accessToken, username} = user
+           setUser(user as any)
+           
+           console.log(user)
+       }).catch(err => {
+           console.log(err)
+       })
+
+
+   }
     
     return (
        
@@ -91,7 +102,7 @@ const Login: React.FC<{}> = ({}) => {
                     >
                      login 
                     </Button>
-                    <Button 
+                    <Button onClick = {handleClickGoogle}
                       mt={4} 
                       type='submit' 
                       isLoading={isSubmitting} 
@@ -101,7 +112,7 @@ const Login: React.FC<{}> = ({}) => {
                     >
                      Google 
                     </Button>
-                    <Button  onClick = {handleClick("facebook") as any}
+                    <Button  onClick = {handleClickFacebook}
                       mt={4} 
                       type='submit' 
                       isLoading={isSubmitting} 

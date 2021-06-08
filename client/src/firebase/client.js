@@ -14,9 +14,28 @@ export const loginWithFacebook = () => {
         const{additionalUserInfo} = user
         const {profile} = additionalUserInfo
         const {name, email} = profile
-        const{credential} = user
+       const{credential} = user
         const {accessToken} = credential
-        
+
+        return {
+            email: email,
+            accessToken : accessToken,
+            username : name
+        }   
+    })
+}
+
+export const loginWithGoogle = () => {
+    const googleProvider = new firebase.auth.GoogleAuthProvider()
+    return firebase.auth().signInWithPopup(googleProvider)
+
+    .then(user => {
+        const{additionalUserInfo} = user
+        const {profile} = additionalUserInfo
+        const {name, email} = profile
+       const{credential} = user
+        const {accessToken} = credential
+
         return {
             email: email,
             accessToken : accessToken,
