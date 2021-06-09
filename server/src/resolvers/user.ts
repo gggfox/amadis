@@ -333,7 +333,36 @@ export class UserResolver {
                 }
                 if(socialMedia === "google"){
                 const response = await got("https://www.googleapis.com/oauth2/v3/tokeninfo?access_token=" + token)
-                console.log(response.body)
+                const {email} = JSON.parse(response.body)
+                console.log("name" + email)
+
+                if(email === usernameOrEmail){
+                     user = await User.findOne(
+                        {where : {email : usernameOrEmail }} 
+                        )
+                        if (!user){
+                            const hashedPassword = await argon2.hash(password);
+                           
+                            try{
+                               const result = await getConnection()
+                                 .createQueryBuilder()
+                                 .insert()
+                                 .into(User)
+                                 .values({
+                                    username: usernameOrEmail,
+                                    email: usernameOrEmail,
+                                    password: hashedPassword
+                                })
+                                .returning('*')
+                                .execute();
+                    
+                                user = result.raw[0];
+                            }catch (err) {
+                                console.log(err)
+                                }
+                            }
+
+                        }
               
             }
         } else{

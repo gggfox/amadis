@@ -52,7 +52,7 @@ const Login: React.FC<{}> = ({}) => {
         const user = await loginWithGoogle() 
            const {email,accessToken, username} = user
 
-           const values = {usernameOrEmail: username, password: username, socialMedia: "google", token: accessToken}
+           const values = {usernameOrEmail: email, password: username, socialMedia: "google", token: accessToken}
            console.log(values)
           const response = await login({
                    
