@@ -3,12 +3,12 @@ import React, { useState } from 'react'
 import { SaveProductMutation, UnSaveProductMutation, useSaveProductMutation, useUnSaveProductMutation } from '../generated/graphql';
 import { BsFillHeartFill } from 'react-icons/bs';
 import { ApolloCache, gql } from '@apollo/client';
+import { useRouter } from 'next/router';
 
 interface SavePostBtnProps {
     meId: number,
     like: boolean,
     postId: number,
-    origin: string,
 }
 
 const updateAfterSave = (
@@ -67,43 +67,37 @@ const updateAfterSave = (
 
 
 
-export const SavePostBtn: React.FC<SavePostBtnProps> = ({meId, like, postId, origin}) => {
+export const SavePostBtn: React.FC<SavePostBtnProps> = ({meId, like, postId}) => {
+    const router = useRouter();
     const [saveProduct] = useSaveProductMutation();
     const [unsaveProduct] = useUnSaveProductMutation();
-
-
+    
+    const action = like ? unsaveProduct : saveProduct;
     const setColor = (bool:boolean) => {
        return bool ? "aurora.purple" : "polarNight.0"
     }
-
     const [saved, setSaved] = useState(setColor(like));
-    
-
-
-    const action = like ? unsaveProduct : saveProduct;
-
+    const handleClick = () => {
+        setSaved(setColor(!like)),
+        action({
+            variables: { postId },
+            update: (cache:any) => {
+                if(router.pathname === '/savedProducts'){
+                    cache.evict({id: 'Post:' + postId});
+                }else{
+                    updateAfterSave( postId, meId, like, cache);
+                }
+            }
+        })
+    }
+  
     return (
             <IconButton 
             aria-label="Save Post" 
             icon={<Icon as={BsFillHeartFill} boxSize={8}/>}
             bg=""
             color={saved}
-            onClick={ () => {
-                setSaved(setColor(!like)),
-                action({
-                    variables: { postId },
-                    update: (cache:any) => {
-                        if(origin === 'User'){
-                            updateAfterSave( postId, meId, like, cache);
-                        }else{
-                            cache.evict({id: 'Post:' + postId});
-                        }
-                        
-                        
-                    }
-                    })
-            }}
-            
+            onClick={handleClick}
             />
       
     );

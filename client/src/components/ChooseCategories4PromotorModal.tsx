@@ -3,7 +3,8 @@ import { Box, Button, Flex, Icon, Modal, ModalBody, ModalCloseButton, ModalConte
 import { Field, Form, Formik } from 'formik';
 import { useRouter } from 'next/router';
 import React from 'react';
-import { useCategoryQuery, useChooseCategories4PromotorMutation } from '../generated/graphql';
+import { Category, useCategoryQuery, useChooseCategories4PromotorMutation } from '../generated/graphql';
+import { CategoryCheckBox } from './CategoryCheckBox';
 
 interface ChooseCategories4PromotorModalProps {
     promotorId: number,
@@ -27,7 +28,7 @@ export const ChooseCategories4PromotorModal:React.FC<ChooseCategories4PromotorMo
                 <ModalHeader color="snowStorm.1">Categorias</ModalHeader>
                 <ModalCloseButton />
                 <ModalBody>
-                    <Box color="snowStorm.1">Agrega una red social</Box>
+                    <Box color="snowStorm.1">Elige hasta 5 categorias</Box>
                     
                     <Formik
                         initialValues={{ id: promotorId, categories:[] }}
@@ -57,14 +58,13 @@ export const ChooseCategories4PromotorModal:React.FC<ChooseCategories4PromotorMo
                                     :(!data?.allCategories && loading 
                                         ?(<div>loading...</div>) 
                                         :(<div role="group" aria-labelledby="checkbox-group">
-                                            <Flex flexDirection="column">
-                                                {data!.allCategories.map((p) => 
-                                                !p 
+                                            <Flex flexDirection="row" flexWrap="wrap">
+                                                {data!.allCategories.map((c) => 
+                                                !c 
                                                 ? null 
-                                                :(<label key={p.name}>
-                                                    <Field type="checkbox" name="categories" value={p.name}/>
-                                                    {p.name}
-                                                </label>))
+                                                :(
+                                                    <CategoryCheckBox c={c as Category} filedName={"categories"}/>
+                                                ))
                                                 }
                                             </Flex>
                                         </div>)

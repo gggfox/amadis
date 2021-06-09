@@ -1,9 +1,8 @@
-
-import { Box, Button, Flex} from '@chakra-ui/react';
+import { Box, Button, Flex, Text} from '@chakra-ui/react';
 import { Formik, Form, Field } from 'formik';
 import React, { useState } from 'react'
 import { InputField } from '../components/InputField';
-import { useAddPictureMutation, useCategoryQuery, useCreatePostMutation } from '../generated/graphql';
+import { Category, useAddPictureMutation, useCategoryQuery, useCreatePostMutation } from '../generated/graphql';
 import { useRouter } from "next/router";
 import { Layout } from '../components/Layout';
 import { useIsAuth } from '../utils/useIsAuth';
@@ -11,6 +10,8 @@ import { withApollo } from '../utils/withApollo';
 import { Wrapper } from '../components/Wrapper';
 import { toErrorMap } from '../utils/toErrorMap';
 import { FieldError } from "../generated/graphql";
+import { CategoryCheckBox } from '../components/CategoryCheckBox';
+import swal from 'sweetalert';
 
 const CreatePost: React.FC<{}> = ({}) => {
   useIsAuth();
@@ -35,26 +36,14 @@ const CreatePost: React.FC<{}> = ({}) => {
 
   const handleFileChange = async (e:any) => {
     if(!e.target.files[0]) return;
-    changeFile(e.target.files[0]);
-  } 
-
-
-
-  const changeColor = (id:string) => {
-    let cbox = document.getElementById("checkbox-group");
-    let category = document.getElementById(id);
-
-    if(cbox && category){
-      cbox.style.color = "#ffffff"
-      if(category.style.color == cbox.style.color){
-        category.style.color = "#b48ead"
-      }else{
-        category.style.color = "#ffffff"
-      }
+    const size = e.target.files[0].size;
+    //swal(size + "")
+    if(size > 1000000){
+      swal(`Tu archivo tiene ${size} bytes que sobre pasa el limite de 1,000,000`);
+    }else{
+      changeFile(e.target.files[0]);
     }
-  }
-
-
+  } 
 
   return (
       <Layout variant="small">
@@ -82,77 +71,65 @@ const CreatePost: React.FC<{}> = ({}) => {
                     router.push("/");
                 }
               }
-
-
             }}
           >
             {({isSubmitting}) => (
               <Form>
                   <InputField
+                    textarea={false}
                     name="title"
                     placeholder="titulo"
                     label="Título"
                   />
-                  <Box mt={4} mb={5}>
-                    <InputField
-                      name="text"
-                      placeholder="texto..."
-                      label="Descripción"
-                      type="textarea"
-                      
-                    />
-                    <Box mb={5}/>
+                  <Box mb={5}/>
+                  <InputField
+                    textarea={true}
+                    name="text"
+                    label="Descripción"
+                  />
+                  <Box mb={5}/>
+                  <Flex alignItems="center" flexWrap="wrap" mb={5}>
+                  <Box 
+                    className="upload-file-btn"
+                    bg={file==""? "aurora.yellow":"aurora.orange"}
+                    mr={3}
+                  >
+                    Subir Foto
                     <input 
                       type="file" 
                       id="photo" 
                       name="photo" 
                       required 
                       onChange={handleFileChange}
+                      className="hide-real-file-btn"
+                      accept="image/png, image/jpeg"
+                      multiple={false}
                     />
-
                   </Box>
+                  <Text color="snowStorm.2">{file["name" as any]}</Text>
+                  </Flex>
+
+              
                   {!loading && !data ?//done loading and no data
                     (<div>
                       <div>you got no categories for some reason</div>
                       <div>{error?.message}</div>
                       </div>)
-                    :(!data?.allCategories && loading 
+                    : (!data?.allCategories && loading 
                       ? (<div>loading...</div>) 
-                      : (       <div> 
-                      <Box id="checkbox-group" color="white" fontWeight="bold">Categorías</Box>
-                      <Box id="cbox" color="white"/>
-                      <Flex role="group" aria-labelledby="checkbox-group" flexWrap="wrap">
-                          {data!.allCategories.map((p) => 
-                            !p 
-                            ? null 
-                            :(
-                              <label key={p.name} >
-                                <Field 
-                                  type="checkbox" 
-                                  name="categoryNames" 
-                                  value={p.name} 
-                                  onChange={() => changeColor(p.name)}
-                                  hidden
-                                  />
-                                <Box 
-                                  id={p.name}
-                                  color="#ffffff"
-                                  width="fit-content" 
-                                  border="2px" 
-                                  mr={2}
-                                  mt={2} 
-                                  p={1} 
-                                  borderRadius={15}
-                                  
-                                  >
-                                  {p.name}
-                                </Box>
-                              </label>
-                              
-                              ))
-                          } 
-                      </Flex></div>)
-                )}
+                      : (
+                        <Box> 
+                          <Box id="checkbox-group" color="white" fontWeight="bold">Categorías </Box>
+                          <Flex role="group" aria-labelledby="checkbox-group" flexWrap="wrap" flexDirection="row">
+                              {data!.allCategories.map((c) => (!c
+                                ? null 
+                                : (<CategoryCheckBox c={c as Category} filedName={"categoryNames"}/>)))
+                              }
+                          </Flex>
+                        </Box>
+                      )
+                    )
+                  }
                   <Button 
                     mt={4} 
                     type='submit' 

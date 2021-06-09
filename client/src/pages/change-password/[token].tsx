@@ -50,6 +50,7 @@ const ChangePassword: NextPage = () => {
                 {({isSubmitting}) => (
                     <Form>
                         <InputField
+                        textarea={false}
                         name="newPassword"
                         placeholder="new Password"
                         label="New Password"

@@ -6,7 +6,6 @@ import NextLink from 'next/link';
 import { useMeQuery, useDeletePostMutation } from '../generated/graphql';
 
 interface EditDeletePostButtonsProps {
-
     id: number,
     creatorId: number,
 }
@@ -23,18 +22,20 @@ export const EditDeletePostButtons: React.FC<EditDeletePostButtonsProps> = ({ id
         <Box>
             <NextLink href='/post/edit/[id]' as={`/post/edit/${id}`}>
             <IconButton 
-            ml="auto" 
             aria-label="Edit Post" 
             icon={<EditIcon/>}
             bg="snowStorm.2"
+            ml={2}
+            mt={1}
             />
             
             </NextLink>
             <IconButton 
-            ml={2}
+            mt={1}
             aria-label="Delete Post" 
             icon={<DeleteIcon/>}
             bg="snowStorm.2"
+            ml={2}
 
             onClick={ () => {
                 deletePost({

@@ -40,6 +40,10 @@ export class Post extends BaseEntity{
     saved: boolean;
 
     @Field()
+    @Column({type:"int",default: 200})
+    price!:number;
+
+    @Field()
     @Column({type:"int",default: 5})
     comision!:number;
 

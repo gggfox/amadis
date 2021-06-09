@@ -19,24 +19,15 @@ export const NavBar: React.FC<NavBarProps> = ({}) => {
 
    
  
-    const personLink = (!data?.me)?(
-        <NextLink href="/login">
+    const personLink = (
+        <NextLink 
+            href={!data?.me ? "/login" : "/user/[id]"} 
+            as={!data?.me ? "/login" : `/user/${data?.me?.id}`}
+        >
             <Link color="frost.1">
                 <Icon as={BsFillPersonFill} boxSize={8}></Icon>
             </Link>
         </NextLink> 
-    ):(
-        <Flex>
-        <NextLink href="/user/[id]" as={`/user/${data?.me?.id}`}>
-            <Link color="frost.1">
-                <Icon as={BsFillPersonFill} boxSize={8}></Icon>
-            </Link>
-        </NextLink>
-        <Box ml={2} mr={2}>
-            {data?.me?.username}[{data?.me?.userType}]
-        </Box>
-
-        </Flex>
     );
     
 
@@ -54,12 +45,11 @@ export const NavBar: React.FC<NavBarProps> = ({}) => {
         </NextLink>
         <NextLink href="/savedProducts">
             <Link color="frost.1">
-
                 <Icon as={BsFillHeartFill} boxSize={8} mr={4}            
-                onClick={async() => {
-              
-                await apolloClient.resetStore();
-            }} />
+                    onClick={async() => {
+                        await apolloClient.resetStore();
+                    }} 
+                />
             </Link>
         </NextLink>
         {personLink}

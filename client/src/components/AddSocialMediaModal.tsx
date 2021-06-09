@@ -60,6 +60,7 @@ export const AddSocialMediaModal:React.FC<AddSocialMediaModalProps> = ({userId})
                                     </FormControl>
 
                                     <InputField
+                                    textarea={false}
                                     name="link"
                                     placeholder="enlace/link"
                                     label=""

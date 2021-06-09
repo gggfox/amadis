@@ -45,7 +45,7 @@ const User = ({}) => {
                 <Wrapper variant="small">
                     <Flex justifyContent="space-between">
                         <Heading mb={4} color="snowStorm.2">
-                            {data.promotor.username}
+                            {data.promotor.username}[{data.promotor.userType}]
                         </Heading>
                         {hide ? (null) : (
                         <Button 
@@ -108,14 +108,22 @@ const User = ({}) => {
                         <ChooseCategories4PromotorModal promotorId={data.promotor.id}/>
                     )}
                    </Flex>
-               )}
-               
+                )}
+                <Flex flexDirection="row" flexWrap="wrap">
                    {data.promotor.categories?.map((c)=>(
-                   <Flex flexDirection="column">
-                       {c.name}
-                   </Flex>
-               ))}
-
+                        <Box 
+                            id={c.name + "."}
+                            color="aurora.yellow"
+                            border="2px" 
+                            mr={2}
+                            mt={2} 
+                            p={1} 
+                            borderRadius={15}
+                        >
+                            {c.name} 
+                        </Box>   
+                    ))}
+                </Flex>
 
                 {!data.promotor.promotes || data.promotor.activePromotions == 0
                     ? (null)

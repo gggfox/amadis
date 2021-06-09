@@ -48,12 +48,14 @@ const Login: React.FC<{}> = ({}) => {
             {({isSubmitting}) => (
                 <Form>
                     <InputField
+                    textarea={false}
                     name="usernameOrEmail"
                     placeholder="usuario o email"
                     label="Usuario o Email"
                     />
                     <Box mt={4}>
                     <InputField
+                    textarea={false}
                     name="password"
                     placeholder="contraseña"
                     label="Contraseña"
@@ -76,11 +78,6 @@ const Login: React.FC<{}> = ({}) => {
                             <Link color="frost.1" mt={3}>¿Olvidaste tu constraseña?</Link>
                         </NextLink>
                     </Flex>
-                    <div id="fb-root"></div>
-                    <script async defer crossOrigin="anonymous" 
-                        src="https://connect.facebook.net/es_LA/sdk.js#xfbml=1&version=v10.0&appId=125098359587197&autoLogAppEvents=1" 
-                        nonce="cQiNFQyf">
-                    </script>
                 </Form>
             )}
         </Formik>

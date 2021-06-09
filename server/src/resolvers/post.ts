@@ -151,7 +151,6 @@ export class PostResolver {
     @Query(() => PaginatedPosts)
     async posts(
         @Arg('limit',() => Int) limit: number,
-        //when an arg is nullable you need to explicitly set the type
         @Arg('cursor', () => String, {nullable: true}) cursor: string | null,
     ): Promise<PaginatedPosts> {
         const realLimit = Math.min(50, limit);

@@ -44,19 +44,26 @@ const Register: React.FC<registerProps> = ({}) => {
             {({isSubmitting}) => (
                 <Form>
                     <InputField
-                    name="username"
-                    placeholder="usuario"
-                    label="Usuario"
+                      textarea={false}
+                      name="username"
+                      placeholder="usuario"
+                      label="Usuario"
                     />
                     <Box mt={4}>
-                        <InputField name="email" placeholder="email" label="Email"/>
+                        <InputField
+                          textarea={false} 
+                          name="email" 
+                          placeholder="email" 
+                          label="Email"
+                        />
                     </Box>
                     <Box mt={4}>
                     <InputField
-                    name="password"
-                    placeholder="contraseña"
-                    label="Contraseña"
-                    type="password"
+                      textarea={false}
+                      name="password"
+                      placeholder="contraseña"
+                      label="Contraseña"
+                      type="password"
                     /></Box>
                     <Button 
                       mt={4} 

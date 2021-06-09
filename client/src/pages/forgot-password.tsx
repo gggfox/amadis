@@ -24,10 +24,11 @@ const ForgotPassword: React.FC<{}> = ({}) => {
                 </Box>):(
                 <Form>
                     <InputField
-                    name="email"
-                    placeholder="email"
-                    label="Email"
-                    type="email"
+                      textarea={false}
+                      name="email"
+                      placeholder="email"
+                      label="Email"
+                      type="email"
                     />
                     <Button 
                       mt={4} 

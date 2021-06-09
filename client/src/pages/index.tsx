@@ -8,6 +8,7 @@ import { Wrapper } from "../components/Wrapper";
 import { PostPreview } from "../components/PostPreview";
 
 const Index = () => {
+   
    const { data: meData} = useMeQuery();
    const {data, error, loading, fetchMore, variables} = usePostsQuery({
       variables:{
@@ -24,14 +25,14 @@ const Index = () => {
          <div>{error?.message}</div>
       </div>);
  }
- const meType = meData?.me?.userType;
     return(
  <Layout>
     <Wrapper variant="regular">
+    
     <Flex align="center">
       <Heading color="snowStorm.0">Productos</Heading>
 
-      {(meType != "admin" && meType != "business") ? null : (
+      {(meData?.me?.userType != "admin" && meData?.me?.userType != "business") ? null : (
          <NextLink href="/create-post">
             <Link ml="auto" color="snowStorm.0">
                crear producto
@@ -39,12 +40,13 @@ const Index = () => {
          </NextLink>
       )}
     </Flex>
+
     {!data && loading 
       ? (<div>loading...</div>) 
       : (<Stack spacing={8}>
             {data!.posts.posts.map((p) => 
             !p ? null : (
-               <PostPreview p={p as Post} meData={meData}/>
+               <PostPreview p={p as Post} meData={meData ? meData : null}/>
             ))}
          </Stack>)
     }

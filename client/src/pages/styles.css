@@ -30,3 +30,57 @@ option{
 .wText{
     color:white;
 }
+
+.upload-file-btn{
+        /* Our input type file element is going to be absolute positioned so the div element should be relatively positioned to act as container for it. */
+        position:relative;
+
+        width:40%;
+    
+      
+    
+        /* Making the div better looking */
+        padding:10px 15px;
+        text-align:center;
+        color:#2E3440;
+        font-size: 15px;
+        background-color: #EBCB8B;
+    
+        /* Converting pointed corners of div to slightly rounded */
+        border-radius:4px;
+        -webkit-border-radius:4px;
+        -moz-border-radius:4px;
+        -o-border-radius:4px;
+        -ms-border-radius:4px;
+    
+
+    
+        /* Hide that part of input type file element that is overflowed out of container div */
+        overflow:hidden;
+}
+
+.hide-real-file-btn{
+  
+        padding: "5px";
+        color:"#00000000";
+        outline: "none";
+        display: "inline-block";
+        opacity: 0;
+        z-index: 1;
+        height:100%;
+        width:100%;
+
+
+            /* Apply absolute positioning and move it to top-left corner of parent div element */
+    position:absolute;
+    top:0px;
+    left:0;
+
+    /* Making the file input element to cover the whole div element */
+    right:0px;
+    bottom:0px;
+    width:100%;
+
+    /* Hiding the tap color when it is clicked on touch devices ( this is not widely supported ) */
+    -webkit-tap-highlight-color:transparent;
+}
