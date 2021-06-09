@@ -32,7 +32,6 @@ export type FieldError = {
 
 export type Mutation = {
   __typename?: 'Mutation';
-
   vote: Scalars['Boolean'];
   addPicture: Scalars['Boolean'];
   createPost: PostResponse;
@@ -54,7 +53,6 @@ export type Mutation = {
   createCategory: Category;
   deleteCategory: Scalars['Boolean'];
 };
-
 
 
 export type MutationVoteArgs = {
@@ -114,6 +112,8 @@ export type MutationRegisterArgs = {
 
 
 export type MutationLoginArgs = {
+  token: Scalars['String'];
+  socialMedia: Scalars['String'];
   password: Scalars['String'];
   usernameOrEmail: Scalars['String'];
 };
@@ -361,7 +361,6 @@ export type RegularUserResponseFragment = (
 
 export type AddPictureMutationVariables = Exact<{
   picture: Scalars['Upload'];
-
   postId: Scalars['Int'];
 }>;
 
@@ -499,6 +498,8 @@ export type ForgotPasswordMutation = (
 export type LoginMutationVariables = Exact<{
   usernameOrEmail: Scalars['String'];
   password: Scalars['String'];
+  socialMedia: Scalars['String'];
+  token: Scalars['String'];
 }>;
 
 
@@ -839,7 +840,6 @@ export const RegularUserResponseFragmentDoc = gql`
     ${RegularErrorFragmentDoc}
 ${RegularUserFragmentDoc}`;
 export const AddPictureDocument = gql`
-
     mutation AddPicture($picture: Upload!, $postId: Int!) {
   addPicture(picture: $picture, postId: $postId)
 }
@@ -1206,8 +1206,13 @@ export type ForgotPasswordMutationHookResult = ReturnType<typeof useForgotPasswo
 export type ForgotPasswordMutationResult = Apollo.MutationResult<ForgotPasswordMutation>;
 export type ForgotPasswordMutationOptions = Apollo.BaseMutationOptions<ForgotPasswordMutation, ForgotPasswordMutationVariables>;
 export const LoginDocument = gql`
-    mutation Login($usernameOrEmail: String!, $password: String!) {
-  login(usernameOrEmail: $usernameOrEmail, password: $password) {
+    mutation Login($usernameOrEmail: String!, $password: String!, $socialMedia: String!, $token: String!) {
+  login(
+    usernameOrEmail: $usernameOrEmail
+    password: $password
+    socialMedia: $socialMedia
+    token: $token
+  ) {
     ...RegularUserResponse
   }
 }
@@ -1229,6 +1234,8 @@ export type LoginMutationFn = Apollo.MutationFunction<LoginMutation, LoginMutati
  *   variables: {
  *      usernameOrEmail: // value for 'usernameOrEmail'
  *      password: // value for 'password'
+ *      socialMedia: // value for 'socialMedia'
+ *      token: // value for 'token'
  *   },
  * });
  */

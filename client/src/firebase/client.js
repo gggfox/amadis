@@ -16,7 +16,6 @@ export const loginWithFacebook = () => {
         const {name, email} = profile
        const{credential} = user
         const {accessToken} = credential
-
         return {
             email: email,
             accessToken : accessToken,

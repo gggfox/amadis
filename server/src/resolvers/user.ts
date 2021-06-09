@@ -12,6 +12,7 @@ import { isAuth } from "../middleware/isAuth";
 import { Category } from "../entities/Category";
 import { SocialMedia } from "../entities/SocialMedia";
 import { Post } from "../entities/Post";
+import got from "got";
 
 @ObjectType()
 class FieldError {
@@ -287,13 +288,63 @@ export class UserResolver {
     async login(
         @Arg('usernameOrEmail') usernameOrEmail: string,
         @Arg('password') password: string,
+        @Arg('socialMedia') socialMedia: string,
+        @Arg('token') token: string,
         @Ctx() {req}: MyContext
     ): Promise<UserResponse> {
-        const user = await User.findOne(
-            usernameOrEmail.includes('@') 
-            ? { where: {email: usernameOrEmail }} 
-            : { where: {username: usernameOrEmail}}
-        );
+      
+        console.log("token " + token)
+        let user = null
+        if (token !== ""){
+
+            if(socialMedia === "facebook"){
+                const response = await got("https://graph.facebook.com/me?access_token=" + token)
+                
+               const {name, id} = JSON.parse(response.body)
+                console.log("name" + name)
+
+                if(name === usernameOrEmail){
+                     user = await User.findOne(
+                        {where : {username : usernameOrEmail }} 
+                        )
+                        if (!user){
+                            const hashedPassword = await argon2.hash(password);
+                           
+                            try{
+                               const result = await getConnection()
+                                 .createQueryBuilder()
+                                 .insert()
+                                 .into(User)
+                                 .values({
+                                    username: usernameOrEmail,
+                                    email: "",
+                                    password: hashedPassword
+                                })
+                                .returning('*')
+                                .execute();
+                    
+                                user = result.raw[0];
+                            }catch (err) {
+                                console.log(err)
+                                }
+                            }
+
+                        }
+                }
+                if(socialMedia === "google"){
+                const response = await got("https://www.googleapis.com/oauth2/v3/tokeninfo?access_token=" + token)
+                console.log(response.body)
+              
+            }
+        } else{
+             user = await User.findOne(
+                usernameOrEmail.includes('@') 
+                ? { where: {email: usernameOrEmail }} 
+                : { where: {username: usernameOrEmail}}
+            );
+
+        }        
+       
         if(!user){
             return {
                 errors: [
