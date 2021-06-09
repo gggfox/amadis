@@ -39,11 +39,13 @@ const Login: React.FC<{}> = ({}) => {
             });
             cache.evict({fieldName: "posts:{}"})
         }
-        }); if(response.data?.login.errors) {
-            console.log(response.data.login.errors);
-        }
-            
-            //console.log(response.data.login.error)
+        });   
+        
+            if(typeof router.query.next === "string") {
+                router.push(router.query.next);
+            }else{
+                router.push("/");
+            }
        
     }
 
@@ -67,11 +69,12 @@ const Login: React.FC<{}> = ({}) => {
            });
            cache.evict({fieldName: "posts:{}"})
        }
-       }); if(response.data?.login.errors) {
-           console.log(response.data.login.errors);
-       }
-           
-           //console.log(response.data.login.error)
+       }); 
+       if(typeof router.query.next === "string") {
+        router.push(router.query.next);
+    }else{
+        router.push("/");
+    }
       
    }
     
