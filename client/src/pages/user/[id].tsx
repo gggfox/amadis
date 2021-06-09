@@ -43,11 +43,9 @@ const User = ({}) => {
         return (
             <Layout variant="small">
                 <Wrapper variant="small">
-                    <Flex justifyContent="space-between">
-                        <Heading mb={4} color="snowStorm.2">
-                            {data.promotor.username}[{data.promotor.userType}]
-                        </Heading>
-                        {hide ? (null) : (
+
+                <Flex justifyContent="flex-end">
+                    {hide ? (null) : (
                         <Button 
                             onClick={async() => {
                                 await logout();
@@ -59,7 +57,11 @@ const User = ({}) => {
                         </Button>
                         )}
                     </Flex>
-               
+                    <Heading mb={4} color="snowStorm.2">
+                        {data.promotor.username}[{data.promotor.userType}]
+                    </Heading>
+
+                        
                <Box>
                {!data.promotor.socialMedia ? (null):(
                     <Flex justifyContent="space-between" mb={5}>
