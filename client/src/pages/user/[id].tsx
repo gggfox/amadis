@@ -43,24 +43,30 @@ const User = ({}) => {
         return (
             <Layout variant="small">
                 <Wrapper variant="small">
-
-                <Flex justifyContent="flex-end">
-                    {hide ? (null) : (
-                        <Button 
-                            onClick={async() => {
-                                await logout();
-                                await apolloClient.resetStore();
-                            }} 
-                            isLoading={logoutFetching}
-                            variant="link">
-                                logout
-                        </Button>
-                        )}
-                    </Flex>
-                    <Heading mb={4} color="snowStorm.2">
-                        {data.promotor.username}[{data.promotor.userType}]
+                {hide ? (null) : (
+                <Flex justifyContent="space-between">
+                    <Box color="snowStorm.0">
+                    [{data.promotor.userType}]
+                    </Box>
+                    
+                  
+                
+                    <Button 
+                        onClick={async() => {
+                            await logout();
+                            await apolloClient.resetStore();
+                        }} 
+                        isLoading={logoutFetching}
+                        variant="link">
+                            logout
+                    </Button>
+                        
+                    </Flex>)}
+                    <Heading mb={4} color="snowStorm.2" size="md">
+                        {data.promotor.username}
                     </Heading>
 
+                 
                         
                <Box>
                {!data.promotor.socialMedia ? (null):(

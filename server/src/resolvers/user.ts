@@ -300,7 +300,7 @@ export class UserResolver {
             if(socialMedia === "facebook"){
                 const response = await got("https://graph.facebook.com/me?access_token=" + token)
                 
-               const {name, id} = JSON.parse(response.body)
+               const {name} = JSON.parse(response.body)
                 console.log("name" + name)
 
                 if(name === usernameOrEmail){
