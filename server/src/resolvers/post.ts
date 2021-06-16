@@ -1,5 +1,5 @@
 import { isAuth } from "../middleware/isAuth";
-import { MyContext } from "src/types";
+import { MyContext } from "../types";
 import { Arg, Ctx, Field, FieldResolver, InputType, Int, Mutation, ObjectType, Query, Resolver, Root, UseMiddleware } from "type-graphql";
 import { Post } from "../entities/Post";
 import { getConnection } from "typeorm";
@@ -8,7 +8,6 @@ import { User } from "../entities/User";
 import { Post_Category } from "../entities/Post_Category";
 import { GraphQLUpload, FileUpload } from "graphql-upload";
 import { BlobServiceClient } from "@azure/storage-blob"
-
 
 @InputType()
 class PostInput {
@@ -231,16 +230,6 @@ export class PostResolver {
             );
         }
         return false;
-
-
-        // return new Promise(
-        //     async (resolve, reject) => {
-        //         createReadStream()
-        //             .pipe(createWriteStream(__dirname + `/../../images/${filename}`))
-        //             .on("finish", () => resolve(true))
-        //             .on("error", () => reject(false))
-        //     }
-        // );
     }
 
     @Mutation(() => PostResponse)

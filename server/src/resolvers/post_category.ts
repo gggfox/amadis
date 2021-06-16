@@ -1,4 +1,4 @@
-import { Arg,Int, Query, Resolver } from "type-graphql";
+import { Arg, Int, Query, Resolver } from "type-graphql";
 import { Post_Category } from "../entities/Post_Category";
 
 

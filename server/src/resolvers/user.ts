@@ -1,35 +1,17 @@
 import { User } from "../entities/User";
-import { MyContext } from "src/types";
-import { Arg, Ctx, Field, FieldResolver, Int, Mutation, ObjectType, Query, Resolver, Root, UseMiddleware } from "type-graphql";
+import { MyContext } from "../types";
+import { Arg, Ctx, FieldResolver, Int, Mutation, Query, Resolver, Root, UseMiddleware } from "type-graphql";
 import argon2 from 'argon2';
 import { UsernamePasswordInput } from "./UsernamePasswordInput";
 import { validateRegister } from "../utils/validateRegister";
 import { sendEmail } from "../utils/sendEmail";
 import {v4} from 'uuid';
 import { getConnection } from "typeorm";
-import { PromotorUpdoot } from "../entities/PromotorUpdoot";
 import { isAuth } from "../middleware/isAuth";
-import { Category } from "../entities/Category";
 import { SocialMedia } from "../entities/SocialMedia";
-import { Post } from "../entities/Post";
 import got from "got";
-
-@ObjectType()
-class FieldError {
-    @Field()
-    field: string;
-    @Field()
-    message: string;
-}
-
-@ObjectType()
-class UserResponse {
-    @Field(() => [FieldError], {nullable: true})
-    errors?: FieldError[];
-
-    @Field(() => User, {nullable: true})
-    user?: User;
-}
+import { Post } from "../entities/Post";
+import { UserResponse } from "./UserResponse";
 
 @Resolver(User)
 export class UserResolver {
@@ -46,21 +28,6 @@ export class UserResolver {
         return "";
     }
 
-    @FieldResolver(() => Int, {nullable: true})
-    async influencerVoteStatus(
-        @Root() user: User,
-        @Ctx() {promotorUpdootLoader, req}: MyContext,
-    ){
-        if(!req.session.userId){
-            return null;
-        }
-        const updoot = await promotorUpdootLoader.load({
-            promotorId: user.id, 
-            userId: req.session.userId,
-        });
-        return updoot ? updoot.value : null;
-    } 
-
     @Mutation(() => UserResponse)
     async changePassword(
         @Arg('token') token: string,
@@ -69,12 +36,10 @@ export class UserResolver {
     ): Promise<UserResponse>{
         if(newPassword.length <= 2){
             return { 
-                errors: [
-                    {
-                        field: "password",
-                        message: "length must be greater than 2",
-                    },
-                ]
+                errors: [{
+                    field: "password",
+                    message: "length must be greater than 2",
+                }]
             };
         }
 
@@ -83,12 +48,10 @@ export class UserResolver {
        
         if(!userId) {
             return {
-                errors: [
-                    {
-                        field: "token",
-                        message: "token expired",
-                    }
-                ]
+                errors: [{
+                    field: "token",
+                    message: "token expired",
+                }]
             }
         }
         const userIdNum = parseInt(userId);
@@ -96,12 +59,10 @@ export class UserResolver {
 
         if(!user){
             return {
-                errors: [
-                    {
-                        field: "token",
-                        message: "user no longer exists",
-                    },
-                ],
+                errors: [{
+                    field: "token",
+                    message: "user no longer exists",
+                }]
             };
         }
 
@@ -143,50 +104,6 @@ export class UserResolver {
             return null;
         }
         return User.findOne({where: {id: req.session.userId}, relations:["savedProducts"]});
-    }
-
-    @Query(() => User, {nullable:true})
-    savedProducts(@Ctx() { req }: MyContext) {
-        if(!req.session.userId){
-            return null;
-        }
-        const userId = req.session.userId;
-        return User.findOne({where:{id:userId},relations:["savedProducts"]});
-    }
-
-    @Query(() => [User])
-    async promotores(){
-        const promotores = await User.find({ where:{userType: "influencer"},relations: ["categories"] })
-        return promotores;
-    }
-
-    @Query(() => User)
-    async promotor(
-        @Arg('id', () => Int) id: number
-    ){
-        const promotor = await User.findOne({ 
-            where: {
-                id:id
-            },
-            relations: ["categories","socialMedia","promotes"] 
-        });
-        return promotor;
-    }
-
-    @Query(() => [User],{nullable: true})
-    async promotoresByCategory(
-        @Arg('categoryName', () => String)categoryName: string 
-    ):Promise<User[] | undefined>{
-        const promotores = await getConnection().query(`
-        SELECT * FROM "user" u 
-        LEFT JOIN user_categories_category ucc 
-        ON u.id=ucc."userId" 
-        LEFT JOIN "category" c
-        ON ucc."categoryName"=c.name
-        WHERE c.name= $1
-        `, [categoryName]);
-        
-        return promotores;
     }
 
     @Mutation(() => Boolean)
@@ -236,9 +153,10 @@ export class UserResolver {
 
     @Mutation(() => UserResponse)
     async register(
-        @Arg('options') options: UsernamePasswordInput,
+        @Arg('options') {email, username, password}: UsernamePasswordInput,
         @Ctx() {req}: MyContext
     ): Promise<UserResponse> {
+        const options = {email, username, password};
         const errors = validateRegister(options);
         if(errors){
             return {errors};
@@ -246,11 +164,6 @@ export class UserResolver {
         const hashedPassword = await argon2.hash(options.password);
         let user;
         try{
-            /*User.create({
-                username: options.username,
-                email: options.email,
-                password: hashedPassword
-            }).save();*/
            const result = await getConnection()
              .createQueryBuilder()
              .insert()
@@ -265,7 +178,6 @@ export class UserResolver {
 
             user = result.raw[0];
         }catch (err) {
-            //|| err.detail.includes("already exists")) {
             // duplicate username error
             if (err.code === "23505") {
                 return {
@@ -280,7 +192,6 @@ export class UserResolver {
         }
 
         req.session.userId = user.id;
-
         return {user};
     }
 
@@ -297,11 +208,12 @@ export class UserResolver {
         let user = null
         if (token !== ""){
 
+
             if(socialMedia === "facebook"){
+
+
                 const response = await got("https://graph.facebook.com/me?access_token=" + token)
-                
-               const {name} = JSON.parse(response.body)
-                console.log("name" + name)
+                const {name} = JSON.parse(response.body)
 
                 if(name === usernameOrEmail){
                      user = await User.findOne(
@@ -332,41 +244,40 @@ export class UserResolver {
                         }
                 }
                 if(socialMedia === "google"){
+
+
                 const response = await got("https://www.googleapis.com/oauth2/v3/tokeninfo?access_token=" + token)
                 const {email} = JSON.parse(response.body)
-                console.log("name" + email)
 
                 if(email === usernameOrEmail){
-                     user = await User.findOne(
+                    user = await User.findOne(
                         {where : {email : usernameOrEmail }} 
-                        )
-                        if (!user){
-                            const hashedPassword = await argon2.hash(password);
-                           
-                            try{
-                               const result = await getConnection()
-                                 .createQueryBuilder()
-                                 .insert()
-                                 .into(User)
-                                 .values({
-                                    username: usernameOrEmail,
-                                    email: usernameOrEmail,
-                                    password: hashedPassword
-                                })
-                                .returning('*')
-                                .execute();
-                    
-                                user = result.raw[0];
-                            }catch (err) {
-                                console.log(err)
-                                }
-                            }
-
+                    )
+                    if (!user){
+                        const hashedPassword = await argon2.hash(password);       
+                        try{
+                            const result = await getConnection()
+                                .createQueryBuilder()
+                                .insert()
+                                .into(User)
+                                .values({
+                                username: usernameOrEmail,
+                                email: usernameOrEmail,
+                                password: hashedPassword
+                            })
+                            .returning('*')
+                            .execute();
+                
+                            user = result.raw[0];
+                        }catch (err) {
+                            console.log(err)
                         }
-              
+                    }
+                }
             }
-        } else{
-             user = await User.findOne(
+
+        }else{
+            user = await User.findOne(
                 usernameOrEmail.includes('@') 
                 ? { where: {email: usernameOrEmail }} 
                 : { where: {username: usernameOrEmail}}
@@ -417,142 +328,13 @@ export class UserResolver {
         })
     }
 
-    @Mutation(() => UserResponse, {nullable: true})
-    @UseMiddleware(isAuth)
-    async chooseCategories4Promotor(
-        @Arg('id',() => Int) id: number,
-        @Arg('categories', () => [String]) categories: string[],
-    ):Promise<UserResponse>{
-        //to add categories the length should be between 1-5
-        if(categories.length < 1){
-            return {
-                errors: [
-                    {
-                        field: "",
-                        message: "no categories",
-                    },
-                ],
-            };
+    @Query(() => User, {nullable:true})
+    savedProducts(@Ctx() { req }: MyContext) {
+        if(!req.session.userId){
+            return null;
         }
-        if(categories.length > 5){
-            return {
-                errors: [
-                    {
-                        field: "",
-                        message: "no excedded limit of 5 categories",
-                    },
-                ],
-            };
-        }
-
-        const promotor = await User.findOne({where: {id, userType:"influencer"}});
-        
-        if(!promotor){
-            return {
-                errors: [
-                    {
-                        field: "",
-                        message: "no promotor found",
-                    },
-                ],
-            };
-        }
-        
-        let names = [] as any;
-        for(let i=0; i<categories.length; i++){
-            names.push({name: categories[i]});
-        }
-        const categories4Promotor = await Category.find({where:names});
-        promotor.categories = categories4Promotor;
-
-        await promotor.save();
-        
-        return {user: promotor,};
-    }
-
-    @Mutation(() => Boolean)
-    async createPromotion(
-        @Arg('postId',() => Int) postId: number,
-        @Ctx(){req}:MyContext
-    ){
         const userId = req.session.userId;
-        const user = await User.findOne(userId);
-        if(user?.userType !== "influencer" && user?.userType !== "admin"){
-            return false;
-        }
-        if(user.activePromotions > 5){
-            return false;
-        }
-
-        await getConnection().transaction(async (tm) => {
-            await tm.query(`
-                insert into 
-                user_promotes_post("userId", "postId")
-                values ($1, $2)`,
-                [user.id, postId]
-            );
-
-            await tm.query(`
-                update public.user
-                set "activePromotions" = "activePromotions" + 1
-                where id = $1`,
-                [user.id]
-            );
-        });
-        return true;
-        //create query builder
-    }
-
-    @Mutation(() => Boolean)
-    async deletePromotion(
-        @Arg('postId',() => Int) postId: number,
-        @Ctx(){req}:MyContext
-    ){
-        const userId = req.session.userId;
-        const user = await User.findOne({
-            where:{id:userId},
-            relations: ["promotes"] 
-        });
-        if(user?.userType !== "influencer" && user?.userType !== "admin"){
-            return false;
-        }
-
-        if(user.activePromotions <= 0 ){
-            return false;
-        }
-
-        let postExists = false;
-        
-        if(user.promotes){
-            const promotions = user.promotes.length;
-            for(let i = 0; i< promotions;i++){
-                postExists ||= (user.promotes[i].id === postId);
-            }
-        }else{
-            return false;
-        }
-        
-
-        if(!postExists){
-            return false;
-        }
-        await getConnection().transaction(async (tm) => {
-            await tm.query(`
-                DELETE FROM user_promotes_post
-                WHERE "userId" = $1
-                AND   "postId" = $2`,
-                [user.id, postId]
-            );
-
-            await tm.query(`
-                update public.user
-                set "activePromotions" = "activePromotions" - 1
-                where id = $1`,
-                [user.id]
-            );
-        });
-        return true;
-        //create query builder
+        return User.findOne({where:{id:userId},relations:["savedProducts"]});
     }
 
     @Mutation(() => Boolean)
@@ -605,62 +387,5 @@ export class UserResolver {
             return true;
         }
         return false;
-    }
-
-
-    @Mutation(() => Boolean)
-    @UseMiddleware(isAuth)
-    async votePromotor(
-        @Arg('promotorId', () => Int) promotorId: number,
-        @Arg('value', () => Int) value: number,
-        @Ctx() {req}: MyContext
-    ) {
-        const isUpdoot = (value !== -1);
-        const {userId} = req.session;
-        const realValue = isUpdoot ? 1 : -1;
-
-        const updoot = await PromotorUpdoot.findOne({where: {promotorId, userId}});
-    
-        if(updoot && updoot.value !== realValue) {
-        //changing vote
-            await getConnection().transaction(async (tm) => {
-                await tm.query(`
-                    update promotor_updoot
-                    set value = $1
-                    where "promotorId" = $2 and "userId" = $3
-                    `,[realValue, promotorId, userId]
-                );
-
-                await tm.query(`
-                    update public.user
-                    set "influencerPoints" = "influencerPoints" + $1
-                    where id = $2
-                    `,[2 * realValue, promotorId]
-                );
-            });
-        } else if(!updoot){
-            //has never voted before
-            await getConnection().transaction(async (tm) => {
-                await tm.query(`
-                    insert into promotor_updoot ("userId", "promotorId", value)
-                    values ($1, $2, $3)
-                    `,[userId, promotorId, realValue]
-                );
-
-                await tm.query(`
-                    update public.user
-                    set "influencerPoints" = "influencerPoints" + $1
-                    where id = $2
-                    `,[realValue, promotorId]
-                );
-            });
-        }
-
-        PromotorUpdoot.insert({
-            userId,
-            promotorId,
-            value: realValue,
-        });
-        return true
     }
 }

@@ -3,11 +3,6 @@ import "dotenv-safe/config";
 import { __prod__, } from "./constants";
 import express from 'express'
 import {ApolloServer} from 'apollo-server-express';
-import {buildSchema} from 'type-graphql';
-import { HelloResolver } from "./resolvers/hello";
-import { PostResolver } from "./resolvers/post";
-import { UserResolver } from "./resolvers/user";
-import { CategoryResolver } from "./resolvers/category"
 import { Post } from "./entities/Post";
 import { User } from "./entities/User";
 import { Updoot } from "./entities/Updoot";
@@ -22,11 +17,11 @@ import path from "path";
 import { createUserLoader } from "./utils/createUserLoader";
 import { createUpdootLoader } from "./utils/createUpdootLoader";
 import { Post_Category } from "./entities/Post_Category";
-import { Post_CategoryResolver } from "./resolvers/post_category";
 import { PromotorUpdoot } from "./entities/PromotorUpdoot";
 import { createPromotorUpdootLoader } from "./utils/createPromotorUpdootLoader";
 import { SocialMedia } from "./entities/SocialMedia";
 import { graphqlUploadExpress } from "graphql-upload";
+import { createSchema } from "./utils/createSchema";
 
 const main = async () => {
 
@@ -36,7 +31,7 @@ const main = async () => {
         logging: true,
         synchronize: true,//
         migrations: [path.join(__dirname,"./migrations/*")],
-        entities: [Post, User, Updoot, Category, Post_Category,PromotorUpdoot,SocialMedia],
+        entities: [Post, User, Updoot, Category, Post_Category, PromotorUpdoot, SocialMedia],
     });
     //await conn.runMigrations();
     //await Post.delete({});
@@ -69,12 +64,9 @@ const main = async () => {
             resave: false,
         })
     )
-
+    const schema = await createSchema();
     const apolloServer = new ApolloServer({
-        schema: await buildSchema({
-            resolvers: [HelloResolver, PostResolver, UserResolver, CategoryResolver, Post_CategoryResolver],
-            validate: false,
-        }),
+        schema,
         context: ({req, res}): MyContext => ({ 
             req, 
             res, 
@@ -86,6 +78,7 @@ const main = async () => {
         uploads: false
     });
 
+    // For uploading images through graphql
     app.use(graphqlUploadExpress({ maxFileSize: 1000000, maxFiles: 10 }));
 
     apolloServer.applyMiddleware({ 
