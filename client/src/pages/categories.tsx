@@ -1,10 +1,11 @@
 import React, { useState } from "react"
 import { Layout } from "../components/Layout"
 import { useCategoryQuery, useMeQuery } from "../generated/graphql"
-import { Box, Flex, Heading, Link, Stack, Text } from "@chakra-ui/react"
-import { withApollo } from "../utils/withApollo";
+import { Box, Flex, Heading, Link, Text } from "@chakra-ui/react"
+import { withApollo } from "../utils/apollo/withApollo";
 import { Wrapper } from "../components/Wrapper";
 import NextLink from "next/link";
+import { Category } from '../components/styled/Category';
 
 const tabs = ['PRODUCTOS', 'PROMOTORES'];
 const routes = ['/post/category/','/search/promotores/']
@@ -28,71 +29,63 @@ const AllCategories = () => {
          <Wrapper variant="regular">
             
             <Flex align="center">
-               <Heading color="snowStorm.0">Categorias</Heading>
+               <Heading color="wl" fontFamily="unna" fontSize={40}>Buscar</Heading>
 
                {(meType != "admin" && meType != "business") ? null : (
                <NextLink href="/create-category">
-                  <Link ml="auto" color="snowStorm.0">
-                     crear categoria
+                  <Link ml="auto" color="pd">
+                  <Text as="ins">
+                  <b>crear categoria</b>
+               </Text> 
                   </Link>
                </NextLink>
                )}
             </Flex>
+            </Wrapper>
 
-            <Flex>
+
+            <Wrapper variant="regular">
+            <Flex mb={10}>
                {tabs.map((tab, index)=>(
                   <Box flexGrow={1}>
-                     <Link>
+                     
                      <Text 
                      textAlign="center" 
-                     fontSize={20} 
-                     lex={1} 
-                     mt={2} 
-                     color="snowStorm.1" 
+                     fontSize={20}
+                     fontFamily="unna" 
+                     color="wl" 
                      alignItems="center"
                      onClick={() => setActive(routes[index])}
-                     bg={active == routes[index] ? "polarNight.1" : ""}
-                     p={3}
-                     borderRadius={20}
-                     border={active == routes[index] ? "2px" : ""}
-                     borderColor="polarNight.0"
+                     borderBottom={active == routes[index] ? "2px" : ""}
+                     borderColor="pd"
                      >
-                        {tab}
-                        
+                        <Link _hover={{}}>{tab}       </Link>           
                      </Text>
-                     </Link>
+
                   </Box>
+                  
                ))}
             </Flex>
+            
 
+           
          {!data && loading 
             ? (<div>loading...</div>) 
             : (
                <Flex justifyContent="space-around" flexWrap="wrap">
-                  {data!.allCategories.map((c) => 
-                  !c ? null : (
-                     
-                        <NextLink href={`${active}[categoryName]`} as={`${active}${c.name}`}>
-                           <Link>    
-                           <Box 
-                            id={c.name}
-                            color= "aurora.yellow"
-                            width="fit-content" 
-                            border="2px" 
-                            mr={2}
-                            mt={2} 
-                            p={1} 
-                            borderRadius={15}
-                            _hover={{ bg: "frost.2" }}
-                            >
-                                <Link>{c.name}</Link>
-                            </Box>      
-                           </Link>
-                        </NextLink>
-                  ))}</Flex> )
+                  {data!.allCategories.map((c) => !c 
+                     ? null 
+                     : (
+                           <NextLink href={`${active}[categoryName]`} as={`${active}${c.name}`}>
+                              <Link _hover={{}}><Category name={c.name}/></Link>
+                           </NextLink>
+                     )
+                  )}
+               </Flex> 
+            )
          }
-         </Wrapper>
-         <Box mb={100}></Box>
+       </Wrapper>
+         
       </Layout>
    )
 }

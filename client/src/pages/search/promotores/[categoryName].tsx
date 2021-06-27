@@ -2,11 +2,11 @@ import React from "react"
 import NextLink from "next/link";
 import { Layout } from "../../../components/Layout";
 import { Wrapper } from "../../../components/Wrapper";
-import { withApollo } from "../../../utils/withApollo";
-import { useGetPromotoresFromUrlByCategory } from "../../../utils/useGetPromotoresFromUrlByCategory";
-import { Heading, Stack, Flex, Box, Link } from "@chakra-ui/react";
+import { withApollo } from "../../../utils/apollo/withApollo";
+import { useGetPromotoresFromUrlByCategory } from "../../../utils/urlManipulation/useGetPromotoresFromUrlByCategory";
+import { Heading, Stack, Flex, Image, Link } from "@chakra-ui/react";
 import { PromotorUpdootSection } from "../../../components/PromotorUpdootSection";
-import { useGetStringCategory } from "../../../utils/useGetStringCategory";
+import { useGetStringCategory } from "../../../utils/urlManipulation/useGetStringCategory";
 import { useMeQuery } from "../../../generated/graphql";
 
 const SearchPromotoresByCategory = () => {
@@ -20,33 +20,61 @@ const category = useGetStringCategory();
          <div>you got no posts for some reason</div>
          <div>{error?.message}</div>
       </div>);
- }
- 
- return(
-    <Layout>
+ }    const isPhone = global.window?.innerWidth < 400;
 
-      <Wrapper variant="regular">
-    <Heading color="snowStorm.0">Promotores: {category}</Heading>
-    <Stack spacing={8}>
-          {data?.promotoresByCategory?.map((p) => 
-          !p ? null : (
-              <Flex key={p.id} p={5} shadow="md" borderWidth="1px" borderColor="frost.0">
-                 {!meData?.me? (null):(
-                <PromotorUpdootSection promotor={p}/>
-                 )}
-                <Box flex={1}>
-                <NextLink href="/user/[id]" as={`/user/${p.id}`}>
-                <Link>
-                   <Heading fontSize="xl" color="snowStorm.1">
-                      {p.username}
-                   </Heading>
-                </Link>
-                </NextLink>
-               </Box>
-             </Flex>
-          ))}
-    </Stack>
-    </Wrapper>
-    </Layout>)}
+ 
+   return(
+      <Layout>
+
+         <Wrapper variant="regular">
+            <Heading 
+            color="wl" 
+            fontSize={40} 
+            fontFamily="unna"
+            >
+               #{category}
+            </Heading>
+         </Wrapper>
+         
+        
+            <Stack spacing={8} w="100%" alignItems="center" m={0} p={0}>
+               {data?.promotoresByCategory?.map((p) => 
+               !p ? null : (
+                  <Wrapper variant="regular">
+                  <Flex key={p.id}>
+                     {!meData?.me? (null):(
+                     <PromotorUpdootSection promotor={p}/>
+                     )}
+                                    <Image
+                  mx={5}
+                  boxSize= {isPhone ? "120px" : "150px"}
+                  borderRadius={20}
+                  objectFit="cover"
+                  src={`https://amadisimages.blob.core.windows.net/imagenes/Avatar:${p.id}`}
+                  alt="promotor image"
+                  fallbackSrc="https://via.placeholder.com/150"
+                  border="2px"
+                  borderColor="bd"
+                  bg="pd"
+               />
+               
+                     <NextLink href="/user/[id]" as={`/user/${p.id}`}>
+                     
+                        <Heading 
+                          fontSize={isPhone ? 20 : 30} 
+                          color="wl"
+                        >
+                           <Link>{p.username}</Link>
+                        </Heading>
+                     </NextLink>
+                    
+                  </Flex>
+                  </Wrapper>
+               ))}
+            </Stack>
+         
+      </Layout>
+   )
+}
 
 export default withApollo({ssr: true})(SearchPromotoresByCategory)//has ssr

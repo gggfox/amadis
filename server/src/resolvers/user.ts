@@ -2,32 +2,44 @@ import { User } from "../entities/User";
 import { MyContext } from "../types";
 import { Arg, Ctx, FieldResolver, Int, Mutation, Query, Resolver, Root, UseMiddleware } from "type-graphql";
 import argon2 from 'argon2';
-import { UsernamePasswordInput } from "./UsernamePasswordInput";
-import { validateRegister } from "../utils/validateRegister";
+import { UsernamePasswordInput } from "../types/UsernamePasswordInput";
+import { validateRegister } from "../utils/validate/validateRegister";
 import { sendEmail } from "../utils/sendEmail";
 import {v4} from 'uuid';
 import { getConnection } from "typeorm";
 import { isAuth } from "../middleware/isAuth";
 import { SocialMedia } from "../entities/SocialMedia";
 import got from "got";
-import { Post } from "../entities/Post";
-import { UserResponse } from "./UserResponse";
+import { Product } from "../entities/Product";
+import { UserResponse } from "../types/UserResponse";
 
 @Resolver(User)
 export class UserResolver {
 
+    /*
+        This field resolver makes sure only the logged in user can query 
+        his or her own email. Recives a user and returns a string.
+    */
+    //.i
     @FieldResolver(() => String)
     email(
         @Root() user: User,
         @Ctx() {req}: MyContext
     ){
-        //this is the current user and its ok to show them their own email    
         if(req.session.userId === user.id){
             return user.email;
         }
         return "";
     }
 
+    
+    /*
+        This mutation takes place after the forgot password
+        recives a token and a new password, returns error if password is 
+        weak,token expires, user dosent exist and logs in user if no errors
+        are found.
+    */
+    //.i
     @Mutation(() => UserResponse)
     async changePassword(
         @Arg('token') token: string,
@@ -77,21 +89,28 @@ export class UserResolver {
         return{ user };
     }
 
+    /*
+        This mutation recives an email and creates a token that is sent to 
+        the email of the user, this function always returns true in order to 
+        prevent dictinoary attacks. After the execution of this mutation the
+        user can use the changepassword mutation before the token time limit
+        is up
+    */
+    //.i
     @Mutation(() => Boolean)
     async forgotPassword(
         @Arg('email') email: string,
         @Ctx() {redis}: MyContext
     ){
         const user = await User.findOne({where: {email}});
-        if(!user) {
-            //the email is not in the db
+        if(!user) {//the email is not in the DB
             return true;
         }
         const token = v4();
         await redis.set(
             'forgot-password:' + token, 
             user.id, 'ex', 
-            1000 * 60 * 60 * 24 * 3//3 days
+            (1000 * 60 * 60 * 24 * 3) //3 days
         );
         sendEmail(email, 
             `<a href="${process.env.CORS_ORIGIN}/change-password/${token}"> reset password</a>`);    
@@ -113,21 +132,30 @@ export class UserResolver {
         @Ctx() { req }: MyContext
     ){
         const userId = req.session.userId;
-        if(!userId || link ==="" || social_media === ""){
+        social_media = social_media.toLowerCase();
+        if(!userId || link === "" || social_media === ""){
             return false;
         }
-        await SocialMedia.create({userId,link,social_media}).save();
+        await SocialMedia.create({userId, link, social_media}).save();
         return true;
     }
 
+    /*
+        This mutation recives a socialmedia link and deletes the social media 
+        with that link of the currently logged in user and always returns true. 
+    */
+    //.i
     @Mutation(() => Boolean)
     async deleteSocialMedia(
         @Arg('link',() => String)link: string,
         @Ctx() { req }: MyContext
     ){
         const userId = req.session.userId;
+        if(!userId || !link || link === ""){
+            return false;
+        }
 
-        await getConnection()
+        const response = await getConnection()
         .createQueryBuilder()
         .delete()
         .from(SocialMedia)
@@ -135,33 +163,52 @@ export class UserResolver {
            '"userId" = :userId and link = :link',{userId: userId, link: link}
        )
        .execute();
+
+       if(response.affected === 0){
+        return false;
+       }
        return true;
     }
 
+    /*
+        This query dosent recive any arguments and returns all existing users
+    */
+    //.i
     @Query(()=>[User])
     async users(){
         const users = await User.find();
         return users;
     }
 
+    /*
+        This query recevies a user id and returns the only user with that id 
+    */
+    //.i
     @Query(() => User)
     async user(
-        @Arg('id', () => Int) id: number
+        @Arg('userId', () => Int) userId: number
     ): Promise<User | undefined>{
-        return User.findOne(id);
+        return User.findOne(userId);
     }
 
+    /*
+        This mutation recives email, username, password and confirmation, 
+        validates all data through middleware that returns erros if any are
+        found, then it creates a new user in the DB, unless a user with same 
+        unique field (username, email) exists, in which case returns error,
+        in case no error is found logs the user in. 
+    */
+    //.i
     @Mutation(() => UserResponse)
     async register(
-        @Arg('options') {email, username, password}: UsernamePasswordInput,
+        @Arg('options') {email, username, password, confirmation}: UsernamePasswordInput,
         @Ctx() {req}: MyContext
     ): Promise<UserResponse> {
-        const options = {email, username, password};
-        const errors = validateRegister(options);
+        const errors = validateRegister({email, username, password, confirmation});
         if(errors){
             return {errors};
         }
-        const hashedPassword = await argon2.hash(options.password);
+        const hashedPassword = await argon2.hash(password);
         let user;
         try{
            const result = await getConnection()
@@ -169,8 +216,8 @@ export class UserResolver {
              .insert()
              .into(User)
              .values({
-                username: options.username,
-                email: options.email,
+                username: username,
+                email: email,
                 password: hashedPassword
             })
             .returning('*')
@@ -178,23 +225,21 @@ export class UserResolver {
 
             user = result.raw[0];
         }catch (err) {
-            // duplicate username error
-            if (err.code === "23505") {
+            if (err.code === "23505") {// duplicate username error
                 return {
-                errors: [
-                    {
-                    field: "username",
-                    message: "username already taken",
-                    },
-                ],
+                    errors: [{
+                        field: "username",
+                        message: "username already taken",
+                    }]
                 };
             }
         }
-
+       
         req.session.userId = user.id;
         return {user};
     }
 
+    // this mutation needs to be broken down into -> regular_login and social_login
     @Mutation(() => UserResponse)
     async login(
         @Arg('usernameOrEmail') usernameOrEmail: string,
@@ -310,6 +355,11 @@ export class UserResolver {
         return {user,};
     }
 
+    /*
+        This mutation logs out the user, dosent recive any arguments and 
+        return a boolean, false if any errors occur and true otherwise 
+    */
+    //.i
     @Mutation(() => Boolean)
     logout(
         @Ctx(){req, res}: MyContext
@@ -317,17 +367,20 @@ export class UserResolver {
        return new Promise((resolve) => {
             req.session.destroy((err) => {
                 if(err) {
-                    console.log(err);
                     resolve(false);
                     return;
                 }
-
                 res.clearCookie("qid");
                 resolve(true);
             })
         })
     }
 
+    /*
+        This Query dosent recive any arguments and returns the logged in user 
+        with all of his/her saved products
+    */
+    //.i
     @Query(() => User, {nullable:true})
     savedProducts(@Ctx() { req }: MyContext) {
         if(!req.session.userId){
@@ -340,7 +393,7 @@ export class UserResolver {
     @Mutation(() => Boolean)
     @UseMiddleware(isAuth)
     async saveProduct(
-        @Arg('postId', () => Int) postId: number,
+        @Arg('productId', () => Int) productId: number,
         @Ctx() {req}: MyContext
     ){
         const userId = req.session.userId;
@@ -348,15 +401,16 @@ export class UserResolver {
             return false;
         }
 
-        const product = await Post.findOne(postId);
+        const product = await Product.findOne(productId);
         const user = await User.findOne(userId);
         
         if(product && user){
             await getConnection().query(`
-            INSERT INTO user_saved_products_post
-            ("userId","postId")
-            VALUES($1,$2)
-            `, [user.id, product.id]);
+                INSERT INTO user_saved_products_product
+                ("userId","productId")
+                VALUES($1,$2)
+                `, [user.id, product.id]
+            );
 
             return true;
         }
@@ -366,7 +420,7 @@ export class UserResolver {
     @Mutation(() => Boolean)
     @UseMiddleware(isAuth)
     async unSaveProduct(
-        @Arg('postId', () => Int) postId: number,
+        @Arg('productId', () => Int) productId: number,
         @Ctx() {req}: MyContext
     ){
         const userId = req.session.userId;
@@ -374,16 +428,15 @@ export class UserResolver {
             return false;
         }
 
-        const product = await Post.findOne(postId);
+        const product = await Product.findOne(productId);
         const user = await User.findOne(userId);
         if(product && user){
-            const res = await getConnection().query(`
-            DELETE FROM user_saved_products_post
-            WHERE "userId" = $1
-            AND "postId" =  $2
-            `, [user.id, product.id]);
-
-            console.log("res: "+res)
+            await getConnection().query(`
+                DELETE FROM user_saved_products_product
+                WHERE "userId" = $1
+                AND "productId" =  $2
+                `, [user.id, product.id]
+            );
             return true;
         }
         return false;

@@ -8,7 +8,7 @@ import { Wrapper } from '../../components/Wrapper';
 import { MeDocument, MeQuery, useChangePasswordMutation } from '../../generated/graphql';
 import { toErrorMap } from '../../utils/toErrorMap';
 import NextLink from 'next/link';
-import { withApollo } from '../../utils/withApollo';
+import { withApollo } from '../../utils/apollo/withApollo';
 
 const ChangePassword: NextPage = () => {
     const router = useRouter();

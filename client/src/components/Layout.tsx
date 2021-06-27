@@ -1,6 +1,5 @@
 import { Box, Flex } from '@chakra-ui/react';
 import React from 'react'
-import { useIsAuth } from '../utils/useIsAuth';
 import { NavBar } from './NavBar'
 import { Title } from './Title';
 
@@ -12,19 +11,26 @@ interface LayoutProps {
 
 export const Layout: React.FC<LayoutProps> = ({children, variant}:any) => {
         return (
-            <Box h="100%">
+            <Box h="100%" w="100%">
                 <Flex
                 h="100%"
+                w="100%"
+                alignItems="center"
                 flexDirection="column">
-                <Box mb="auto" flexGrow={1}>
-                <Title variant={variant}/>
-                
+                <Flex mb="auto" flexGrow={1} w="100%" flexDirection="column" alignItems="center">
+                    <Title variant={variant}/>
                     {children}
-                </Box>
-                <Box w="100%" position="fixed" bottom={0}>
+                </Flex>
+
+                <Box 
+                  w="100%" 
+                  position="fixed" 
+                  bottom={0}
+                >
                     <NavBar/>
                 </Box>
                 </Flex>
+                <Box mb={200}></Box>
             </Box>
             );
 }

@@ -51,3 +51,8 @@ letsencrypt
 //https://github.com/dokku/dokku-letsencrypt
 ## dokku-comands
 dokku domains:report 
+
+
+
+# jest 
+yarn test -t 'Social Media delete without login'

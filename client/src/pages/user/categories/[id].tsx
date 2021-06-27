@@ -3,11 +3,11 @@ import { Formik, Form, Field } from 'formik';
 import React from 'react'
 import { useRouter } from "next/router";
 import { useCategoryQuery, useChooseCategories4PromotorMutation } from '../../../generated/graphql';
-import { useGetIntId } from '../../../utils/useGetIntId';
+import { useGetIntId } from '../../../utils/urlManipulation/useGetIntId';
 import { Layout } from '../../../components/Layout';
 import { Wrapper } from '../../../components/Wrapper';
-import { useIsAuth } from '../../../utils/useIsAuth';
-import { withApollo } from '../../../utils/withApollo';
+import { useIsAuth } from '../../../utils/roleAuth/useIsAuth';
+import { withApollo } from '../../../utils/apollo/withApollo';
 
 const AddCategories2Promotor: React.FC<{}> = ({}) => {
     const router = useRouter();

@@ -1,0 +1,12 @@
+fragment ProductSnippet on Product {
+    id 
+    title
+    points
+    price
+    textSnippet
+    voteStatus
+    creator {
+        id
+        username
+    }
+}

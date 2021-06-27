@@ -3,7 +3,7 @@ import "dotenv-safe/config";
 import { __prod__, } from "./constants";
 import express from 'express'
 import {ApolloServer} from 'apollo-server-express';
-import { Post } from "./entities/Post";
+import { Product } from "./entities/Product";
 import { User } from "./entities/User";
 import { Updoot } from "./entities/Updoot";
 import { Category } from "./entities/Category";
@@ -14,11 +14,11 @@ import { MyContext } from "./types";
 import cors from 'cors';
 import {createConnection} from 'typeorm';
 import path from "path";
-import { createUserLoader } from "./utils/createUserLoader";
-import { createUpdootLoader } from "./utils/createUpdootLoader";
-import { Post_Category } from "./entities/Post_Category";
+import { createUserLoader } from "./utils/loaders/createUserLoader";
+import { createUpdootLoader } from "./utils/loaders/createUpdootLoader";
+import { Product_Category } from "./entities/Product_Category";
 import { PromotorUpdoot } from "./entities/PromotorUpdoot";
-import { createPromotorUpdootLoader } from "./utils/createPromotorUpdootLoader";
+import { createPromotorUpdootLoader } from "./utils/loaders/createPromotorUpdootLoader";
 import { SocialMedia } from "./entities/SocialMedia";
 import { graphqlUploadExpress } from "graphql-upload";
 import { createSchema } from "./utils/createSchema";
@@ -31,10 +31,10 @@ const main = async () => {
         logging: true,
         synchronize: true,//
         migrations: [path.join(__dirname,"./migrations/*")],
-        entities: [Post, User, Updoot, Category, Post_Category, PromotorUpdoot, SocialMedia],
+        entities: [Product, User, Updoot, Category, Product_Category, PromotorUpdoot, SocialMedia],
     });
     //await conn.runMigrations();
-    //await Post.delete({});
+    //await Updoot.delete({});
 
     const app = express();
 
@@ -79,7 +79,7 @@ const main = async () => {
     });
 
     // For uploading images through graphql
-    app.use(graphqlUploadExpress({ maxFileSize: 1000000, maxFiles: 10 }));
+    app.use(graphqlUploadExpress({ maxFileSize: 2000000, maxFiles: 10 }));
 
     apolloServer.applyMiddleware({ 
         app, 

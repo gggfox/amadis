@@ -1,5 +1,5 @@
-query User($id: Int!){
-  user(id:$id){
+query User($userId: Int!){
+  user(userId:$userId){
   	username
     userType
   }

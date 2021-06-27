@@ -1,0 +1,24 @@
+query Product($id: Int!) {
+    product(id: $id){
+        id
+        createdAt
+        updatedAt
+        title
+        points
+        price
+        quantity
+        text
+        voteStatus
+        creator{
+            id
+            username
+        }
+        categories{
+            categoryName
+        }
+        promotors{
+            id
+            username
+        }
+    }
+}

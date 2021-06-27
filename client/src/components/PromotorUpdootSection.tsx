@@ -1,9 +1,9 @@
-import { Flex, IconButton } from '@chakra-ui/react';
-import { ArrowUpIcon, ArrowDownIcon } from '@chakra-ui/icons';
+import { Flex, IconButton, Text } from '@chakra-ui/react';
 import React, { useState } from 'react'
 import {PromotoresQuery, useVotePromotorMutation, VotePromotorMutation } from '../generated/graphql';
 import gql from 'graphql-tag';
 import { ApolloCache } from '@apollo/client';
+import {ImArrowUp,ImArrowDown } from 'react-icons/im'
 
 interface PromotorUpdootSectionProps {
     promotor: PromotoresQuery["promotores"][0]
@@ -50,13 +50,21 @@ const updateAfterVote = (
 export const PromotorUpdootSection: React.FC<PromotorUpdootSectionProps> = ({promotor}) => {
     const [loadingState, setLoadingState] = useState<'updoot-loading' | 'downdoot-loading' | 'not-loading'>('not-loading');
     const [vote] = useVotePromotorMutation();
+    const isPhone = global.window?.innerWidth < 400;
 
     return (
-        <Flex flexDirection="column" mr={3} alignItems="center">
+        <Flex 
+          flexDirection="column" 
+          alignItems="center" 
+          justifyContent="space-between"
+        >
             <IconButton
-                icon={<ArrowUpIcon/>} 
-                aria-label="Updoot user"
-                
+                variant="unstyled"
+                _hover={{color:"pd"}}
+                aria-label="Updoot promotor"
+
+                as={ImArrowUp} 
+                boxSize={8}
                 onClick={async () => {
                     if(promotor.influencerVoteStatus === 1) {
                         return;
@@ -71,13 +79,24 @@ export const PromotorUpdootSection: React.FC<PromotorUpdootSectionProps> = ({pro
                     });
                     setLoadingState('not-loading');
                 }} 
-                bg={promotor.influencerVoteStatus === 1 ? "aurora.green" : "snowStorm.2"}
+                color={promotor.influencerVoteStatus === 1 ? "pd" : "bd"}
                 isLoading={loadingState==='updoot-loading'}
                 />
-            <div>{promotor.influencerPoints}</div>
+
+            <Text 
+                color="wl" 
+                fontSize={isPhone ? "x-large" : "xx-large"} 
+                fontFamily="unna"
+            >
+                {promotor.influencerPoints}
+            </Text>
+        
             <IconButton
-                icon={<ArrowDownIcon/>} 
-                aria-label="Downdoot post"
+                variant="unstyled"
+                _hover={{color:"rl"}}
+                boxSize={8}
+                as={ImArrowDown} 
+                aria-label="Downdoot promotor"
                 onClick={async () => {
                     if(promotor.influencerVoteStatus === -1) {
                         return;
@@ -94,7 +113,7 @@ export const PromotorUpdootSection: React.FC<PromotorUpdootSectionProps> = ({pro
                     setLoadingState('not-loading');
                 }}
                 isLoading={loadingState==='downdoot-loading'}
-                bg={promotor.influencerVoteStatus === -1 ? "aurora.red" : "snowStorm.2"}
+                color={promotor.influencerVoteStatus === -1 ? "rl" : "bd"}
                 />
         </Flex>
     );

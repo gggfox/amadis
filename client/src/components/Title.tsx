@@ -12,7 +12,7 @@ export const Title: React.FC<TitleProps> = ({variant='regular'}) => {
         return (
         <Wrapper variant={variant}>
             <Flex justifyContent="center">
-            <Heading color="frost.0" size="3xl">AMADIS</Heading>
+            <Heading color="pd" size="3xl">AMADIS</Heading>
             </Flex>
         </Wrapper>)
 }

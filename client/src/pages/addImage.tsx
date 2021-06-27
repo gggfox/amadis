@@ -1,8 +1,8 @@
 import React, { useState } from 'react'
 import { useAddPictureMutation } from '../generated/graphql';
 import { Layout } from '../components/Layout';
-import { useIsAdmin } from '../utils/useIsAdmin';
-import { withApollo } from '../utils/withApollo';
+import { useIsAdmin } from '../utils/roleAuth/useIsAdmin';
+import { withApollo } from '../utils/apollo/withApollo';
 import { Wrapper } from '../components/Wrapper';
 
 import { Button, Flex } from '@chakra-ui/react';
@@ -20,7 +20,7 @@ const AddImage: React.FC<{}> = ({}) => {
       await addImage({ 
         variables: { 
           picture: file,
-          postId: 1
+          productId: 1
         }
       });
     }

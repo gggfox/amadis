@@ -1,3 +1,3 @@
-mutation DeletePromotion($postId: Int!){
-    deletePromotion(postId:$postId)
+mutation DeletePromotion($productId: Int!){
+    deletePromotion(productId:$productId)
 }

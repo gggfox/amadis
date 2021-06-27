@@ -8,7 +8,8 @@ import { toErrorMap } from '../utils/toErrorMap';
 import { useRouter } from 'next/router';
 import { Layout } from '../components/Layout';
 import NextLink from 'next/link';
-import { withApollo } from '../utils/withApollo';
+import { withApollo } from '../utils/apollo/withApollo';
+import { PrimaryBtn } from '../components/styled/PrimaryBtn';
 interface registerProps {}
 
 const Register: React.FC<registerProps> = ({}) => {
@@ -19,7 +20,7 @@ const Register: React.FC<registerProps> = ({}) => {
         <Layout variant="small">
             <Wrapper variant="small">
         <Formik
-            initialValues={{ email: "", username: "", password: "" }}
+            initialValues={{ email: "", username: "", password: "", confirmation: "" }}
             onSubmit={async (values,{setErrors}) => {
                 console.log(values);
                 const response = await register({variables: {options: values},
@@ -49,7 +50,7 @@ const Register: React.FC<registerProps> = ({}) => {
                       placeholder="usuario"
                       label="Usuario"
                     />
-                    <Box mt={4}>
+                    <Box my={5}>
                         <InputField
                           textarea={false} 
                           name="email" 
@@ -57,40 +58,49 @@ const Register: React.FC<registerProps> = ({}) => {
                           label="Email"
                         />
                     </Box>
-                    <Box mt={4}>
+                    
                     <InputField
                       textarea={false}
                       name="password"
                       placeholder="contraseña"
                       label="Contraseña"
                       type="password"
-                    /></Box>
+                    />
+                   
+                    <Box my={5}>
+                    <InputField
+                      textarea={false}
+                      name="confirmation"
+                      placeholder="confirmar contraseña"
+                      label="Confirmacion"
+                      type="password"
+                    />
+                    </Box>
                     <Button 
-                      mt={4} 
+                      variant="unstyled"
+                      mb={5} 
                       type='submit' 
                       isLoading={isSubmitting} 
-                      bg="frost.1"
                       w="100%"
-                      borderRadius={25}
                     >
-                        Crear Cuenta
+                        <PrimaryBtn text={"Crear Cuenta"}/>
                     </Button>
 
                 </Form>
             )}
         </Formik>
         </Wrapper>
-        <Box mb={20}>
-                <Wrapper variant="small">
-             <Flex alignItems="center" flexDirection="column">
-                <Heading size="1xl" color="snowStorm.0">¿Ya tienes cuenta?</Heading>
-                <NextLink href='/login'>
-                    <Link color="frost.1">Ingresa a tu cuenta</Link>
-                </NextLink>
-            </Flex> 
-        </Wrapper>
-        </Box>
-        <br/>
+
+        <Flex mb={20} w="100%" justifyContent="center">
+            <Wrapper variant="small">
+                <Flex alignItems="center" flexDirection="column">
+                    <Heading size="1xl" color="wl">¿Ya tienes cuenta?</Heading>
+                    <NextLink href='/login'>
+                        <Link color="pd">Ingresa a tu cuenta</Link>
+                    </NextLink>
+                </Flex> 
+            </Wrapper>
+        </Flex>
         </Layout>  
     );
 }

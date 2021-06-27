@@ -2,7 +2,7 @@ import { Box, Flex, Heading, Link, Stack } from "@chakra-ui/react";
 import React from "react"
 import { Layout } from "../components/Layout";
 import { usePromotoresQuery } from "../generated/graphql";
-import { withApollo } from "../utils/withApollo";
+import { withApollo } from "../utils/apollo/withApollo";
 import NextLink from "next/link";
 import { Wrapper } from "../components/Wrapper";
 import { PromotorUpdootSection } from "../components/PromotorUpdootSection";

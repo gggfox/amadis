@@ -1,6 +1,6 @@
 #!/bin/bash
 
-redis-server
-npm watch --prefix /server
-npm dev --prefix /server
-npm dev --prefix /client
+redis-server &
+yarn --cwd ./server/ watch &
+yarn --cwd ./server/ dev &
+yarn --cwd ./client/ dev

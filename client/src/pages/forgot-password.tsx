@@ -2,14 +2,17 @@ import { Box, Button } from '@chakra-ui/react';
 import { Formik, Form } from 'formik';
 import React, { useState } from 'react';
 import { InputField } from '../components/InputField';
+import { Layout } from '../components/Layout';
+import { PrimaryBtn } from '../components/styled/PrimaryBtn';
 import { Wrapper } from '../components/Wrapper';
 import { useChangePasswordMutation } from '../generated/graphql';
-import { withApollo } from '../utils/withApollo';
+import { withApollo } from '../utils/apollo/withApollo';
 
 const ForgotPassword: React.FC<{}> = ({}) => {
         const [complete, setComplete] = useState(false);
         const[forgotPassword] = useChangePasswordMutation();
-    return (        
+    return (    
+        <Layout variant="small">   
     <Wrapper variant="small">
         <Formik
             initialValues={{ email: "" }}
@@ -31,18 +34,18 @@ const ForgotPassword: React.FC<{}> = ({}) => {
                       type="email"
                     />
                     <Button 
-                      mt={4} 
+                      my={4} 
                       type='submit' 
                       isLoading={isSubmitting} 
-                      colorScheme="teal"
+                      variant="unstyled"
+                      w="100%"
                     >
-                       forgot password 
+                        <PrimaryBtn text={"olvide mi contraseña"}/>
                     </Button>
-
                 </Form>
             )}
         </Formik>
-    </Wrapper>
+    </Wrapper></Layout> 
     );
 };
 

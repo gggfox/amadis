@@ -1,7 +1,7 @@
 import { Field, Int, ObjectType } from "type-graphql";
 import { BaseEntity, Column, CreateDateColumn, Entity, JoinTable, ManyToMany, OneToMany, PrimaryGeneratedColumn, UpdateDateColumn } from "typeorm";
 import { Category } from "./Category";
-import { Post } from "./Post";
+import { Product } from "./Product";
 import { SocialMedia } from "./SocialMedia";
 import { Updoot } from "./Updoot";
 
@@ -24,8 +24,8 @@ export class User extends BaseEntity{
     @Column()
     password!: string;
 
-    @OneToMany(() => Post, post => post.creator)
-    posts: Post[];
+    @OneToMany(() => Product, products => products.creator)
+    products: Product[];
 
     @OneToMany(() => Updoot, (updoot) => updoot.user)
     updoots: Updoot[];
@@ -51,7 +51,7 @@ export class User extends BaseEntity{
     @Column({type:"int", default:0})
     activePromotions!: number;
 
-    @OneToMany(() => Updoot, (updoot) => updoot.post)
+    @OneToMany(() => Updoot, (updoot) => updoot.product)
     influencerUpdoots: Updoot[];
 
     @Field(() => [Category], {nullable: true})
@@ -59,15 +59,15 @@ export class User extends BaseEntity{
     @JoinTable()
     categories?: Category[];
 
-    @Field(() => [Post], {nullable: true})
-    @ManyToMany(() => Post, posts => posts.promotors)
+    @Field(() => [Product], {nullable: true})
+    @ManyToMany(() => Product, product => product.promotors)
     @JoinTable()
-    promotes?: Post[];
+    promotes?: Product[];
 
-    @Field(() => [Post], {nullable: true})
-    @ManyToMany(() => Post, posts => posts.interestedUsers)
+    @Field(() => [Product], {nullable: true})
+    @ManyToMany(() => Product, product => product.interestedUsers)
     @JoinTable()
-    savedProducts?: Post[];
+    savedProducts?: Product[];
 
     @Field(() => String)
     @CreateDateColumn()

@@ -37,6 +37,15 @@ const theme = extendTheme({
       purple: '#B48EAD',
     },
     black: '#16161D',
+
+    bd: '#2F2F35',
+    bl: '#3B3B42',
+    pd: '#4B63F8',
+    pl: '#8AAAFE',
+    wl: '#EDF2F6',
+    rl: '#FF5656',
+
+
   },
   fonts,
   breakpoints,

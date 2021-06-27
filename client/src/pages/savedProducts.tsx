@@ -1,11 +1,11 @@
 import React from "react"
 import { Layout } from "../components/Layout"
-import { Post, useSavedProductsQuery } from "../generated/graphql"
-import { Box, Flex, Heading, Link, Stack, Text, Image } from "@chakra-ui/react"
-import { withApollo } from "../utils/withApollo";
+import { Product, useSavedProductsQuery } from "../generated/graphql"
+import { Box, Heading, Stack } from "@chakra-ui/react"
+import { withApollo } from "../utils/apollo/withApollo";
 import { Wrapper } from "../components/Wrapper";
-import { useIsAuth } from "../utils/useIsAuth";
-import { PostPreview } from "../components/PostPreview";
+import { useIsAuth } from "../utils/roleAuth/useIsAuth";
+import { ProductPreview } from "../components/ProductPreview";
 
 const SavedProducts = () => {
    const meData = useIsAuth();
@@ -13,7 +13,7 @@ const SavedProducts = () => {
    if(!loading && !data){//done loading and no data
       return (
          <div>
-            <div>you got no posts for some reason</div>
+            <div>no tienes produtos por alguna razon</div>
             <div>{error?.message}</div>
          </div>
       );
@@ -22,21 +22,21 @@ const SavedProducts = () => {
     return(
  <Layout>
     <Wrapper variant="regular">
-    <Flex align="center">
-      <Heading color="snowStorm.0">Productos Guardados</Heading>
-    </Flex>
+  
+      <Heading color="wl" fontFamily="unna" fontSize={40}>Productos Guardados</Heading>
 
+    </Wrapper>
     {!data && loading 
       ? (<div>loading...</div>) 
-      : (<Stack spacing={8}>
+      : (<Stack spacing={8} w="100%" alignItems="center">
             {data!.savedProducts?.savedProducts!.map((p): any => 
             !p ? null : (
-               <PostPreview p={p as Post} meData={meData}/>
+               <ProductPreview p={p as Product} meData={meData}/>
             ))}
          </Stack>)
     }
 
-    </Wrapper>
+   
     <Box mb={100}></Box>
  </Layout>
 )}

@@ -1,9 +1,9 @@
 import {Request, Response} from 'express';
 import { Session, SessionData } from 'express-session';
 import { Redis } from "ioredis";
-import { createPromotorUpdootLoader } from './utils/createPromotorUpdootLoader';
-import { createUpdootLoader } from './utils/createUpdootLoader';
-import { createUserLoader } from './utils/createUserLoader';
+import { createPromotorUpdootLoader } from './utils/loaders/createPromotorUpdootLoader';
+import { createUpdootLoader } from './utils/loaders/createUpdootLoader';
+import { createUserLoader } from './utils/loaders/createUserLoader';
 
 export type MyContext = {
     req: Request & { session?: Session & Partial<SessionData> &  { userId?: number } };

@@ -1,4 +1,4 @@
-import React, {Component, useState} from 'react'
+import React, { useState } from 'react'
 import {Formik, Form} from 'formik';
 import { Box, Button, Flex, Heading, Link } from '@chakra-ui/react';
 import { InputField } from '../components/InputField';
@@ -8,10 +8,11 @@ import { useRouter } from 'next/router';
 import NextLink from 'next/link';
 import { Layout } from '../components/Layout';
 import { Wrapper } from '../components/Wrapper';
-import { withApollo } from '../utils/withApollo';
-
+import { withApollo } from '../utils/apollo/withApollo';
+import { FaFacebook,FaGoogle } from 'react-icons/fa'
 import {loginWithFacebook} from '../firebase/client';
 import {loginWithGoogle} from '../firebase/client';
+import { PrimaryBtn } from '../components/styled/PrimaryBtn';
 
 
 const Login: React.FC<{}> = ({}) => {
@@ -131,21 +132,22 @@ const Login: React.FC<{}> = ({}) => {
                     type="password"
                     /></Box>
             
+
+
                     <Button 
-                      mt={4} 
+                      my={4} 
                       type='submit' 
                       isLoading={isSubmitting} 
-                      bg="frost.1"
+                      variant="unstyled"
                       w="100%"
-                      borderRadius={25}
                     >
-                     Inicia sesión 
+                        <PrimaryBtn text={"Inicia sesión "}/>
                     </Button>
                   
                     
                     <Flex justifyContent="center">
                         <NextLink href="/forgot-password">
-                            <Link color="frost.1" mt={3}>¿Olvidaste tu constraseña?</Link>
+                            <Link color="pd" mt={3}>¿Olvidaste tu constraseña?</Link>
                         </NextLink>
                     </Flex>
                 </Form>
@@ -154,27 +156,29 @@ const Login: React.FC<{}> = ({}) => {
 
         <Button onClick = {handleClickGoogle}
                       mt={4} 
-                      bg="frost.1"
                       w="100%"
-                      borderRadius={25}
+                      colorScheme="whiteAlpha"
+                      leftIcon={<FaGoogle />}
+
+                      
                     >
-                     Inicia sesión con Google 
+                        Google log-in 
                     </Button>
                     <Button  onClick = {handleClickFacebook}
                       mt={4} 
-                      bg="frost.1"
                       w="100%"
-                      borderRadius={25}
+                      colorScheme="facebook"
+                      leftIcon={<FaFacebook />}
                     >
                         
-                     Inicia sesión con Facebook 
+                     Facebook log-in
                     </Button>
         </Wrapper>
                 <Wrapper variant="small">
             <Flex alignItems="center" flexDirection="column">
-                <Heading size="1xl" color="snowStorm.0">¿No tienes cuenta?</Heading>
+                <Heading size="1xl" color="wl">¿No tienes cuenta?</Heading>
                 <NextLink href='/register'>
-                    <Link color="frost.1">Crea una cuenta</Link>
+                    <Link color="pd">Crea una cuenta</Link>
                 </NextLink>
             </Flex>
         </Wrapper>

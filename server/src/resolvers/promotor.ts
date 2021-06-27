@@ -5,7 +5,7 @@ import { getConnection } from "typeorm";
 import { isAuth } from "../middleware/isAuth";
 import { PromotorUpdoot } from "../entities/PromotorUpdoot";
 import { Category } from "../entities/Category";
-import { UserResponse } from "./UserResponse";
+import { UserResponse } from "../types/UserResponse";
 
 @Resolver(User)
 export class PromotorResolver {
@@ -171,7 +171,7 @@ export class PromotorResolver {
 
     @Mutation(() => Boolean)
     async createPromotion(
-        @Arg('postId',() => Int) postId: number,
+        @Arg('productId',() => Int) productId: number,
         @Ctx(){req}:MyContext
     ){
         const userId = req.session.userId;
@@ -186,9 +186,9 @@ export class PromotorResolver {
         await getConnection().transaction(async (tm) => {
             await tm.query(`
                 insert into 
-                user_promotes_post("userId", "postId")
+                user_promotes_product("userId", "productId")
                 values ($1, $2)`,
-                [user.id, postId]
+                [user.id, productId]
             );
 
             await tm.query(`
@@ -204,7 +204,7 @@ export class PromotorResolver {
 
     @Mutation(() => Boolean)
     async deletePromotion(
-        @Arg('postId',() => Int) postId: number,
+        @Arg('productId',() => Int) productId: number,
         @Ctx(){req}:MyContext
     ){
         const userId = req.session.userId;
@@ -220,27 +220,27 @@ export class PromotorResolver {
             return false;
         }
 
-        let postExists = false;
+        let productExists = false;
         
         if(user.promotes){
             const promotions = user.promotes.length;
             for(let i = 0; i< promotions;i++){
-                postExists ||= (user.promotes[i].id === postId);
+                productExists ||= (user.promotes[i].id === productId);
             }
         }else{
             return false;
         }
         
 
-        if(!postExists){
+        if(!productExists){
             return false;
         }
         await getConnection().transaction(async (tm) => {
             await tm.query(`
-                DELETE FROM user_promotes_post
+                DELETE FROM user_promotes_product
                 WHERE "userId" = $1
-                AND   "postId" = $2`,
-                [user.id, postId]
+                AND   "productId" = $2`,
+                [user.id, productId]
             );
 
             await tm.query(`

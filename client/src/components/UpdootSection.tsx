@@ -1,17 +1,17 @@
-import { Box, Flex, IconButton } from '@chakra-ui/react';
-import { ArrowUpIcon, ArrowDownIcon } from '@chakra-ui/icons';
+import {  Flex, Text, IconButton } from '@chakra-ui/react';
 import React, { useState } from 'react'
-import { PostsQuery, useVoteMutation, VoteMutation } from '../generated/graphql';
+import { ProductsQuery, useVoteMutation, VoteMutation } from '../generated/graphql';
 import gql from 'graphql-tag';
 import { ApolloCache } from '@apollo/client';
+import {ImArrowUp,ImArrowDown } from 'react-icons/im'
 
 interface UpdootSectionProps {
-    post: PostsQuery["posts"]["posts"][0]
+    product: ProductsQuery["products"]["products"][0]
 }
 
 const updateAfterVote = (
   value: number, 
-  postId: number,
+  productId: number,
   cache:ApolloCache<VoteMutation>
 ) => {
     const data = cache.readFragment<{
@@ -19,9 +19,9 @@ const updateAfterVote = (
       points: number
       voteStatus: number | null;
     }>({
-        id: 'Post:' + postId,
+        id: 'Product:' + productId,
         fragment: gql`
-            fragment _ on Post {
+            fragment _ on Product {
                 id 
                 points
                 voteStatus
@@ -35,9 +35,9 @@ const updateAfterVote = (
         const newPoints =
           (data.points as number) + (!data.voteStatus ? 1 : 2) * value;
         cache.writeFragment({
-            id: 'Post:' + postId,
+            id: 'Product:' + productId,
             fragment: gql`
-                fragment __ on Post {
+                fragment __ on Product {
                     points
                     voteStatus
                 }
@@ -47,56 +47,70 @@ const updateAfterVote = (
     }
 };
 
-export const UpdootSection: React.FC<UpdootSectionProps> = ({post}) => {
-    const [loadingState, setLoadingState] = useState<'updoot-loading' | 'downdoot-loading' | 'not-loading'>('not-loading');
+export const UpdootSection: React.FC<UpdootSectionProps> = ({product}) => {
     const [vote] = useVoteMutation();
+    const isPhone = global.window?.innerWidth < 400;
+    const [loadingState, setLoadingState] = useState<'updoot-loading' | 'downdoot-loading' | 'not-loading'>('not-loading');
+
     return (
-            <Flex flexDirection="column" mr={3} alignItems="center">
-                <IconButton
-                    icon={<ArrowUpIcon/>} 
-                    aria-label="Updoot post"
-                    
-                    onClick={async () => {
-                        
-                        if(post.voteStatus === 1) {
-                            return;
-                        }
-                        setLoadingState('updoot-loading')
-                        await vote({
-                            variables: {
-                                postId: post.id,
-                                value: 1,
-                            },
-                            update: (cache) => updateAfterVote(1, post.id, cache),
-                        });
-                     
-                        setLoadingState('not-loading');
-                    }} 
-                    bg={post.voteStatus === 1 ? "aurora.green" : "snowStorm.2"}
-                    isLoading={loadingState==='updoot-loading'}
-                    />
-                <Box color="frost.0">{post.points}</Box>
-                <IconButton
-                    icon={<ArrowDownIcon/>} 
-                    aria-label="Downdoot post"
-                    onClick={async () => {
-                        if(post.voteStatus === -1) {
-                            return;
-                        }
-                        setLoadingState('downdoot-loading')
-                        await vote({
-                            variables: {
-                                postId: post.id,
-                                value: -1,
-                            },
-                            update: (cache) => updateAfterVote(-1, post.id, cache),
-                        })
-                        
-                        setLoadingState('not-loading');
-                    }}
-                    isLoading={loadingState==='downdoot-loading'}
-                    bg={post.voteStatus === -1 ? "aurora.red" : "snowStorm.2"}
-                    />
-            </Flex>
+        <Flex flexDirection="column" justifyContent="space-between" alignItems="center">
+            <IconButton
+                variant="unstyled"
+                _hover={{color:"pd"}}
+                as={ImArrowUp}
+                boxSize={8}
+                aria-label="Updoot product"
+                onClick={async () => {
+                    if(product.voteStatus === 1) {
+                        return;
+                    }
+                    setLoadingState('updoot-loading');
+                    await vote({
+                        variables: {
+                            productId: product.id,
+                            value: 1,
+                        },
+                        update: (cache) => updateAfterVote(1, product.id, cache),
+                    });
+                    setLoadingState('not-loading');
+                }}
+                isLoading={loadingState==='updoot-loading'}
+                bg="bl" 
+                color={product.voteStatus === 1 ? "pd" : "bd"}
+            />
+
+            <Text 
+                color="wl" 
+                fontSize={isPhone ? "x-large" : "xx-large"} 
+                fontFamily="unna"
+            >
+                {product.points}
+            </Text>
+
+            <IconButton
+                variant="unstyled"
+                _hover={{color:"rl"}}
+                as={ImArrowDown} 
+                boxSize={8}
+                aria-label="Downdoot post"
+                onClick={async () => {
+                    if(product.voteStatus === -1) {
+                        return;
+                    }
+                    setLoadingState('downdoot-loading')
+                    await vote({
+                        variables: {
+                            productId: product.id,
+                            value: -1,
+                        },
+                        update: (cache) => updateAfterVote(-1, product.id, cache),
+                    })
+                    setLoadingState('not-loading');
+                }}
+                isLoading={loadingState==='downdoot-loading'}
+                bg="bl"
+                color={product.voteStatus === -1 ? "rl" : "bd"}
+                />
+        </Flex>
     );
 }

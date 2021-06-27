@@ -1,0 +1,5 @@
+mutation UpdateProduct($productId: Int!, $input: ProductInput!){
+    updateProduct(productId:$productId, input: $input){
+        ...RegularProductResponse
+    }
+}

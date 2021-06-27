@@ -24,6 +24,12 @@ export type Category = {
   updatedAt: Scalars['String'];
 };
 
+export type CategoryResponse = {
+  __typename?: 'CategoryResponse';
+  errors?: Maybe<Array<FieldError>>;
+  category?: Maybe<Category>;
+};
+
 export type FieldError = {
   __typename?: 'FieldError';
   field: Scalars['String'];
@@ -32,11 +38,17 @@ export type FieldError = {
 
 export type Mutation = {
   __typename?: 'Mutation';
+  chooseCategories4Promotor?: Maybe<UserResponse>;
+  votePromotor: Scalars['Boolean'];
+  createPromotion: Scalars['Boolean'];
+  deletePromotion: Scalars['Boolean'];
+  createCategory: CategoryResponse;
+  deleteCategory: Scalars['Boolean'];
   vote: Scalars['Boolean'];
   addPicture: Scalars['Boolean'];
-  createPost: PostResponse;
-  updatePost?: Maybe<Post>;
-  deletePost: Scalars['Boolean'];
+  createProduct: ProductResponse;
+  updateProduct: ProductResponse;
+  deleteProduct: Scalars['Boolean'];
   changePassword: UserResponse;
   forgotPassword: Scalars['Boolean'];
   addSocialMedia: Scalars['Boolean'];
@@ -44,42 +56,67 @@ export type Mutation = {
   register: UserResponse;
   login: UserResponse;
   logout: Scalars['Boolean'];
-  chooseCategories4Promotor?: Maybe<UserResponse>;
-  createPromotion: Scalars['Boolean'];
-  deletePromotion: Scalars['Boolean'];
   saveProduct: Scalars['Boolean'];
   unSaveProduct: Scalars['Boolean'];
-  votePromotor: Scalars['Boolean'];
-  createCategory: Category;
-  deleteCategory: Scalars['Boolean'];
+};
+
+
+export type MutationChooseCategories4PromotorArgs = {
+  categories: Array<Scalars['String']>;
+  id: Scalars['Int'];
+};
+
+
+export type MutationVotePromotorArgs = {
+  value: Scalars['Int'];
+  promotorId: Scalars['Int'];
+};
+
+
+export type MutationCreatePromotionArgs = {
+  productId: Scalars['Int'];
+};
+
+
+export type MutationDeletePromotionArgs = {
+  productId: Scalars['Int'];
+};
+
+
+export type MutationCreateCategoryArgs = {
+  name: Scalars['String'];
+};
+
+
+export type MutationDeleteCategoryArgs = {
+  name: Scalars['String'];
 };
 
 
 export type MutationVoteArgs = {
   value: Scalars['Int'];
-  postId: Scalars['Int'];
+  productId: Scalars['Int'];
 };
 
 
 export type MutationAddPictureArgs = {
-  postId: Scalars['Int'];
+  productId: Scalars['Int'];
   picture: Scalars['Upload'];
 };
 
 
-export type MutationCreatePostArgs = {
-  input: PostInput;
+export type MutationCreateProductArgs = {
+  input: ProductInput;
 };
 
 
-export type MutationUpdatePostArgs = {
-  text: Scalars['String'];
-  title: Scalars['String'];
-  id: Scalars['Int'];
+export type MutationUpdateProductArgs = {
+  input: ProductInput;
+  productId: Scalars['Int'];
 };
 
 
-export type MutationDeletePostArgs = {
+export type MutationDeleteProductArgs = {
   id: Scalars['Int'];
 };
 
@@ -119,66 +156,36 @@ export type MutationLoginArgs = {
 };
 
 
-export type MutationChooseCategories4PromotorArgs = {
-  categories: Array<Scalars['String']>;
-  id: Scalars['Int'];
-};
-
-
-export type MutationCreatePromotionArgs = {
-  postId: Scalars['Int'];
-};
-
-
-export type MutationDeletePromotionArgs = {
-  postId: Scalars['Int'];
-};
-
-
 export type MutationSaveProductArgs = {
-  postId: Scalars['Int'];
+  productId: Scalars['Int'];
 };
 
 
 export type MutationUnSaveProductArgs = {
-  postId: Scalars['Int'];
+  productId: Scalars['Int'];
 };
 
-
-export type MutationVotePromotorArgs = {
-  value: Scalars['Int'];
-  promotorId: Scalars['Int'];
-};
-
-
-export type MutationCreateCategoryArgs = {
-  name: Scalars['String'];
-};
-
-
-export type MutationDeleteCategoryArgs = {
-  name: Scalars['String'];
-};
-
-export type PaginatedPosts = {
-  __typename?: 'PaginatedPosts';
-  posts: Array<Post>;
+export type PaginatedProducts = {
+  __typename?: 'PaginatedProducts';
+  products: Array<Product>;
   hasMore: Scalars['Boolean'];
 };
 
-export type Post = {
-  __typename?: 'Post';
+export type Product = {
+  __typename?: 'Product';
   id: Scalars['Float'];
   title: Scalars['String'];
   text: Scalars['String'];
   points: Scalars['Float'];
   voteStatus?: Maybe<Scalars['Int']>;
   saved?: Maybe<Scalars['Boolean']>;
+  quantity: Scalars['Int'];
+  price: Scalars['Int'];
   comision: Scalars['Float'];
   discount: Scalars['Float'];
-  creatorId: Scalars['Float'];
+  creatorId: Scalars['Int'];
   creator: User;
-  categories?: Maybe<Array<Post_Category>>;
+  categories?: Maybe<Array<Product_Category>>;
   promotors?: Maybe<Array<User>>;
   interestedUsers?: Maybe<Array<User>>;
   createdAt: Scalars['String'];
@@ -186,62 +193,42 @@ export type Post = {
   textSnippet: Scalars['String'];
 };
 
-export type PostFieldError = {
-  __typename?: 'PostFieldError';
-  field: Scalars['String'];
-  message: Scalars['String'];
-};
-
-export type PostInput = {
+export type ProductInput = {
   title: Scalars['String'];
   text: Scalars['String'];
+  price: Scalars['Int'];
+  quantity: Scalars['Int'];
   categoryNames?: Maybe<Array<Scalars['String']>>;
 };
 
-export type PostResponse = {
-  __typename?: 'PostResponse';
-  errors?: Maybe<Array<PostFieldError>>;
-  post?: Maybe<Post>;
+export type ProductResponse = {
+  __typename?: 'ProductResponse';
+  errors?: Maybe<Array<FieldError>>;
+  product?: Maybe<Product>;
 };
 
-export type Post_Category = {
-  __typename?: 'Post_Category';
-  postId: Scalars['Int'];
+export type Product_Category = {
+  __typename?: 'Product_Category';
+  productId: Scalars['Int'];
   categoryName: Scalars['String'];
 };
 
 export type Query = {
   __typename?: 'Query';
-  hello: Scalars['String'];
-  posts: PaginatedPosts;
-  post?: Maybe<Post>;
-  postsByCategory?: Maybe<Array<Post>>;
-  me?: Maybe<User>;
-  savedProducts?: Maybe<User>;
   promotores: Array<User>;
   promotor: User;
   promotoresByCategory?: Maybe<Array<User>>;
+  allCategories: Array<Category>;
+  hello: Scalars['String'];
+  products: PaginatedProducts;
+  product?: Maybe<Product>;
+  productsByCategory?: Maybe<Array<Product>>;
+  allProductCategories: Array<Product_Category>;
+  productCategories?: Maybe<Array<Product_Category>>;
+  me?: Maybe<User>;
   users: Array<User>;
   user: User;
-  allCategories: Array<Category>;
-  allPostCategories: Array<Post_Category>;
-  postCategories?: Maybe<Array<Post_Category>>;
-};
-
-
-export type QueryPostsArgs = {
-  cursor?: Maybe<Scalars['String']>;
-  limit: Scalars['Int'];
-};
-
-
-export type QueryPostArgs = {
-  id: Scalars['Int'];
-};
-
-
-export type QueryPostsByCategoryArgs = {
-  categoryName: Scalars['String'];
+  savedProducts?: Maybe<User>;
 };
 
 
@@ -255,13 +242,29 @@ export type QueryPromotoresByCategoryArgs = {
 };
 
 
-export type QueryUserArgs = {
+export type QueryProductsArgs = {
+  cursor?: Maybe<Scalars['String']>;
+  limit: Scalars['Int'];
+};
+
+
+export type QueryProductArgs = {
   id: Scalars['Int'];
 };
 
 
-export type QueryPostCategoriesArgs = {
-  postId: Scalars['Int'];
+export type QueryProductsByCategoryArgs = {
+  categoryName: Scalars['String'];
+};
+
+
+export type QueryProductCategoriesArgs = {
+  productId: Scalars['Int'];
+};
+
+
+export type QueryUserArgs = {
+  userId: Scalars['Int'];
 };
 
 export type SocialMedia = {
@@ -284,8 +287,8 @@ export type User = {
   influencerPoints: Scalars['Float'];
   activePromotions: Scalars['Float'];
   categories?: Maybe<Array<Category>>;
-  promotes?: Maybe<Array<Post>>;
-  savedProducts?: Maybe<Array<Post>>;
+  promotes?: Maybe<Array<Product>>;
+  savedProducts?: Maybe<Array<Product>>;
   createdAt: Scalars['String'];
   updatedAt: Scalars['String'];
 };
@@ -300,11 +303,12 @@ export type UsernamePasswordInput = {
   email: Scalars['String'];
   username: Scalars['String'];
   password: Scalars['String'];
+  confirmation: Scalars['String'];
 };
 
-export type PostSnippetFragment = (
-  { __typename?: 'Post' }
-  & Pick<Post, 'id' | 'createdAt' | 'updatedAt' | 'title' | 'points' | 'textSnippet' | 'voteStatus'>
+export type ProductSnippetFragment = (
+  { __typename?: 'Product' }
+  & Pick<Product, 'id' | 'title' | 'points' | 'price' | 'textSnippet' | 'voteStatus'>
   & { creator: (
     { __typename?: 'User' }
     & Pick<User, 'id' | 'username'>
@@ -328,14 +332,25 @@ export type RegularErrorFragment = (
   & Pick<FieldError, 'field' | 'message'>
 );
 
-export type RegularPostResponseFragment = (
-  { __typename?: 'PostResponse' }
+export type RegularCategoryResponseFragment = (
+  { __typename?: 'CategoryResponse' }
   & { errors?: Maybe<Array<(
-    { __typename?: 'PostFieldError' }
-    & Pick<PostFieldError, 'field' | 'message'>
-  )>>, post?: Maybe<(
-    { __typename?: 'Post' }
-    & Pick<Post, 'id' | 'createdAt' | 'updatedAt' | 'title' | 'text' | 'points' | 'creatorId'>
+    { __typename?: 'FieldError' }
+    & Pick<FieldError, 'field' | 'message'>
+  )>>, category?: Maybe<(
+    { __typename?: 'Category' }
+    & Pick<Category, 'name'>
+  )> }
+);
+
+export type RegularProductResponseFragment = (
+  { __typename?: 'ProductResponse' }
+  & { errors?: Maybe<Array<(
+    { __typename?: 'FieldError' }
+    & Pick<FieldError, 'field' | 'message'>
+  )>>, product?: Maybe<(
+    { __typename?: 'Product' }
+    & Pick<Product, 'id' | 'createdAt' | 'updatedAt' | 'title' | 'text' | 'points' | 'creatorId'>
   )> }
 );
 
@@ -343,8 +358,8 @@ export type RegularUserFragment = (
   { __typename?: 'User' }
   & Pick<User, 'id' | 'username' | 'userType'>
   & { savedProducts?: Maybe<Array<(
-    { __typename?: 'Post' }
-    & Pick<Post, 'id'>
+    { __typename?: 'Product' }
+    & Pick<Product, 'id'>
   )>> }
 );
 
@@ -361,7 +376,7 @@ export type RegularUserResponseFragment = (
 
 export type AddPictureMutationVariables = Exact<{
   picture: Scalars['Upload'];
-  postId: Scalars['Int'];
+  productId: Scalars['Int'];
 }>;
 
 
@@ -427,26 +442,26 @@ export type CreateCategoryMutationVariables = Exact<{
 export type CreateCategoryMutation = (
   { __typename?: 'Mutation' }
   & { createCategory: (
-    { __typename?: 'Category' }
-    & Pick<Category, 'name' | 'createdAt' | 'updatedAt'>
+    { __typename?: 'CategoryResponse' }
+    & RegularCategoryResponseFragment
   ) }
 );
 
-export type CreatePostMutationVariables = Exact<{
-  input: PostInput;
+export type CreateProductMutationVariables = Exact<{
+  input: ProductInput;
 }>;
 
 
-export type CreatePostMutation = (
+export type CreateProductMutation = (
   { __typename?: 'Mutation' }
-  & { createPost: (
-    { __typename?: 'PostResponse' }
-    & RegularPostResponseFragment
+  & { createProduct: (
+    { __typename?: 'ProductResponse' }
+    & RegularProductResponseFragment
   ) }
 );
 
 export type CreatePromotionMutationVariables = Exact<{
-  postId: Scalars['Int'];
+  productId: Scalars['Int'];
 }>;
 
 
@@ -455,18 +470,18 @@ export type CreatePromotionMutation = (
   & Pick<Mutation, 'createPromotion'>
 );
 
-export type DeletePostMutationVariables = Exact<{
+export type DeleteProductMutationVariables = Exact<{
   id: Scalars['Int'];
 }>;
 
 
-export type DeletePostMutation = (
+export type DeleteProductMutation = (
   { __typename?: 'Mutation' }
-  & Pick<Mutation, 'deletePost'>
+  & Pick<Mutation, 'deleteProduct'>
 );
 
 export type DeletePromotionMutationVariables = Exact<{
-  postId: Scalars['Int'];
+  productId: Scalars['Int'];
 }>;
 
 
@@ -533,7 +548,7 @@ export type RegisterMutation = (
 );
 
 export type SaveProductMutationVariables = Exact<{
-  postId: Scalars['Int'];
+  productId: Scalars['Int'];
 }>;
 
 
@@ -543,7 +558,7 @@ export type SaveProductMutation = (
 );
 
 export type UnSaveProductMutationVariables = Exact<{
-  postId: Scalars['Int'];
+  productId: Scalars['Int'];
 }>;
 
 
@@ -552,24 +567,23 @@ export type UnSaveProductMutation = (
   & Pick<Mutation, 'unSaveProduct'>
 );
 
-export type UpdatePostMutationVariables = Exact<{
-  id: Scalars['Int'];
-  title: Scalars['String'];
-  text: Scalars['String'];
+export type UpdateProductMutationVariables = Exact<{
+  productId: Scalars['Int'];
+  input: ProductInput;
 }>;
 
 
-export type UpdatePostMutation = (
+export type UpdateProductMutation = (
   { __typename?: 'Mutation' }
-  & { updatePost?: Maybe<(
-    { __typename?: 'Post' }
-    & Pick<Post, 'id' | 'title' | 'text' | 'textSnippet'>
-  )> }
+  & { updateProduct: (
+    { __typename?: 'ProductResponse' }
+    & RegularProductResponseFragment
+  ) }
 );
 
 export type VoteMutationVariables = Exact<{
   value: Scalars['Int'];
-  postId: Scalars['Int'];
+  productId: Scalars['Int'];
 }>;
 
 
@@ -597,14 +611,14 @@ export type SavedProductsQuery = (
   & { savedProducts?: Maybe<(
     { __typename?: 'User' }
     & { savedProducts?: Maybe<Array<(
-      { __typename?: 'Post' }
-      & Pick<Post, 'id' | 'createdAt' | 'updatedAt' | 'title' | 'points' | 'text' | 'voteStatus'>
+      { __typename?: 'Product' }
+      & Pick<Product, 'id' | 'createdAt' | 'updatedAt' | 'title' | 'points' | 'text' | 'voteStatus'>
       & { creator: (
         { __typename?: 'User' }
         & Pick<User, 'id' | 'username'>
       ), categories?: Maybe<Array<(
-        { __typename?: 'Post_Category' }
-        & Pick<Post_Category, 'categoryName'>
+        { __typename?: 'Product_Category' }
+        & Pick<Product_Category, 'categoryName'>
       )>>, promotors?: Maybe<Array<(
         { __typename?: 'User' }
         & Pick<User, 'id' | 'username'>
@@ -643,28 +657,28 @@ export type MySavedProductsQuery = (
   & { savedProducts?: Maybe<(
     { __typename?: 'User' }
     & { savedProducts?: Maybe<Array<(
-      { __typename?: 'Post' }
-      & Pick<Post, 'id'>
+      { __typename?: 'Product' }
+      & Pick<Product, 'id'>
     )>> }
   )> }
 );
 
-export type PostQueryVariables = Exact<{
+export type ProductQueryVariables = Exact<{
   id: Scalars['Int'];
 }>;
 
 
-export type PostQuery = (
+export type ProductQuery = (
   { __typename?: 'Query' }
-  & { post?: Maybe<(
-    { __typename?: 'Post' }
-    & Pick<Post, 'id' | 'createdAt' | 'updatedAt' | 'title' | 'points' | 'text' | 'voteStatus'>
+  & { product?: Maybe<(
+    { __typename?: 'Product' }
+    & Pick<Product, 'id' | 'createdAt' | 'updatedAt' | 'title' | 'points' | 'price' | 'quantity' | 'text' | 'voteStatus'>
     & { creator: (
       { __typename?: 'User' }
       & Pick<User, 'id' | 'username'>
     ), categories?: Maybe<Array<(
-      { __typename?: 'Post_Category' }
-      & Pick<Post_Category, 'categoryName'>
+      { __typename?: 'Product_Category' }
+      & Pick<Product_Category, 'categoryName'>
     )>>, promotors?: Maybe<Array<(
       { __typename?: 'User' }
       & Pick<User, 'id' | 'username'>
@@ -672,34 +686,34 @@ export type PostQuery = (
   )> }
 );
 
-export type PostsQueryVariables = Exact<{
+export type ProductsQueryVariables = Exact<{
   limit: Scalars['Int'];
   cursor?: Maybe<Scalars['String']>;
 }>;
 
 
-export type PostsQuery = (
+export type ProductsQuery = (
   { __typename?: 'Query' }
-  & { posts: (
-    { __typename?: 'PaginatedPosts' }
-    & Pick<PaginatedPosts, 'hasMore'>
-    & { posts: Array<(
-      { __typename?: 'Post' }
-      & PostSnippetFragment
+  & { products: (
+    { __typename?: 'PaginatedProducts' }
+    & Pick<PaginatedProducts, 'hasMore'>
+    & { products: Array<(
+      { __typename?: 'Product' }
+      & ProductSnippetFragment
     )> }
   ) }
 );
 
-export type PostsByCategoryQueryVariables = Exact<{
+export type ProductsByCategoryQueryVariables = Exact<{
   categoryName: Scalars['String'];
 }>;
 
 
-export type PostsByCategoryQuery = (
+export type ProductsByCategoryQuery = (
   { __typename?: 'Query' }
-  & { postsByCategory?: Maybe<Array<(
-    { __typename?: 'Post' }
-    & PostSnippetFragment
+  & { productsByCategory?: Maybe<Array<(
+    { __typename?: 'Product' }
+    & ProductSnippetFragment
   )>> }
 );
 
@@ -720,8 +734,8 @@ export type PromotorQuery = (
       { __typename?: 'SocialMedia' }
       & Pick<SocialMedia, 'link' | 'social_media'>
     )>>, promotes?: Maybe<Array<(
-      { __typename?: 'Post' }
-      & Pick<Post, 'id' | 'title'>
+      { __typename?: 'Product' }
+      & Pick<Product, 'id' | 'title'>
     )>> }
   ) }
 );
@@ -751,7 +765,7 @@ export type PromotoresByCategoryQuery = (
 );
 
 export type UserQueryVariables = Exact<{
-  id: Scalars['Int'];
+  userId: Scalars['Int'];
 }>;
 
 
@@ -763,15 +777,13 @@ export type UserQuery = (
   ) }
 );
 
-export const PostSnippetFragmentDoc = gql`
-    fragment PostSnippet on Post {
+export const ProductSnippetFragmentDoc = gql`
+    fragment ProductSnippet on Product {
   id
-  createdAt
-  updatedAt
   title
   points
+  price
   textSnippet
-  points
   voteStatus
   creator {
     id
@@ -795,13 +807,24 @@ export const PromotorUserFragmentDoc = gql`
   }
 }
     `;
-export const RegularPostResponseFragmentDoc = gql`
-    fragment RegularPostResponse on PostResponse {
+export const RegularCategoryResponseFragmentDoc = gql`
+    fragment RegularCategoryResponse on CategoryResponse {
   errors {
     field
     message
   }
-  post {
+  category {
+    name
+  }
+}
+    `;
+export const RegularProductResponseFragmentDoc = gql`
+    fragment RegularProductResponse on ProductResponse {
+  errors {
+    field
+    message
+  }
+  product {
     id
     createdAt
     updatedAt
@@ -840,8 +863,8 @@ export const RegularUserResponseFragmentDoc = gql`
     ${RegularErrorFragmentDoc}
 ${RegularUserFragmentDoc}`;
 export const AddPictureDocument = gql`
-    mutation AddPicture($picture: Upload!, $postId: Int!) {
-  addPicture(picture: $picture, postId: $postId)
+    mutation AddPicture($picture: Upload!, $productId: Int!) {
+  addPicture(picture: $picture, productId: $productId)
 }
     `;
 export type AddPictureMutationFn = Apollo.MutationFunction<AddPictureMutation, AddPictureMutationVariables>;
@@ -860,7 +883,7 @@ export type AddPictureMutationFn = Apollo.MutationFunction<AddPictureMutation, A
  * const [addPictureMutation, { data, loading, error }] = useAddPictureMutation({
  *   variables: {
  *      picture: // value for 'picture'
- *      postId: // value for 'postId'
+ *      productId: // value for 'productId'
  *   },
  * });
  */
@@ -985,12 +1008,10 @@ export type ChooseCategories4PromotorMutationOptions = Apollo.BaseMutationOption
 export const CreateCategoryDocument = gql`
     mutation CreateCategory($name: String!) {
   createCategory(name: $name) {
-    name
-    createdAt
-    updatedAt
+    ...RegularCategoryResponse
   }
 }
-    `;
+    ${RegularCategoryResponseFragmentDoc}`;
 export type CreateCategoryMutationFn = Apollo.MutationFunction<CreateCategoryMutation, CreateCategoryMutationVariables>;
 
 /**
@@ -1017,42 +1038,42 @@ export function useCreateCategoryMutation(baseOptions?: Apollo.MutationHookOptio
 export type CreateCategoryMutationHookResult = ReturnType<typeof useCreateCategoryMutation>;
 export type CreateCategoryMutationResult = Apollo.MutationResult<CreateCategoryMutation>;
 export type CreateCategoryMutationOptions = Apollo.BaseMutationOptions<CreateCategoryMutation, CreateCategoryMutationVariables>;
-export const CreatePostDocument = gql`
-    mutation CreatePost($input: PostInput!) {
-  createPost(input: $input) {
-    ...RegularPostResponse
+export const CreateProductDocument = gql`
+    mutation CreateProduct($input: ProductInput!) {
+  createProduct(input: $input) {
+    ...RegularProductResponse
   }
 }
-    ${RegularPostResponseFragmentDoc}`;
-export type CreatePostMutationFn = Apollo.MutationFunction<CreatePostMutation, CreatePostMutationVariables>;
+    ${RegularProductResponseFragmentDoc}`;
+export type CreateProductMutationFn = Apollo.MutationFunction<CreateProductMutation, CreateProductMutationVariables>;
 
 /**
- * __useCreatePostMutation__
+ * __useCreateProductMutation__
  *
- * To run a mutation, you first call `useCreatePostMutation` within a React component and pass it any options that fit your needs.
- * When your component renders, `useCreatePostMutation` returns a tuple that includes:
+ * To run a mutation, you first call `useCreateProductMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useCreateProductMutation` returns a tuple that includes:
  * - A mutate function that you can call at any time to execute the mutation
  * - An object with fields that represent the current status of the mutation's execution
  *
  * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
  *
  * @example
- * const [createPostMutation, { data, loading, error }] = useCreatePostMutation({
+ * const [createProductMutation, { data, loading, error }] = useCreateProductMutation({
  *   variables: {
  *      input: // value for 'input'
  *   },
  * });
  */
-export function useCreatePostMutation(baseOptions?: Apollo.MutationHookOptions<CreatePostMutation, CreatePostMutationVariables>) {
+export function useCreateProductMutation(baseOptions?: Apollo.MutationHookOptions<CreateProductMutation, CreateProductMutationVariables>) {
         const options = {...defaultOptions, ...baseOptions}
-        return Apollo.useMutation<CreatePostMutation, CreatePostMutationVariables>(CreatePostDocument, options);
+        return Apollo.useMutation<CreateProductMutation, CreateProductMutationVariables>(CreateProductDocument, options);
       }
-export type CreatePostMutationHookResult = ReturnType<typeof useCreatePostMutation>;
-export type CreatePostMutationResult = Apollo.MutationResult<CreatePostMutation>;
-export type CreatePostMutationOptions = Apollo.BaseMutationOptions<CreatePostMutation, CreatePostMutationVariables>;
+export type CreateProductMutationHookResult = ReturnType<typeof useCreateProductMutation>;
+export type CreateProductMutationResult = Apollo.MutationResult<CreateProductMutation>;
+export type CreateProductMutationOptions = Apollo.BaseMutationOptions<CreateProductMutation, CreateProductMutationVariables>;
 export const CreatePromotionDocument = gql`
-    mutation CreatePromotion($postId: Int!) {
-  createPromotion(postId: $postId)
+    mutation CreatePromotion($productId: Int!) {
+  createPromotion(productId: $productId)
 }
     `;
 export type CreatePromotionMutationFn = Apollo.MutationFunction<CreatePromotionMutation, CreatePromotionMutationVariables>;
@@ -1070,7 +1091,7 @@ export type CreatePromotionMutationFn = Apollo.MutationFunction<CreatePromotionM
  * @example
  * const [createPromotionMutation, { data, loading, error }] = useCreatePromotionMutation({
  *   variables: {
- *      postId: // value for 'postId'
+ *      productId: // value for 'productId'
  *   },
  * });
  */
@@ -1081,40 +1102,40 @@ export function useCreatePromotionMutation(baseOptions?: Apollo.MutationHookOpti
 export type CreatePromotionMutationHookResult = ReturnType<typeof useCreatePromotionMutation>;
 export type CreatePromotionMutationResult = Apollo.MutationResult<CreatePromotionMutation>;
 export type CreatePromotionMutationOptions = Apollo.BaseMutationOptions<CreatePromotionMutation, CreatePromotionMutationVariables>;
-export const DeletePostDocument = gql`
-    mutation DeletePost($id: Int!) {
-  deletePost(id: $id)
+export const DeleteProductDocument = gql`
+    mutation DeleteProduct($id: Int!) {
+  deleteProduct(id: $id)
 }
     `;
-export type DeletePostMutationFn = Apollo.MutationFunction<DeletePostMutation, DeletePostMutationVariables>;
+export type DeleteProductMutationFn = Apollo.MutationFunction<DeleteProductMutation, DeleteProductMutationVariables>;
 
 /**
- * __useDeletePostMutation__
+ * __useDeleteProductMutation__
  *
- * To run a mutation, you first call `useDeletePostMutation` within a React component and pass it any options that fit your needs.
- * When your component renders, `useDeletePostMutation` returns a tuple that includes:
+ * To run a mutation, you first call `useDeleteProductMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useDeleteProductMutation` returns a tuple that includes:
  * - A mutate function that you can call at any time to execute the mutation
  * - An object with fields that represent the current status of the mutation's execution
  *
  * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
  *
  * @example
- * const [deletePostMutation, { data, loading, error }] = useDeletePostMutation({
+ * const [deleteProductMutation, { data, loading, error }] = useDeleteProductMutation({
  *   variables: {
  *      id: // value for 'id'
  *   },
  * });
  */
-export function useDeletePostMutation(baseOptions?: Apollo.MutationHookOptions<DeletePostMutation, DeletePostMutationVariables>) {
+export function useDeleteProductMutation(baseOptions?: Apollo.MutationHookOptions<DeleteProductMutation, DeleteProductMutationVariables>) {
         const options = {...defaultOptions, ...baseOptions}
-        return Apollo.useMutation<DeletePostMutation, DeletePostMutationVariables>(DeletePostDocument, options);
+        return Apollo.useMutation<DeleteProductMutation, DeleteProductMutationVariables>(DeleteProductDocument, options);
       }
-export type DeletePostMutationHookResult = ReturnType<typeof useDeletePostMutation>;
-export type DeletePostMutationResult = Apollo.MutationResult<DeletePostMutation>;
-export type DeletePostMutationOptions = Apollo.BaseMutationOptions<DeletePostMutation, DeletePostMutationVariables>;
+export type DeleteProductMutationHookResult = ReturnType<typeof useDeleteProductMutation>;
+export type DeleteProductMutationResult = Apollo.MutationResult<DeleteProductMutation>;
+export type DeleteProductMutationOptions = Apollo.BaseMutationOptions<DeleteProductMutation, DeleteProductMutationVariables>;
 export const DeletePromotionDocument = gql`
-    mutation DeletePromotion($postId: Int!) {
-  deletePromotion(postId: $postId)
+    mutation DeletePromotion($productId: Int!) {
+  deletePromotion(productId: $productId)
 }
     `;
 export type DeletePromotionMutationFn = Apollo.MutationFunction<DeletePromotionMutation, DeletePromotionMutationVariables>;
@@ -1132,7 +1153,7 @@ export type DeletePromotionMutationFn = Apollo.MutationFunction<DeletePromotionM
  * @example
  * const [deletePromotionMutation, { data, loading, error }] = useDeletePromotionMutation({
  *   variables: {
- *      postId: // value for 'postId'
+ *      productId: // value for 'productId'
  *   },
  * });
  */
@@ -1310,8 +1331,8 @@ export type RegisterMutationHookResult = ReturnType<typeof useRegisterMutation>;
 export type RegisterMutationResult = Apollo.MutationResult<RegisterMutation>;
 export type RegisterMutationOptions = Apollo.BaseMutationOptions<RegisterMutation, RegisterMutationVariables>;
 export const SaveProductDocument = gql`
-    mutation SaveProduct($postId: Int!) {
-  saveProduct(postId: $postId)
+    mutation SaveProduct($productId: Int!) {
+  saveProduct(productId: $productId)
 }
     `;
 export type SaveProductMutationFn = Apollo.MutationFunction<SaveProductMutation, SaveProductMutationVariables>;
@@ -1329,7 +1350,7 @@ export type SaveProductMutationFn = Apollo.MutationFunction<SaveProductMutation,
  * @example
  * const [saveProductMutation, { data, loading, error }] = useSaveProductMutation({
  *   variables: {
- *      postId: // value for 'postId'
+ *      productId: // value for 'productId'
  *   },
  * });
  */
@@ -1341,8 +1362,8 @@ export type SaveProductMutationHookResult = ReturnType<typeof useSaveProductMuta
 export type SaveProductMutationResult = Apollo.MutationResult<SaveProductMutation>;
 export type SaveProductMutationOptions = Apollo.BaseMutationOptions<SaveProductMutation, SaveProductMutationVariables>;
 export const UnSaveProductDocument = gql`
-    mutation UnSaveProduct($postId: Int!) {
-  unSaveProduct(postId: $postId)
+    mutation UnSaveProduct($productId: Int!) {
+  unSaveProduct(productId: $productId)
 }
     `;
 export type UnSaveProductMutationFn = Apollo.MutationFunction<UnSaveProductMutation, UnSaveProductMutationVariables>;
@@ -1360,7 +1381,7 @@ export type UnSaveProductMutationFn = Apollo.MutationFunction<UnSaveProductMutat
  * @example
  * const [unSaveProductMutation, { data, loading, error }] = useUnSaveProductMutation({
  *   variables: {
- *      postId: // value for 'postId'
+ *      productId: // value for 'productId'
  *   },
  * });
  */
@@ -1371,47 +1392,43 @@ export function useUnSaveProductMutation(baseOptions?: Apollo.MutationHookOption
 export type UnSaveProductMutationHookResult = ReturnType<typeof useUnSaveProductMutation>;
 export type UnSaveProductMutationResult = Apollo.MutationResult<UnSaveProductMutation>;
 export type UnSaveProductMutationOptions = Apollo.BaseMutationOptions<UnSaveProductMutation, UnSaveProductMutationVariables>;
-export const UpdatePostDocument = gql`
-    mutation UpdatePost($id: Int!, $title: String!, $text: String!) {
-  updatePost(id: $id, title: $title, text: $text) {
-    id
-    title
-    text
-    textSnippet
+export const UpdateProductDocument = gql`
+    mutation UpdateProduct($productId: Int!, $input: ProductInput!) {
+  updateProduct(productId: $productId, input: $input) {
+    ...RegularProductResponse
   }
 }
-    `;
-export type UpdatePostMutationFn = Apollo.MutationFunction<UpdatePostMutation, UpdatePostMutationVariables>;
+    ${RegularProductResponseFragmentDoc}`;
+export type UpdateProductMutationFn = Apollo.MutationFunction<UpdateProductMutation, UpdateProductMutationVariables>;
 
 /**
- * __useUpdatePostMutation__
+ * __useUpdateProductMutation__
  *
- * To run a mutation, you first call `useUpdatePostMutation` within a React component and pass it any options that fit your needs.
- * When your component renders, `useUpdatePostMutation` returns a tuple that includes:
+ * To run a mutation, you first call `useUpdateProductMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useUpdateProductMutation` returns a tuple that includes:
  * - A mutate function that you can call at any time to execute the mutation
  * - An object with fields that represent the current status of the mutation's execution
  *
  * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
  *
  * @example
- * const [updatePostMutation, { data, loading, error }] = useUpdatePostMutation({
+ * const [updateProductMutation, { data, loading, error }] = useUpdateProductMutation({
  *   variables: {
- *      id: // value for 'id'
- *      title: // value for 'title'
- *      text: // value for 'text'
+ *      productId: // value for 'productId'
+ *      input: // value for 'input'
  *   },
  * });
  */
-export function useUpdatePostMutation(baseOptions?: Apollo.MutationHookOptions<UpdatePostMutation, UpdatePostMutationVariables>) {
+export function useUpdateProductMutation(baseOptions?: Apollo.MutationHookOptions<UpdateProductMutation, UpdateProductMutationVariables>) {
         const options = {...defaultOptions, ...baseOptions}
-        return Apollo.useMutation<UpdatePostMutation, UpdatePostMutationVariables>(UpdatePostDocument, options);
+        return Apollo.useMutation<UpdateProductMutation, UpdateProductMutationVariables>(UpdateProductDocument, options);
       }
-export type UpdatePostMutationHookResult = ReturnType<typeof useUpdatePostMutation>;
-export type UpdatePostMutationResult = Apollo.MutationResult<UpdatePostMutation>;
-export type UpdatePostMutationOptions = Apollo.BaseMutationOptions<UpdatePostMutation, UpdatePostMutationVariables>;
+export type UpdateProductMutationHookResult = ReturnType<typeof useUpdateProductMutation>;
+export type UpdateProductMutationResult = Apollo.MutationResult<UpdateProductMutation>;
+export type UpdateProductMutationOptions = Apollo.BaseMutationOptions<UpdateProductMutation, UpdateProductMutationVariables>;
 export const VoteDocument = gql`
-    mutation Vote($value: Int!, $postId: Int!) {
-  vote(value: $value, postId: $postId)
+    mutation Vote($value: Int!, $productId: Int!) {
+  vote(value: $value, productId: $productId)
 }
     `;
 export type VoteMutationFn = Apollo.MutationFunction<VoteMutation, VoteMutationVariables>;
@@ -1430,7 +1447,7 @@ export type VoteMutationFn = Apollo.MutationFunction<VoteMutation, VoteMutationV
  * const [voteMutation, { data, loading, error }] = useVoteMutation({
  *   variables: {
  *      value: // value for 'value'
- *      postId: // value for 'postId'
+ *      productId: // value for 'productId'
  *   },
  * });
  */
@@ -1630,14 +1647,16 @@ export function useMySavedProductsLazyQuery(baseOptions?: Apollo.LazyQueryHookOp
 export type MySavedProductsQueryHookResult = ReturnType<typeof useMySavedProductsQuery>;
 export type MySavedProductsLazyQueryHookResult = ReturnType<typeof useMySavedProductsLazyQuery>;
 export type MySavedProductsQueryResult = Apollo.QueryResult<MySavedProductsQuery, MySavedProductsQueryVariables>;
-export const PostDocument = gql`
-    query Post($id: Int!) {
-  post(id: $id) {
+export const ProductDocument = gql`
+    query Product($id: Int!) {
+  product(id: $id) {
     id
     createdAt
     updatedAt
     title
     points
+    price
+    quantity
     text
     voteStatus
     creator {
@@ -1656,106 +1675,106 @@ export const PostDocument = gql`
     `;
 
 /**
- * __usePostQuery__
+ * __useProductQuery__
  *
- * To run a query within a React component, call `usePostQuery` and pass it any options that fit your needs.
- * When your component renders, `usePostQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * To run a query within a React component, call `useProductQuery` and pass it any options that fit your needs.
+ * When your component renders, `useProductQuery` returns an object from Apollo Client that contains loading, error, and data properties
  * you can use to render your UI.
  *
  * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
  *
  * @example
- * const { data, loading, error } = usePostQuery({
+ * const { data, loading, error } = useProductQuery({
  *   variables: {
  *      id: // value for 'id'
  *   },
  * });
  */
-export function usePostQuery(baseOptions: Apollo.QueryHookOptions<PostQuery, PostQueryVariables>) {
+export function useProductQuery(baseOptions: Apollo.QueryHookOptions<ProductQuery, ProductQueryVariables>) {
         const options = {...defaultOptions, ...baseOptions}
-        return Apollo.useQuery<PostQuery, PostQueryVariables>(PostDocument, options);
+        return Apollo.useQuery<ProductQuery, ProductQueryVariables>(ProductDocument, options);
       }
-export function usePostLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<PostQuery, PostQueryVariables>) {
+export function useProductLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<ProductQuery, ProductQueryVariables>) {
           const options = {...defaultOptions, ...baseOptions}
-          return Apollo.useLazyQuery<PostQuery, PostQueryVariables>(PostDocument, options);
+          return Apollo.useLazyQuery<ProductQuery, ProductQueryVariables>(ProductDocument, options);
         }
-export type PostQueryHookResult = ReturnType<typeof usePostQuery>;
-export type PostLazyQueryHookResult = ReturnType<typeof usePostLazyQuery>;
-export type PostQueryResult = Apollo.QueryResult<PostQuery, PostQueryVariables>;
-export const PostsDocument = gql`
-    query Posts($limit: Int!, $cursor: String) {
-  posts(limit: $limit, cursor: $cursor) {
+export type ProductQueryHookResult = ReturnType<typeof useProductQuery>;
+export type ProductLazyQueryHookResult = ReturnType<typeof useProductLazyQuery>;
+export type ProductQueryResult = Apollo.QueryResult<ProductQuery, ProductQueryVariables>;
+export const ProductsDocument = gql`
+    query Products($limit: Int!, $cursor: String) {
+  products(limit: $limit, cursor: $cursor) {
     hasMore
-    posts {
-      ...PostSnippet
+    products {
+      ...ProductSnippet
     }
   }
 }
-    ${PostSnippetFragmentDoc}`;
+    ${ProductSnippetFragmentDoc}`;
 
 /**
- * __usePostsQuery__
+ * __useProductsQuery__
  *
- * To run a query within a React component, call `usePostsQuery` and pass it any options that fit your needs.
- * When your component renders, `usePostsQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * To run a query within a React component, call `useProductsQuery` and pass it any options that fit your needs.
+ * When your component renders, `useProductsQuery` returns an object from Apollo Client that contains loading, error, and data properties
  * you can use to render your UI.
  *
  * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
  *
  * @example
- * const { data, loading, error } = usePostsQuery({
+ * const { data, loading, error } = useProductsQuery({
  *   variables: {
  *      limit: // value for 'limit'
  *      cursor: // value for 'cursor'
  *   },
  * });
  */
-export function usePostsQuery(baseOptions: Apollo.QueryHookOptions<PostsQuery, PostsQueryVariables>) {
+export function useProductsQuery(baseOptions: Apollo.QueryHookOptions<ProductsQuery, ProductsQueryVariables>) {
         const options = {...defaultOptions, ...baseOptions}
-        return Apollo.useQuery<PostsQuery, PostsQueryVariables>(PostsDocument, options);
+        return Apollo.useQuery<ProductsQuery, ProductsQueryVariables>(ProductsDocument, options);
       }
-export function usePostsLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<PostsQuery, PostsQueryVariables>) {
+export function useProductsLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<ProductsQuery, ProductsQueryVariables>) {
           const options = {...defaultOptions, ...baseOptions}
-          return Apollo.useLazyQuery<PostsQuery, PostsQueryVariables>(PostsDocument, options);
+          return Apollo.useLazyQuery<ProductsQuery, ProductsQueryVariables>(ProductsDocument, options);
         }
-export type PostsQueryHookResult = ReturnType<typeof usePostsQuery>;
-export type PostsLazyQueryHookResult = ReturnType<typeof usePostsLazyQuery>;
-export type PostsQueryResult = Apollo.QueryResult<PostsQuery, PostsQueryVariables>;
-export const PostsByCategoryDocument = gql`
-    query PostsByCategory($categoryName: String!) {
-  postsByCategory(categoryName: $categoryName) {
-    ...PostSnippet
+export type ProductsQueryHookResult = ReturnType<typeof useProductsQuery>;
+export type ProductsLazyQueryHookResult = ReturnType<typeof useProductsLazyQuery>;
+export type ProductsQueryResult = Apollo.QueryResult<ProductsQuery, ProductsQueryVariables>;
+export const ProductsByCategoryDocument = gql`
+    query ProductsByCategory($categoryName: String!) {
+  productsByCategory(categoryName: $categoryName) {
+    ...ProductSnippet
   }
 }
-    ${PostSnippetFragmentDoc}`;
+    ${ProductSnippetFragmentDoc}`;
 
 /**
- * __usePostsByCategoryQuery__
+ * __useProductsByCategoryQuery__
  *
- * To run a query within a React component, call `usePostsByCategoryQuery` and pass it any options that fit your needs.
- * When your component renders, `usePostsByCategoryQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * To run a query within a React component, call `useProductsByCategoryQuery` and pass it any options that fit your needs.
+ * When your component renders, `useProductsByCategoryQuery` returns an object from Apollo Client that contains loading, error, and data properties
  * you can use to render your UI.
  *
  * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
  *
  * @example
- * const { data, loading, error } = usePostsByCategoryQuery({
+ * const { data, loading, error } = useProductsByCategoryQuery({
  *   variables: {
  *      categoryName: // value for 'categoryName'
  *   },
  * });
  */
-export function usePostsByCategoryQuery(baseOptions: Apollo.QueryHookOptions<PostsByCategoryQuery, PostsByCategoryQueryVariables>) {
+export function useProductsByCategoryQuery(baseOptions: Apollo.QueryHookOptions<ProductsByCategoryQuery, ProductsByCategoryQueryVariables>) {
         const options = {...defaultOptions, ...baseOptions}
-        return Apollo.useQuery<PostsByCategoryQuery, PostsByCategoryQueryVariables>(PostsByCategoryDocument, options);
+        return Apollo.useQuery<ProductsByCategoryQuery, ProductsByCategoryQueryVariables>(ProductsByCategoryDocument, options);
       }
-export function usePostsByCategoryLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<PostsByCategoryQuery, PostsByCategoryQueryVariables>) {
+export function useProductsByCategoryLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<ProductsByCategoryQuery, ProductsByCategoryQueryVariables>) {
           const options = {...defaultOptions, ...baseOptions}
-          return Apollo.useLazyQuery<PostsByCategoryQuery, PostsByCategoryQueryVariables>(PostsByCategoryDocument, options);
+          return Apollo.useLazyQuery<ProductsByCategoryQuery, ProductsByCategoryQueryVariables>(ProductsByCategoryDocument, options);
         }
-export type PostsByCategoryQueryHookResult = ReturnType<typeof usePostsByCategoryQuery>;
-export type PostsByCategoryLazyQueryHookResult = ReturnType<typeof usePostsByCategoryLazyQuery>;
-export type PostsByCategoryQueryResult = Apollo.QueryResult<PostsByCategoryQuery, PostsByCategoryQueryVariables>;
+export type ProductsByCategoryQueryHookResult = ReturnType<typeof useProductsByCategoryQuery>;
+export type ProductsByCategoryLazyQueryHookResult = ReturnType<typeof useProductsByCategoryLazyQuery>;
+export type ProductsByCategoryQueryResult = Apollo.QueryResult<ProductsByCategoryQuery, ProductsByCategoryQueryVariables>;
 export const PromotorDocument = gql`
     query Promotor($id: Int!) {
   promotor(id: $id) {
@@ -1875,8 +1894,8 @@ export type PromotoresByCategoryQueryHookResult = ReturnType<typeof usePromotore
 export type PromotoresByCategoryLazyQueryHookResult = ReturnType<typeof usePromotoresByCategoryLazyQuery>;
 export type PromotoresByCategoryQueryResult = Apollo.QueryResult<PromotoresByCategoryQuery, PromotoresByCategoryQueryVariables>;
 export const UserDocument = gql`
-    query User($id: Int!) {
-  user(id: $id) {
+    query User($userId: Int!) {
+  user(userId: $userId) {
     username
     userType
   }
@@ -1895,7 +1914,7 @@ export const UserDocument = gql`
  * @example
  * const { data, loading, error } = useUserQuery({
  *   variables: {
- *      id: // value for 'id'
+ *      userId: // value for 'userId'
  *   },
  * });
  */

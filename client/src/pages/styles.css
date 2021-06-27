@@ -1,6 +1,7 @@
 html{
-    background-color:#2E3440;
+    background-color:#2F2F35;
     height: 100%;
+    width:100%;
 }
 
 #__next{
@@ -9,18 +10,8 @@ html{
     position:absolute;
 }
 
-select{
-    background-color:#81A1C1;
-    border-radius:6px;
-    border:1px solid #D8DEE9;
-    color:white;
-    height:80%;
-}
 
-option{
-    background-color:#8FBCBB;
-    color:#8FBCBB;
-}
+
 
 
 #wText{
@@ -44,7 +35,7 @@ option{
         text-align:center;
         color:#2E3440;
         font-size: 15px;
-        background-color: #EBCB8B;
+        background-color: #ffebcb00;
     
         /* Converting pointed corners of div to slightly rounded */
         border-radius:4px;

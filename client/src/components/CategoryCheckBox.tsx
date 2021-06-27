@@ -1,28 +1,16 @@
-import React from 'react'
+import React, { useState } from 'react'
 import { Field } from "formik";
-import {Box } from "@chakra-ui/react";
+import {Box, Link } from "@chakra-ui/react";
 import { Category } from '../generated/graphql';
-import  theme  from "../theme"
 
 type CategoryCheckBoxFieldProps = {
     c: Category ;
     filedName:string;
+    active?: boolean;
 };
 
-export const CategoryCheckBox: React.FC<CategoryCheckBoxFieldProps> = ({c, filedName}) => {
-    const yellow = theme.colors.aurora.yellow;
-    const white = theme.colors.snowStorm[2];
-
-    const changeColor = (checked:boolean, id:string) => {
-        let category = document.getElementById(id);
-        if(category){
-          if(checked){
-            category.style.color =  yellow;
-          }else{
-            category.style.color = white;
-          }
-        }
-      }
+export const CategoryCheckBox: React.FC<CategoryCheckBoxFieldProps> = ({c, filedName, active=false}) => {
+    const [selected, setSelected] = useState(active);
 
     return(
         <label key={c.name} >
@@ -30,22 +18,25 @@ export const CategoryCheckBox: React.FC<CategoryCheckBoxFieldProps> = ({c, filed
           type="checkbox" 
           name={filedName}
           value={c.name} 
-          onClick={(e:any) => changeColor(e.target.checked, c.name)}
+          onClick={(e:any) => setSelected(e.target.checked)}
+          checked={selected}
           hidden
           />
-        <Box 
-          id={c.name}
-          color= {white}
-          width="fit-content" 
-          border="2px" 
-          mr={2}
-          mt={2} 
-          p={1} 
-          borderRadius={15}
+        <Link _hover={{}}>
+          <Box 
+            id={c.name}
+            color= {(selected) ? "pd" : "wl"}
+            width="fit-content" 
+            border="2px" 
+            mx={2}
+            my={2} 
+            p={2} 
+            borderRadius={25}
+            _hover={{color: (!selected) ? "pd" : "wl"}}
           >
-          {c.name} 
-        </Box>
+            #{c.name} 
+          </Box>
+        </Link>
       </label>
     )
-
 }

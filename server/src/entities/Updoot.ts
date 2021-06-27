@@ -1,5 +1,5 @@
 import { BaseEntity, Column, Entity, ManyToOne, PrimaryColumn } from "typeorm";
-import { Post } from "./Post";
+import { Product } from "./Product";
 import { User } from "./User";
 
 @Entity()
@@ -15,11 +15,11 @@ export class Updoot extends BaseEntity{
     user: User;
 
     @PrimaryColumn()
-    postId: number;
+    productId: number;
 
-    @ManyToOne(() => Post, (post) => post.updoots, {
+    @ManyToOne(() => Product, (product) => product.updoots, {
         onDelete: "CASCADE",
     })
-    post: Post;
+    product: Product;
 
 }

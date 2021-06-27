@@ -1,0 +1,5 @@
+query ProductsByCategory($categoryName: String!) {
+    productsByCategory(categoryName:$categoryName){
+        ...ProductSnippet
+    }
+}
